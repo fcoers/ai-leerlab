@@ -372,6 +372,7 @@ def maak_verwijzing(pagina, alle):
 
 
 def transparantie_html(item):
+    """GenAI-vermelding, alleen onder artikelen. Niet op home, /leren/, /over/, 404 of tutorials (Frits, 30-09-2026)."""
     t = item.transparantie.strip()
     if not t:
         let_op(f"{os.path.basename(item.pad)}: geen GenAI-vermelding (Transparantie GenAI) gevonden")
@@ -511,7 +512,6 @@ def bouw_html_item(item, alle):
 <div class="wrap">
   <div class="{esc(item.meta.get('klasse', 'eigen'))}">
 {item.tekst}
-    {transparantie_html(item)}
   </div>
   {verder(item, alle)}
 </div>"""

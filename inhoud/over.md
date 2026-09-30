@@ -17,6 +17,8 @@ Alles op deze site heb ik eerst in mijn eigen onderwijs of werk gebruikt. Je mag
 
 AI-leerlab is een persoonlijke site. Het is geen uitgave van de hogeschool waar ik werk.
 
+Je vindt me ook op [LinkedIn](https://www.linkedin.com/in/fritscoers/).
+
 ## Privacy en colofon {#colofon}
 
 Deze site gebruikt geen cookies en geen statistieken. Ik houd niet bij wie er komt of wat je leest. De letters staan op de site zelf, dus je browser haalt niets op bij Google of andere diensten.

@@ -1,0 +1,21 @@
+{
+  "adres": "https://ai-leerlab.nl",
+  "naam": "AI-leerlab",
+  "auteur": "Frits Coers",
+  "functie": "Docent in het hoger onderwijs",
+  "sameAs": [],
+  "labels_bron": "Labels-bron: Boetje, J., & Baake, G. (2026). *Nine prototypical human-AI agency patterns* [Figuur]. figshare. https://doi.org/10.6084/m9.figshare.31706884 (CC BY 4.0).",
+  "home": {
+    "seotitel": "AI-leerlab · Leren werken met AI, voor studenten en docenten",
+    "beschrijving": "Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.",
+    "kop": "Leren werken met AI, door het te doen.",
+    "lede": "Tutorials, tools en korte uitleg voor studenten en docenten. Ik maak ze voor mijn eigen onderwijs en zet ze hier neer, zodat jij ze ook kunt gebruiken.",
+    "avatar": "james-rust"
+  },
+  "leren": {
+    "seotitel": "Leren werken met AI: tutorials en uitleg",
+    "beschrijving": "Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.",
+    "lede": "Tutorials en korte uitleg over werken met AI. Het nieuwste staat bovenaan."
+  },
+  "over_kort": "Ik ben Frits Coers, docent in het hoger onderwijs. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer."
+}

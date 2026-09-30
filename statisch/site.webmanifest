@@ -1,0 +1,8 @@
+{
+  "name": "AI-leerlab",
+  "short_name": "AI-leerlab",
+  "icons": [{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }],
+  "theme_color": "#17211C",
+  "background_color": "#F7F8F4",
+  "display": "browser"
+}

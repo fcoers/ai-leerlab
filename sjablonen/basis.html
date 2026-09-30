@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nl" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{titel}}</title>
+  <meta name="description" content="{{beschrijving}}">
+  {{robots}}
+  <link rel="canonical" href="{{canonical}}">
+  <meta property="og:type" content="{{ogtype}}">
+  <meta property="og:locale" content="nl_NL">
+  <meta property="og:site_name" content="AI-leerlab">
+  <meta property="og:title" content="{{ogtitel}}">
+  <meta property="og:description" content="{{beschrijving}}">
+  <meta property="og:url" content="{{canonical}}">
+  <meta property="og:image" content="{{deelafbeelding}}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ogtitel}}">
+  <meta name="twitter:description" content="{{beschrijving}}">
+  <meta name="twitter:image" content="{{deelafbeelding}}">
+  {{extra_kop}}
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#17211C">
+  <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css?v={{versie}}">
+  <script>document.documentElement.className = 'js';</script>
+  {{schema}}
+</head>
+<body>
+  <a class="skiplink" href="#inhoud">Naar de inhoud</a>
+
+  <header class="kop">
+    <div class="wrap">
+      <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+        <img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt="">
+      </a>
+      <nav class="nav" aria-label="Hoofdmenu">
+        <a href="/leren/"{{menu_leren}}>Leren</a>
+        <a href="/over/"{{menu_over}}>Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud" tabindex="-1">
+{{inhoud}}
+  </main>
+
+  <footer class="voet">
+    <div class="wrap">
+      <div>
+        <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+          <img class="logo" src="/assets/img/logo-op-donker.svg" width="211" height="52" alt="">
+        </a>
+        <p>Een persoonlijke site van Frits Coers. Geen uitgave van een onderwijsinstelling.</p>
+        <p>Geen cookies en geen statistieken: deze site houdt niet bij wie er komt. © {{jaar}} Frits Coers.</p>
+      </div>
+      <nav aria-label="Onderaan">
+        <a href="/leren/">Leren</a>
+        <a href="/over/">Over</a>
+        <a href="/over/#colofon">Privacy en colofon</a>
+      </nav>
+    </div>
+  </footer>
+  {{extra_voet}}
+</body>
+</html>

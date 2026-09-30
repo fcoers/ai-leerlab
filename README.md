@@ -1,0 +1,121 @@
+# ai-leerlab.nl
+
+De site van AI-leerlab: tutorials, tools en korte uitleg over leren en werken met AI, van Frits Coers.
+
+Het is een statische site. Je schrijft een artikel in Markdown, een klein script maakt er gewone HTML van, en Plesk serveert alleen die HTML. Er draait niets op de server en er is geen database.
+
+## Hoe het werkt
+
+- Je bouwt op je eigen Mac. Het script `bouw.py` zet alles uit `inhoud/` om naar HTML in `public/`.
+- `public/` gaat mee in de repository. Plesk haalt de repository op en laat alleen `public/` zien.
+- Plesk hoeft dus niets te bouwen. Dat is de eenvoudigste variant: geen extra software op de server, en wat je lokaal ziet, is wat er online komt.
+
+Nodig op je Mac: Python 3 (staat er al) en git. Voor de deelafbeeldingen ook Google Chrome.
+
+## Lokaal bekijken
+
+```
+cd "…/Claude/Projecten/AI-leerlab/site"
+python3 bouw.py --bekijk
+```
+
+De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Terminal-venster. Na een wijziging bouw je opnieuw en ververs je de pagina.
+
+## Een nieuw artikel toevoegen
+
+1. Maak een bestand in `inhoud/leren/`. De bestandsnaam wordt het adres: `inhoud/leren/prompts-schrijven.md` komt op `https://ai-leerlab.nl/leren/prompts-schrijven/`. Gebruik kleine letters en streepjes.
+2. Zet bovenaan het kopje. Kopieer het van een bestaand artikel en pas het aan:
+
+   ```
+   ---
+   seotitel: Prompts schrijven die werken
+   beschrijving: Eén of twee zinnen voor Google, hooguit 155 tekens.
+   kaarttekst: De uitleg op de kaart op de beginpagina, twee regels.
+   soort: uitleg
+   voor: studenten, docenten
+   avatar: onno-rust
+   datum: 2026-10-14
+   ---
+   ```
+
+   - `seotitel` is de titel in Google en in het tabblad, hooguit ongeveer 50 tekens (" · AI-leerlab" komt er vanzelf achter).
+   - `soort` is `uitleg`, `tutorial` of `tool`.
+   - `avatar` is de naam van een bestand in `statisch/assets/img/avatars/` zonder `.webp`. Kies het teamlid dat bij het onderwerp past, in rustpose; een tutorial krijgt de rolpose. Nooit dezelfde avatar als het artikel waar je naar verwijst.
+   - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
+   - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
+   - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk.
+3. Daaronder de tekst, gewoon in Markdown. De eerste regel `# Titel` wordt de titel van de pagina. Een regel die begint met "Frits Coers" direct onder de titel komt in de kop.
+4. Onderaan, na een regel met `---`, de GenAI-vermelding die begint met `**Transparantie GenAI.**`. Die is verplicht; zonder vermelding waarschuwt het script. De bron van de labels (Boetje & Baake) komt er vanzelf onder als je een label noemt.
+5. Verwijzen naar een tutorial, tool of ander artikel gaat met een blok:
+
+   ```
+   > [!tutorial]
+   > **Bouw je eigen AI-team**
+   > Eén regel uitleg.
+   > [Naar de tutorial](/leren/bouw-je-eigen-ai-team/)
+   ```
+
+   Gebruik `[!tutorial]` of `[!tool]` voor het groene verwijsblok en `[!lees-ook]` voor een ander artikel. Hooguit twee per artikel en niet twee direct onder elkaar.
+6. Bouw en kijk: `python3 bouw.py --bekijk`. Het script noemt onder "Let op" wat er ontbreekt of mis is, bijvoorbeeld een link naar een pagina die niet bestaat.
+7. Wil je een eigen deelafbeelding voor LinkedIn en Teams: `python3 maak-deelafbeeldingen.py` maakt er een voor elk artikel dat er nog geen heeft. Bouw daarna opnieuw.
+
+Een foto of schermafbeelding zet je in `statisch/assets/img/` en gebruik je in de tekst met `![Wat erop staat](/assets/img/naam.webp)`.
+
+## Publiceren
+
+Na het bouwen:
+
+```
+git add -A
+git commit -m "Nieuw artikel: prompts schrijven"
+git push
+```
+
+Plesk haalt de nieuwe versie op en binnen een minuut staat hij online.
+
+### Eenmalig: de repository koppelen aan GitHub
+
+De map is al een git-repository met een eerste commit. Vul je GitHub-gebruikersnaam in op de plek van `GEBRUIKERSNAAM`:
+
+```
+git remote add origin https://github.com/GEBRUIKERSNAAM/ai-leerlab.git
+git push -u origin main
+```
+
+### Eenmalig: Plesk instellen
+
+1. In Plesk, bij het domein ai-leerlab.nl: Git, Repository toevoegen. Kies Externe repository en plak het adres van de GitHub-repository. Is de repository privé, dan toont Plesk een SSH-sleutel; zet die in GitHub bij Settings, Deploy keys.
+2. Uitrolmodus: Automatisch. Uitrolpad: `httpdocs`.
+3. Bij Hosting-instellingen: zet de document root op `httpdocs/public`. Zo is alleen de gebouwde site te zien, en niet de scripts en bronbestanden.
+4. Zet in Plesk bij SSL/TLS een gratis Let's Encrypt-certificaat aan en kies "Doorverwijzen van http naar https". Kies ook één vorm van het adres, zonder www, want de site gebruikt overal `https://ai-leerlab.nl`.
+5. Voor automatisch bijwerken na een push: kopieer in Plesk de webhook-URL van de repository en zet die in GitHub bij Settings, Webhooks. Zonder webhook klik je in Plesk op Ophalen na elke push.
+6. Controleer daarna https://ai-leerlab.nl/robots.txt en meld de sitemap aan in Google Search Console: `https://ai-leerlab.nl/sitemap.xml`.
+
+## Wat waar staat
+
+| Map of bestand | Wat erin staat |
+|---|---|
+| `inhoud/leren/` | De artikelen (`.md`) en de tutorial (`.html`, eigen opmaak met een kopje bovenaan) |
+| `inhoud/over.md` | De pagina Over, met privacy en colofon |
+| `site.json` | Adres, teksten van de beginpagina en de pagina Leren |
+| `sjablonen/basis.html` | Wat op elke pagina staat: de kop, de voet en alles voor Google |
+| `statisch/` | Gaat ongewijzigd mee: opmaak (`assets/site.css`), letters, avatars, logo, favicons, downloads, `.htaccess` |
+| `bouw.py` | Het bouwscript |
+| `maak-deelafbeeldingen.py` | Maakt de afbeeldingen van 1200 × 630 voor delen op sociale media |
+| `public/` | De gebouwde site. Nooit met de hand aanpassen: bij elke bouw wordt de map opnieuw gemaakt |
+
+## Vindbaarheid
+
+Per pagina: een eigen titel en beschrijving, canonical op https://ai-leerlab.nl, Open Graph- en Twitter-tags met deelafbeelding, schema.org (Article of LearningResource met HowTo, Person, WebSite en een kruimelpad). Voor de hele site: `sitemap.xml`, `robots.txt`, favicons en een webmanifest. Alle tekst staat als gewone HTML in de pagina; de site werkt ook zonder JavaScript. Alleen pagina's onder `/test/` en de 404-pagina staan op noindex.
+
+## Privacy
+
+Geen cookies, geen statistieken, geen letters of scripts van andere diensten. Komen er later statistieken bij, dan alleen met een melding die eerst toestemming vraagt.
+
+## Later erbij
+
+De opzet houdt hier rekening mee, zonder verbouwing:
+
+- Tools: een map `inhoud/tools/`. Een tool is een `.html`-bestand met een kopje, net als de tutorial, plus een eigen script in `statisch/assets/`. Ze komen op `/tools/<naam>/`. Zet dan ook een menulink in `sjablonen/basis.html`.
+- Filters op de beginpagina (voor wie, soort): pas zinvol vanaf een stuk of acht items. Soort en doelgroep staan al in elk kopje.
+- Zoeken, een nieuwsbrief en statistieken met toestemming.

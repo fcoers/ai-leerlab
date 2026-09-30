@@ -1,0 +1,8 @@
+# Mac en Python
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+
+# Lokale notities die niet online horen
+*.local.*

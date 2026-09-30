@@ -371,8 +371,14 @@ def maak_verwijzing(pagina, alle):
     return verwijzing
 
 
+LABELS_URL = "/leren/human-ai-labels/"
+
+
 def transparantie_html(item):
-    """GenAI-vermelding, alleen onder artikelen. Niet op home, /leren/, /over/, 404 of tutorials (Frits, 30-09-2026)."""
+    """GenAI-vermelding, alleen onder artikelen. Niet op home, /leren/, /over/, 404 of tutorials (Frits, 30-09-2026).
+
+    Component: een zin met het Human-AI Agency Label (link naar het labels-artikel), en de rest
+    (wat er met AI is gedaan, de bron van de labels) in een uitklap die standaard dicht is."""
     t = item.transparantie.strip()
     if not t:
         let_op(f"{os.path.basename(item.pad)}: geen GenAI-vermelding (Transparantie GenAI) gevonden")
@@ -380,7 +386,31 @@ def transparantie_html(item):
     regels = [r.strip() for r in t.split("\n") if r.strip()]
     if "Agency Label" in t and not any("Labels-bron" in r for r in regels):
         regels.append(SITE["labels_bron"])
-    return '<div class="gemaakt">' + "".join(f"<p>{inline(r)}</p>" for r in regels) + "</div>"
+    m = re.search(r"Human-AI Agency Label:\s*([^.\n]+?)\s*(?:\.|$)", t, re.M)
+    if not m:
+        let_op(f"{os.path.basename(item.pad)}: geen Human-AI Agency Label in de GenAI-vermelding")
+        label = ""
+    else:
+        label = m.group(1).strip()
+    # Uit de uitklap: het kopje en de labelzin, die staan al in de zin erboven.
+    uitleg = []
+    for r in regels:
+        r = re.sub(r"^\*\*Transparantie GenAI\.\*\*\s*", "", r)
+        r = re.sub(r"\s*Human-AI Agency Label:[^.\n]*\.?", "", r).strip()
+        if r:
+            uitleg.append(f"<p>{inline(r)}</p>")
+    if label:
+        naam = esc(label) if item.url == LABELS_URL else f'<a href="{LABELS_URL}">{esc(label)}</a>'
+        zin = f"Geschreven met hulp van AI · label: {naam}"
+    else:
+        zin = "Geschreven met hulp van AI"
+    return f"""<div class="gemaakt">
+  <p class="gemaakt-zin">{zin}</p>
+  <details class="gemaakt-meer">
+    <summary>Hoe AI is gebruikt</summary>
+    {"".join(uitleg)}
+  </details>
+</div>"""
 
 
 # ---------------------------------------------------------------- schema.org

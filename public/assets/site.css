@@ -191,6 +191,15 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .gemaakt p { margin: 0 0 8px; }
 .gemaakt a { color: var(--inkt-zacht); }
 .gemaakt strong { color: var(--inkt); }
+.gemaakt-zin { margin: 0; }
+.gemaakt-meer summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 44px; color: var(--inkt-zacht); text-decoration: underline; text-underline-offset: 3px; }
+.gemaakt-meer summary:hover { color: var(--inkt); }
+.gemaakt-meer summary { list-style: none; gap: 10px; }
+.gemaakt-meer summary::-webkit-details-marker { display: none; }
+.gemaakt-meer summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--uit); }
+.gemaakt-meer[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+@media (prefers-reduced-motion: reduce) { .gemaakt-meer summary::after { transition: none; } }
+.gemaakt-meer[open] summary { margin-bottom: 4px; }
 
 .losse-pagina .portret { width: 200px; background: #fff; border: 1px solid var(--lijn); border-radius: 8px; margin: 0 0 32px; }
 @media (min-width: 900px) { .losse-pagina { position: relative; } .losse-pagina .portret { position: absolute; left: calc(100% + 72px); top: 56px; width: 240px; } }

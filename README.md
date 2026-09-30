@@ -45,7 +45,7 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
    - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk.
 3. Daaronder de tekst, gewoon in Markdown. De eerste regel `# Titel` wordt de titel van de pagina. Een regel die begint met "Frits Coers" direct onder de titel komt in de kop.
-4. Onderaan, na een regel met `---`, de GenAI-vermelding die begint met `**Transparantie GenAI.**`. Die is verplicht bij artikelen; zonder vermelding waarschuwt het script. Alleen artikelen krijgen hem. De beginpagina, `/leren/`, `/over/`, de 404 en tutorials niet: daar stoort hij (afspraak Frits, 30-09-2026). De bron van de labels (Boetje & Baake) komt er vanzelf onder als je een label noemt.
+4. Onderaan, na een regel met `---`, de GenAI-vermelding die begint met `**Transparantie GenAI.**`. Die is verplicht bij artikelen; zonder vermelding waarschuwt het script. Alleen artikelen krijgen hem. De beginpagina, `/leren/`, `/over/`, de 404 en tutorials niet: daar stoort hij (afspraak Frits, 30-09-2026). Zet er `Human-AI Agency Label: <label>.` in: op de site wordt dat één zin met het label, en de rest komt in een uitklap. De bron van de labels (Boetje & Baake) komt er vanzelf onder als je een label noemt.
 5. Verwijzen naar een tutorial, tool of ander artikel gaat met een blok:
 
    ```

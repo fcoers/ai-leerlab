@@ -184,6 +184,33 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .artikel code { font: 500 .9em var(--mono); background: var(--vlak); border: 1px solid var(--lijn); border-radius: 4px; padding: 1px 5px; }
 .artikel pre { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; padding: 16px; overflow-x: auto; }
 .artikel pre code { border: 0; padding: 0; font-size: 16px; }
+/* Instructies per besturingssysteem: '> [!mac] Titel' en '> [!windows] Titel' (bouw.py, os_blok).
+   Een uitklap, standaard dicht, met de chevron van de GenAI-uitklap. Naam en icoon zijn het signaal,
+   de kleur is voor beide gelijk. Twee blokken direct onder elkaar delen één rand (.os-paar). */
+.os, .os-paar { margin: 0 0 24px; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; }
+.os-paar > .os { margin: 0; border: 0; border-radius: 0; background: none; }
+.os-paar > .os + .os { border-top: 1px solid var(--lijn); }
+.os summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 12px 20px; font-size: 18px; line-height: 1.35; border-radius: 8px; }
+.os summary::-webkit-details-marker { display: none; }
+.os summary::after { flex: none; margin-left: auto; color: var(--inkt); }
+.os summary:hover .os-titel { text-decoration: underline; text-underline-offset: 3px; }
+.os-teken { flex: none; width: 36px; height: 36px; border-radius: 8px; background: var(--inkt); display: grid; place-items: center; }
+.os-teken svg { width: 20px; height: 20px; stroke: var(--mos); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.os-naam { flex: none; min-width: 5.6em; font: 500 15px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--inkt-zacht); }
+.os-titel { font-weight: 600; }
+.os[open] > summary { border-bottom: 1px solid var(--lijn); border-radius: 8px 8px 0 0; }
+.os-inhoud { padding: 20px 20px 4px; overflow-wrap: anywhere; }
+.os-inhoud pre { background: var(--papier); }
+.os-inhoud code { background: var(--papier); }
+.os-inhoud pre code { overflow-wrap: normal; }
+@media (max-width: 640px) {
+  .os summary { flex-wrap: wrap; gap: 4px 12px; padding: 12px 16px; }
+  .os-naam { min-width: 0; }
+  .os-titel { flex: 1 1 100%; order: 3; padding-left: 48px; }
+  .os summary::after { order: 2; }
+  .os-inhoud { padding: 16px 16px 4px; }
+}
+
 /* Bronnen: lange adressen mogen afbreken */
 #bronnen ~ ul { font-size: 16px; color: var(--inkt-zacht); overflow-wrap: anywhere; }
 #bronnen ~ ul a { color: var(--inkt-zacht); }
@@ -197,9 +224,9 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .gemaakt-meer summary:hover { color: var(--inkt); }
 .gemaakt-meer summary { list-style: none; gap: 10px; }
 .gemaakt-meer summary::-webkit-details-marker { display: none; }
-.gemaakt-meer summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--uit); }
-.gemaakt-meer[open] summary::after { transform: translateY(2px) rotate(-135deg); }
-@media (prefers-reduced-motion: reduce) { .gemaakt-meer summary::after { transition: none; } }
+.gemaakt-meer summary::after, .os summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--uit); }
+.gemaakt-meer[open] summary::after, .os[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+@media (prefers-reduced-motion: reduce) { .gemaakt-meer summary::after, .os summary::after { transition: none; } }
 .gemaakt-meer[open] summary { margin-bottom: 4px; }
 
 .losse-pagina .portret { width: 200px; background: #fff; border: 1px solid var(--lijn); border-radius: 8px; margin: 0 0 32px; }

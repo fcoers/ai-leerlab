@@ -60,8 +60,30 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    ```
 
    Gebruik `[!tutorial]` of `[!tool]` voor het groene verwijsblok en `[!lees-ook]` voor een ander artikel. Hooguit twee per artikel en niet twee direct onder elkaar.
-6. Bouw en kijk: `python3 bouw.py --bekijk`. Het script noemt onder "Let op" wat er ontbreekt of mis is, bijvoorbeeld een link naar een pagina die niet bestaat.
-7. Wil je een eigen deelafbeelding voor LinkedIn en Teams: `python3 maak-deelafbeeldingen.py` maakt er een voor elk artikel dat er nog geen heeft. Bouw daarna opnieuw.
+6. Stappen die verschillen per besturingssysteem zet je in een uitklap per systeem. De lezer klapt zelf het deel voor Mac of Windows open; dicht staan ze de tekst niet in de weg.
+
+   ```
+   > [!mac] Python installeren
+   > Open Terminal.
+   >
+   > 1. Typ:
+   >
+   > ```
+   > python3 --version
+   > ```
+   >
+   > 2. Zie je 3.10 of hoger, dan ben je klaar.
+
+   > [!windows] Python installeren
+   > ...
+   ```
+
+   - De titel staat op dezelfde regel als `[!mac]` of `[!windows]`. Daaronder alles wat Markdown kan: alinea's, lijsten, codeblokken. Elke regel begint met `>`, ook de lege.
+   - Zet een lege regel (`>`) vóór en na een codeblok. Een genummerde lijst die na een codeblok verdergaat, telt door: `2.` blijft 2.
+   - Twee blokken met alleen een lege regel ertussen worden één paar met één rand. Zet Mac eerst, dan Windows.
+   - Is een stap voor beide systemen gelijk, schrijf hem dan gewoon in de tekst en niet twee keer.
+7. Bouw en kijk: `python3 bouw.py --bekijk`. Het script noemt onder "Let op" wat er ontbreekt of mis is, bijvoorbeeld een link naar een pagina die niet bestaat.
+8. Wil je een eigen deelafbeelding voor LinkedIn en Teams: `python3 maak-deelafbeeldingen.py` maakt er een voor elk artikel dat er nog geen heeft. Bouw daarna opnieuw.
 
 Een foto of schermafbeelding zet je in `statisch/assets/img/` en gebruik je in de tekst met `![Wat erop staat](/assets/img/naam.webp)`.
 
@@ -87,7 +109,7 @@ Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, m
 
 Een serie verschijnt pas als er minstens één deel gepubliceerd is: een deel zonder `status: concept` en met een datum van vandaag of eerder. Tot dan staat Series niet in het menu en niet in de voet, is er geen pagina `/series/` of `/series/<naam>/`, staat er niets over op de beginpagina en niets in de sitemap. Dat regelt `bouw.py` vanzelf; zodra het eerste deel online gaat (ook via gepland publiceren), komt alles tegelijk.
 
-`inhoud/series/masterproject.md` staat er al, met een werktitel. De echte naam zet je daar neer voordat deel 1 verschijnt.
+`inhoud/series/masterproject.md` staat er al, met een werktitel. De echte naam zet je daar neer voordat deel 1 verschijnt. Ook `inhoud/series/bouw-je-eigen-productiviteitsapp.md` staat klaar (categorie techniek); beschrijving, lede en ritme zijn daar een werktekst.
 
 Wat er dan komt:
 

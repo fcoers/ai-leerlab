@@ -205,15 +205,24 @@ def markdown(tekst, verwijzing=None):
                 blok.append(re.sub(r"^>\s?", "", regels[i]))
                 i += 1
             m = re.match(r"^\[!([a-z-]+)\]\s*(.*)$", blok[0].strip())
-            if m and verwijzing:
+            if m and m.group(1) in BESTURINGSSYSTEMEN:
+                # Twee os-blokken direct onder elkaar worden één paar: verzamel ze in een lijst.
+                h = os_blok(m.group(1), m.group(2), "\n".join(blok[1:]))
+                if uit and isinstance(uit[-1], list):
+                    uit[-1].append(h)
+                else:
+                    uit.append([h])
+            elif m and verwijzing:
                 uit.append(verwijzing(m.group(1), [m.group(2)] + blok[1:]))
             else:
                 uit.append("<blockquote>" + markdown("\n".join(blok)) + "</blockquote>")
             continue
         if re.match(r"^\s*([-*+]|\d+\.)\s+", r):
             geordend = bool(re.match(r"^\s*\d+\.", r))
+            # Een genummerde lijst die na een codeblok verdergaat, telt door: '2.' geeft <ol start="2">.
+            begin = int(re.match(r"^\s*(\d+)\.", r).group(1)) if geordend else 1
             items = []
-            while i < len(regels) and regels[i].strip():
+            while i < len(regels) and regels[i].strip() and not regels[i].startswith("```"):
                 m = re.match(r"^\s*([-*+]|\d+\.)\s+(.*)$", regels[i])
                 if m:
                     items.append(m.group(2))
@@ -221,14 +230,38 @@ def markdown(tekst, verwijzing=None):
                     items[-1] += " " + regels[i].strip()
                 i += 1
             tag = "ol" if geordend else "ul"
-            uit.append(f"<{tag}>" + "".join(f"<li>{inline(x)}</li>" for x in items) + f"</{tag}>")
+            start = f' start="{begin}"' if geordend and begin != 1 else ""
+            uit.append(f"<{tag}{start}>" + "".join(f"<li>{inline(x)}</li>" for x in items) + f"</{tag}>")
             continue
         alinea = []
         while i < len(regels) and regels[i].strip() and not re.match(r"^(#{1,6}\s|>|```|\s*([-*+]|\d+\.)\s+)", regels[i]):
             alinea.append(regels[i].strip())
             i += 1
         uit.append("<p>" + inline(" ".join(alinea)) + "</p>")
-    return "\n".join(uit)
+    return "\n".join(
+        (x[0] if len(x) == 1 else '<div class="os-paar">\n' + "\n".join(x) + "\n</div>")
+        if isinstance(x, list) else x for x in uit)
+
+
+# Instructies per besturingssysteem: '> [!mac] Titel' en '> [!windows] Titel' worden een uitklap,
+# standaard dicht. Naam en icoon samen zijn het signaal, niet de kleur.
+BESTURINGSSYSTEMEN = {
+    "mac": ("Mac", '<path d="M9 9V6.5A2.5 2.5 0 1 0 6.5 9H9zm0 0h6m-6 0v6m6-6V6.5A2.5 2.5 0 1 1 17.5 9H15zm0 0v6m0 0H9m6 0v2.5a2.5 2.5 0 1 0 2.5-2.5H15zm-6 0v2.5A2.5 2.5 0 1 1 6.5 15H9z"/>'),
+    "windows": ("Windows", '<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M12 4v16M4 12h16"/>'),
+}
+
+
+def os_blok(soort, titel, tekst):
+    naam, pad = BESTURINGSSYSTEMEN[soort]
+    if not titel.strip():
+        let_op(f"blok [!{soort}] zonder titel: zet de titel achter [!{soort}] op dezelfde regel")
+    titel_html = f'<span class="os-titel">{inline(titel.strip())}</span>' if titel.strip() else ""
+    return f"""<details class="os os-{soort}">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24">{pad}</svg></span><span class="os-naam">{naam}<span class="sr">: </span></span>{titel_html}</summary>
+  <div class="os-inhoud">
+{markdown(tekst)}
+  </div>
+</details>"""
 
 
 # ---------------------------------------------------------------- items

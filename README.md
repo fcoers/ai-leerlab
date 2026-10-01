@@ -161,7 +161,7 @@ Per pagina: een eigen titel en beschrijving, canonical op https://ai-leerlab.nl,
 
 ## Privacy
 
-Geen cookies, geen statistieken, geen letters of scripts van andere diensten. Komen er later statistieken bij, dan alleen met een melding die eerst toestemming vraagt.
+Statistieken via Google Analytics (meet-ID `analytics` in `site.json`), alleen na toestemming. `statisch/assets/toestemming.js` toont een melding met Accepteren en Weigeren, even zwaar. Google Consent Mode v2 staat standaard op denied; gtag.js laadt pas na Accepteren, dus zonder toestemming gaat er geen verzoek naar Google. De keuze staat in localStorage (`ai-leerlab:statistieken`), en via Cookie-instellingen in de voet kun je hem wijzigen. Bij Weigeren na eerder Accepteren ruimt het script de `_ga`-cookies op. Geen advertentiefuncties: Google signals en advertentiepersonalisatie staan uit, `ads_data_redaction` aan. Niet op `/test/` en de 404. Verder geen letters of scripts van andere diensten. Haal je `analytics` uit `site.json`, dan verdwijnen melding en meting overal.
 
 ## Later erbij
 
@@ -169,4 +169,4 @@ De opzet houdt hier rekening mee, zonder verbouwing:
 
 - Tools: een map `inhoud/tools/`. Een tool is een `.html`-bestand met een kopje, net als de tutorial, plus een eigen script in `statisch/assets/`. Ze komen op `/tools/<naam>/`. Zet dan ook een menulink in `sjablonen/basis.html`.
 - Filters op voor wie en soort: pas zinvol vanaf een stuk of acht items. Soort en doelgroep staan al in elk kopje.
-- Zoeken, een nieuwsbrief en statistieken met toestemming.
+- Zoeken en een nieuwsbrief.

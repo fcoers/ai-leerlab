@@ -621,6 +621,11 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "menu_over": ' aria-current="page"' if menu == "over" else "",
         "jaar": str(datetime.date.today().year),
         "versie": VERSIE,
+        # Statistieken (Google Analytics, alleen na toestemming) op elke pagina behalve noindex: /test/ en de 404.
+        "statistieken": "" if noindex or not SITE.get("analytics") else
+            f'\n  <script src="/assets/toestemming.js?v={VERSIE}" data-meet-id="{esc(SITE["analytics"])}" defer></script>',
+        "voet_cookies": "" if noindex or not SITE.get("analytics") else
+            '\n        <a href="/over/#colofon" data-cookie-instellingen>Cookie-instellingen</a>',
     }
     tekst = re.sub(r"\{\{\s*(\w+)\s*\}\}", lambda m: vervang[m.group(1)], BASIS)
     doel = os.path.join(UIT, pad.strip("/"), "index.html") if not pad.endswith(".html") else os.path.join(UIT, pad.strip("/"))

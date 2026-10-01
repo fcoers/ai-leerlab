@@ -1,7 +1,7 @@
 ---
 titel: Over AI-leerlab
 seotitel: Over Frits Coers en AI-leerlab
-beschrijving: Wie achter AI-leerlab zit, waarom de site bestaat en hoe hij gemaakt is. Met de privacyregel: geen cookies en geen statistieken.
+beschrijving: Wie achter AI-leerlab zit, waarom de site bestaat en hoe hij gemaakt is. Met de privacyregel: statistieken alleen met je toestemming.
 lede: Een werkplaats met tutorials, tools en korte uitleg over leren en werken met AI.
 portret: ja
 schema: ProfilePage
@@ -23,7 +23,9 @@ Je vindt me ook op [LinkedIn](https://www.linkedin.com/in/fritscoers/).
 
 ## Privacy en colofon {#colofon}
 
-Deze site gebruikt geen cookies en geen statistieken. Ik houd niet bij wie er komt of wat je leest. De letters staan op de site zelf, dus je browser haalt niets op bij Google of andere diensten.
+Ik wil graag weten hoeveel mensen deze site bezoeken en welke artikelen ze lezen. Daarvoor gebruik ik Google Analytics, maar alleen als je daar bij je eerste bezoek toestemming voor geeft. Kies je Weigeren, dan zet de site geen cookies en haalt je browser niets op bij Google. De letters staan op de site zelf.
+
+Geef je wel toestemming, dan zet Google Analytics een paar cookies in je browser en gaan er gegevens over je bezoek naar Google, zoals welke pagina's je bekijkt, hoe lang en met welk soort apparaat. Google is een Amerikaans bedrijf, dus die gegevens kunnen ook in de Verenigde Staten terechtkomen. Ik zie alleen totalen, niet wie je bent. Ik gebruik de gegevens niet voor advertenties en Google bewaart ze twee maanden. Je keuze staat alleen in je eigen browser. Wijzigen kan altijd via Cookie-instellingen onderaan elke pagina.
 
 De tutorial onthoudt bij welke stap je was. Dat staat alleen in je eigen browser en gaat nergens heen. Wis je je browsergegevens, dan begin je opnieuw.
 

@@ -349,7 +349,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 
 /* ---------- afdrukken ---------- */
 @media print {
-  .kop, .voet, .stapknoppen, .voortgang, .terug-melding, .kopieer-knop, .kop-avatar, .verder, .skiplink { display: none !important; }
+  .kop, .voet, .stapknoppen, .voortgang, .terug-melding, .kopieer-knop, .kop-avatar, .verder, .skiplink, .toestemming { display: none !important; }
   .js .scherm { display: block; }
   .tut-bezig .item-kop { display: block; }
   body { background: #fff; }
@@ -435,3 +435,14 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .categorie-regel a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 500; }
 
 @media (prefers-reduced-motion: reduce) { .tabrij a, .serie-nav .stap { transition: none; } }
+
+/* ================= Toestemming voor statistieken (Roel, 01-10-2026) ================= */
+/* Een rustige kaart onderaan, geen scherm dat de pagina blokkeert. Accepteren en Weigeren wegen even zwaar. */
+.toestemming { position: fixed; z-index: 30; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; justify-content: center; pointer-events: none; animation: toestemming-in .4s var(--uit) .3s both; }
+.toestemming-binnen { pointer-events: auto; max-width: 640px; width: 100%; background: var(--vlak); color: var(--inkt); border: 1px solid var(--inkt); border-radius: 12px; padding: 20px 24px; box-shadow: 0 12px 32px rgba(23, 33, 28, .18); }
+.toestemming h2 { font-size: 20px; line-height: 1.3; margin: 0 0 8px; }
+.toestemming p { font-size: 16px; line-height: 1.5; margin: 0 0 12px; color: var(--inkt-zacht); }
+.toestemming .knoppen { margin-top: 0; }
+.toestemming .knop { min-height: 48px; min-width: 140px; }
+@media (max-width: 480px) { .toestemming .knop { flex: 1 1 0; min-width: 0; } }
+@keyframes toestemming-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }

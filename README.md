@@ -48,7 +48,7 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
    - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk; staat het bij meer items, dan neemt de beginpagina het nieuwste en waarschuwt het script.
-3. Daaronder de tekst, gewoon in Markdown. De eerste regel `# Titel` wordt de titel van de pagina. Een regel die begint met "Frits Coers" direct onder de titel komt in de kop.
+3. Daaronder de tekst, gewoon in Markdown. De eerste regel `# Titel` wordt de titel van de pagina. Een losse regel "Frits Coers, docent bij Windesheim" direct onder de titel laat `bouw.py` weg: Frits is de enige auteur (afspraak Frits, 01-10-2026). Hij blijft author in schema.org. Staat zijn naam ergens anders, of begint een gewone alinea ermee, dan blijft die staan.
 4. Onderaan, na een regel met `---`, de GenAI-vermelding die begint met `**Transparantie GenAI.**`. Die is verplicht bij artikelen; zonder vermelding waarschuwt het script. Alleen artikelen krijgen hem. De beginpagina, `/leren/`, `/over/`, de 404 en tutorials niet: daar stoort hij (afspraak Frits, 30-09-2026). Zet er `Human-AI Agency Label: <label>.` in: op de site wordt dat één zin met het label, en de rest komt in een uitklap. De bron van de labels (Boetje & Baake) komt er vanzelf onder als je een label noemt.
 5. Verwijzen naar een tutorial, tool of ander artikel gaat met een blok:
 
@@ -105,7 +105,7 @@ Vier velden in het kopje. De namen zijn vast; de contentkalender in de Productiv
 
 ### Series
 
-Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, met `titel`, `seotitel`, `beschrijving`, `lede`, `categorie`, `avatar`, `ritme` (bijvoorbeeld `elke week`), eventueel `dag` (`donderdag`) en `status` (`lopend` of `afgerond`). De tekst onder het kopje wordt "Over deze serie". Een deel is een gewoon artikel met `serie:` en `deel:` in het kopje.
+Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, met `titel`, `kaartnaam` (een korte naam voor de kaarten en het kruimelpad op mobiel, hooguit ongeveer 18 tekens; zonder neemt het script de titel), `seotitel`, `beschrijving`, `lede`, `categorie`, `avatar`, `ritme` (bijvoorbeeld `elke week`), eventueel `dag` (`donderdag`) en `status` (`lopend` of `afgerond`). De tekst onder het kopje wordt "Over deze serie". Een deel is een gewoon artikel met `serie:` en `deel:` in het kopje.
 
 Een serie verschijnt pas als er minstens één deel gepubliceerd is: een deel zonder `status: concept` en met een datum van vandaag of eerder. Tot dan staat Series niet in het menu en niet in de voet, is er geen pagina `/series/` of `/series/<naam>/`, staat er niets over op de beginpagina en niets in de sitemap. Dat regelt `bouw.py` vanzelf; zodra het eerste deel online gaat (ook via gepland publiceren), komt alles tegelijk.
 
@@ -114,7 +114,7 @@ Een serie verschijnt pas als er minstens één deel gepubliceerd is: een deel zo
 Wat er dan komt:
 
 - `/series/` met alle series en `/series/<naam>/` met de delen in leesvolgorde, "Begin bij deel 1" en "Lees het nieuwste deel". Staat het volgende deel gepland, dan zegt de pagina "Deel 6 verschijnt op donderdag 12 november".
-- Op een deel: kruimelpad Beginpagina / Series / <serie>, het label "Deel 3", onderaan vorige en volgende plus "Alle delen van deze serie". Geen "Verder in het lab", en de onderwerpen zonder links. In "Verder in het lab" bij andere artikelen komen geen seriedelen.
+- Op een deel: kruimelpad Series / <serie>, het label "Deel 3", onderaan vorige en volgende plus "Alle delen van deze serie". Geen "Verder in het lab", en de onderwerpen zonder links. In "Verder in het lab" bij andere artikelen komen geen seriedelen.
 - Op de beginpagina één kaart per serie onder "Laatst verschenen": bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1 (zie "De beginpagina").
 - Een RSS-feed per serie: `/series/<naam>/feed.xml`.
 
@@ -129,6 +129,8 @@ Ontwerp van Bram (01-10-2026), met twee besluiten van Frits die afwijken van Bra
 - Een serie neemt één plek in: bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1. Op de kaart staat als label "Serie", het deelnummer klein vóór de titel en de serienaam onderaan.
 - "Nieuw" staat op een item op de publicatiedag en de zes dagen daarna (`NIEUW_DAGEN` in `bouw.py`; Frits; Bram stelde alleen de laatste publicatiedag voor). De GitHub Action bouwt elke ochtend, dus het label verdwijnt vanzelf, ook als er niets nieuws verschijnt. Alleen op de beginpagina.
 - Elke kaart toont de publicatiedatum, kort: "1 okt 2026". Ook op Leren en de categoriepagina's.
+- De voetregel van een kaart staat altijd op één regel (Frits, 01-10-2026). Voor wie staat er alleen als een item voor één groep is ("Voor docenten"); bij een seriedeel staat de `kaartnaam` van de serie. Wordt de regel langer dan 33 tekens, dan waarschuwt `bouw.py` onder "Let op".
+- Het kruimelpad begint zonder "Beginpagina", want het logo gaat daarheen. In het schema voor Google staat de beginpagina er wel in.
 
 ## Publiceren
 

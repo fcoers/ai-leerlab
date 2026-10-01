@@ -111,6 +111,21 @@ def voor_tekst(voor):
     return "Voor " + (" en ".join(v) if len(v) <= 2 else ", ".join(v[:-1]) + " en " + v[-1])
 
 
+def voor_kaart(voor):
+    """Voor wie, op een kaart: alleen als het item voor één groep is. Alles op de site is voor studenten
+    én docenten, tenzij er iets anders staat; zo past de voetregel van een kaart op één regel (Frits, 01-10-2026)."""
+    namen = {"student": "studenten", "docent": "docenten"}
+    v = {namen.get(x, x) for x in voor}
+    if not v or {"studenten", "docenten"} <= v:
+        return ""
+    return voor_tekst(voor)
+
+
+# De voetregel van een kaart moet op één regel passen, ook op de smalste kaart (ongeveer 265px bij 16px).
+# "30 sep 2026 · Productiviteitsapp" is 32 tekens; daarboven waarschuwt het script.
+VOET_MAX = 33
+
+
 def beeldmaat(pad):
     """Breedte en hoogte van een PNG of WebP, zonder extra software."""
     with open(pad, "rb") as f:
@@ -311,7 +326,6 @@ class Item:
                 let_op(f"{os.path.basename(pad)}: deel '{m['deel']}' is geen getal")
         self.map = map_
         self.titel = m.get("titel", "")
-        self.byline = ""
         self.transparantie = m.get("transparantie", "")
         if self.vorm == "md":
             self._lees_markdown()
@@ -334,9 +348,12 @@ class Item:
         if m:
             self.titel = self.titel or m.group(1).strip()
             t = t[m.end():].lstrip("\n")
+        # Een losse regel "Frits Coers, docent bij Windesheim" direct onder de titel valt weg: Frits is de
+        # enige auteur, dus de naam boven elk artikel zegt niets (Frits, 01-10-2026). Hij blijft author in
+        # schema.org. Alleen precies op die plek en alleen een korte regel; een alinea die met zijn naam
+        # begint, blijft staan.
         eerste = t.split("\n\n", 1)
-        if eerste[0].startswith("Frits Coers"):
-            self.byline = eerste[0].strip()
+        if re.fullmatch(r"Frits Coers(,[^\n]{0,80})?", eerste[0].strip()):
             t = eerste[1] if len(eerste) > 1 else ""
         # De GenAI-vermelding onderaan (na de laatste '---') gaat naar een eigen blok.
         delen = re.split(r"\n-{3,}\s*\n", t)
@@ -403,6 +420,8 @@ class Serie:
         self.lede = m.get("lede", self.beschrijving)
         self.categorie = m.get("categorie", "").strip()
         self.avatar = m.get("avatar", "")
+        # Korte naam voor de voetregel van een kaart en het kruimelpad op mobiel. Zonder: de titel.
+        self.kaartnaam = m.get("kaartnaam", "").strip() or self.titel
         self.ritme = m.get("ritme", "").strip()          # "elke week"
         self.dag = m.get("dag", "").strip()              # "donderdag", optioneel
         self.lopend = m.get("status", "lopend").strip().lower() != "afgerond"
@@ -511,11 +530,22 @@ def tijd_html(item):
     return f'<time datetime="{item.datum.isoformat()}">{datum_kort(item.datum)}</time>'
 
 
+def voet_controle(item, rest):
+    tekst = datum_kort(item.datum) + (" · " + rest if rest else "")
+    if len(tekst) > VOET_MAX:
+        waar = (f"series/{item.serie}.md: kaartnaam" if item.is_deel else os.path.basename(item.pad))
+        let_op(f"{waar}: de voetregel '{tekst}' past op een smalle kaart niet op één regel; "
+               f"hooguit {VOET_MAX} tekens")
+
+
 def kaart(item, nieuw=False):
     if item.is_deel:
-        voet = f'<span class="serie-voet">{esc(STAAT["series"][item.serie].titel)}</span>'
+        naam = STAAT["series"][item.serie].kaartnaam
+        voet_controle(item, naam)
+        voet = f'<span class="serie-voet">{esc(naam)}</span>'
     else:
-        voet = esc(voor_tekst(item.voor))
+        voet = esc(voor_kaart(item.voor))
+        voet_controle(item, voet)
     return f"""<li class="kaart">
   <p class="label">{kaart_label(item)}{NIEUW_TEKEN if nieuw else ""}</p>
   <h3><a href="{item.url}">{titel_html(item)}</a></h3>
@@ -712,17 +742,27 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
 
 
 def kruimel_html(*stappen):
-    """<p class="kruimel"> met links; stappen zijn (naam, url)."""
-    sep = ' <span aria-hidden="true">/</span> '
-    return '<p class="kruimel">' + sep.join(f'<a href="{u}">{esc(n)}</a>' for n, u in stappen) + "</p>"
+    """Het zichtbare kruimelpad: stappen zijn (naam, url) of (naam, url, korte naam). De beginpagina staat er
+    niet in, want het logo gaat daarheen (Frits, 01-10-2026); in het BreadcrumbList-schema wel. Een korte naam
+    vervangt de lange op mobiel, zodat het pad op één regel past. Zonder stappen: geen kruimelpad."""
+    if not stappen:
+        return ""
+    sep = '<span class="sep" aria-hidden="true">/</span>'
+
+    def naam(stap):
+        if len(stap) > 2 and stap[2] and stap[2] != stap[0]:
+            return f'<span class="lang">{esc(stap[0])}</span><span class="kort">{esc(stap[2])}</span>'
+        return esc(stap[0])
+    return ('<nav aria-label="Kruimelpad"><p class="kruimel">'
+            + sep.join(f'<a href="{s[1]}">{naam(s)}</a>' for s in stappen) + "</p></nav>")
 
 
 def item_stappen(item):
     """Het kruimelpad boven een item: (naam, url) per stap, zonder het item zelf."""
     if item.is_deel:
         s = STAAT["series"][item.serie]
-        return [("Beginpagina", "/"), ("Series", "/series/"), (s.titel, s.url)]
-    stappen = [("Beginpagina", "/"), ("Leren", "/leren/")]
+        return [("Series", "/series/"), (s.titel, s.url, s.kaartnaam)]
+    stappen = [("Leren", "/leren/")]
     c = item.categorie_info
     if c and not item.concept and c["slug"] in STAAT["categorieen"]:
         stappen.append((c["naam"], f"/leren/{c['slug']}/"))
@@ -730,7 +770,7 @@ def item_stappen(item):
 
 
 def item_kruimelpad_schema(item):
-    stappen = [("AI-leerlab" if n == "Beginpagina" else n, u) for n, u in item_stappen(item)]
+    stappen = [("AI-leerlab", "/")] + [(s[0], s[1]) for s in item_stappen(item)]
     return kruimelpad(*stappen, (item.titel, None))
 
 
@@ -743,18 +783,18 @@ def item_kop(item, lede_html="", feiten_extra=()):
     datumtekst = (f"Bijgewerkt {datum_nl(item.bijgewerkt)}" if item.bijgewerkt != item.datum
                   else datum_nl(item.datum))
     feiten.append(f'<li>{icoon("klok")}<time datetime="{item.bijgewerkt.isoformat()}">{datumtekst}</time></li>')
-    byline = f'<p class="byline">{esc(item.byline)}</p>' if item.byline else ""
-    return f"""<section class="item-kop labpapier" aria-labelledby="titel">
+    a = avatar_img(item.avatar, "")
+    klasse = "item-kop met-avatar labpapier" if a else "item-kop labpapier"
+    return f"""<section class="{klasse}" aria-labelledby="titel">
   <div class="wrap">
     <div class="tekst">
       {kruimel_html(*item_stappen(item))}
       <p class="label">{soort_label(item)}</p>
       <h1 id="titel">{esc(item.titel)}</h1>
       {lede_html}
-      {byline}
       <ul class="feiten">{"".join(feiten)}</ul>
     </div>
-    <div class="kop-avatar">{avatar_img(item.avatar, "")}</div>
+    <div class="kop-avatar">{a}</div>
   </div>
 </section>"""
 
@@ -952,7 +992,7 @@ def bouw_home(items):
     h = SITE["home"]
     uitgelicht = ""
     if uit:
-        feiten = [voor_tekst(uit.voor), uit.meta.get("duur", "")]
+        feiten = [voor_kaart(uit.voor), uit.meta.get("duur", "")]
         feiten = " · ".join(esc(f) for f in feiten if f)
         uitgelicht = f"""<article class="uitgelicht">
   <div class="tekst">
@@ -1029,7 +1069,6 @@ def bouw_leren(items):
     live = leren_items(items)
     inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
-    <p class="kruimel"><a href="/">Beginpagina</a></p>
     <h1 id="titel">Leren</h1>
     <p class="lede">{esc(SITE["leren"]["lede"])}</p>
   </div>
@@ -1062,7 +1101,7 @@ def bouw_categorieen(items):
         inhoud = f"""<section class="item-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
     <div class="tekst">
-      {kruimel_html(("Beginpagina", "/"), ("Leren", "/leren/"))}
+      {kruimel_html(("Leren", "/leren/"))}
       <h1 id="titel">{esc(c["naam"])}</h1>
       <p class="lede">{esc(c["lede"])}</p>
     </div>
@@ -1089,7 +1128,7 @@ def bouw_onderwerpen():
                         "voor studenten en docenten in het hoger onderwijs.")
         inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
-    {kruimel_html(("Beginpagina", "/"), ("Leren", "/leren/"))}
+    {kruimel_html(("Leren", "/leren/"))}
     <p class="label">Onderwerp</p>
     <h1 id="titel">{esc(naam)}</h1>
     <p class="lede">Alles in het lab over {esc(tag)}. Het nieuwste staat bovenaan.</p>
@@ -1152,7 +1191,7 @@ def bouw_series():
         inhoud = f"""<section class="item-kop serie-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
     <div class="tekst">
-      {kruimel_html(("Beginpagina", "/"), ("Series", "/series/"))}
+      {kruimel_html(("Series", "/series/"))}
       <p class="label">{icoon("serie")}{esc(s.label)}</p>
       <h1 id="titel">{esc(s.titel)}</h1>
       <p class="lede">{esc(s.lede)}</p>
@@ -1192,13 +1231,12 @@ def bouw_series():
   <p class="label">{icoon("serie")}{esc(s.label)}</p>
   <h3><a href="{s.url}">{esc(s.titel)}</a></h3>
   <p class="uitleg">{esc(s.lede)}</p>
-  <p class="voor">{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"} · nieuwste {datum_nl(s.delen[-1].datum)}</p>
+  <p class="voor">{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"} · nieuwste {datum_kort(s.delen[-1].datum)}</p>
 </li>""" for s in alle)
     t = SITE.get("series", {})
     beschrijving = t.get("beschrijving", "")
     inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
-    <p class="kruimel"><a href="/">Beginpagina</a></p>
     <h1 id="titel">Series</h1>
     <p class="lede">{esc(t.get("lede", ""))}</p>
   </div>
@@ -1266,7 +1304,6 @@ def bouw_losse_paginas(items):
         inhoud = f"""<section class="item-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
     <div class="tekst">
-      <p class="kruimel"><a href="/">Beginpagina</a></p>
       <h1 id="titel">{esc(titel)}</h1>
       {f'<p class="lede">{esc(meta["lede"])}</p>' if meta.get("lede") else ""}
     </div>

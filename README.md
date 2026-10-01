@@ -79,7 +79,7 @@ Vier velden in het kopje. De namen zijn vast; de contentkalender in de Productiv
 - Een artikel blijft altijd op `/leren/<naam>/`. De categorie zit niet in het adres, dus een artikel van categorie wisselen breekt geen link. Daarom mag een artikel niet `praktijk`, `didactiek`, `techniek` of `onderzoek` heten.
 - Elke categorie met artikelen krijgt een eigen pagina, `/leren/<categorie>/`, en een tab bovenaan Leren. Een categorie zonder artikelen verschijnt nergens: geen tab, geen pagina, niet in de sitemap.
 - Een onderwerp staat als tekst onder het artikel. Pas vanaf drie artikelen krijgt het een pagina `/onderwerp/<tag>/` en wordt het een link. Een nieuw onderwerp zet je in `site.json` als twee artikelen het nodig hebben. Nooit de naam van een categorie, soort of product.
-- "Verder in het lab" onder een artikel kiest eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie.
+- "Verder in het lab" staat alleen onder een artikel dat in de tekst nergens naar een ander item verwijst: geen verwijsblok, geen "Lees ook" en geen gewone link naar een ander artikel. Onder een tutorial, tool of seriedeel staat het nooit (Frits, 01-10-2026: de onderkant was te druk). Verschijnt het wel, dan kiest het eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie.
 
 ### Series
 

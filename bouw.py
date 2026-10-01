@@ -729,9 +729,16 @@ def serie_nav_html(item):
 
 
 def verder(item, alle):
-    """Verder lezen: eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie, dan de nieuwste.
+    """Verder lezen, alleen onder een artikel zonder eigen verwijzing naar een ander item.
+    Volgorde: eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie, dan de nieuwste.
     Niet op een seriedeel, en geen seriedelen in de lijst (Bram, 01-10-2026)."""
-    if item.is_deel:
+    if item.is_deel or item.vorm != "md":
+        return ""   # tutorials en tools: de focus blijft op het item zelf (Frits, 01-10-2026)
+    # Alleen als het artikel zelf nergens naar een ander item verwijst (Frits, 01-10-2026):
+    # een verwijsblok of een gewone link in de tekst is genoeg, dan geen tweede blok onderaan.
+    if re.search(r"^>\s*\[!(tutorial|tool|lees-ook)\]", item.tekst, re.M):
+        return ""
+    if any(f"]({x.url}" in item.tekst for x in alle if x is not item):
         return ""
     kandidaten = [x for x in alle if x is not item and not x.concept and not x.is_deel]
 

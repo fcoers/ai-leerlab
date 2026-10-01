@@ -3,6 +3,8 @@ seotitel: Een les ontwerpen met AI: wat je zelf houdt
 beschrijving: Hoe ik met AI een oefenset voor Power BI maakte: welke stappen ik uitbesteedde, wat ik zelf bleef doen en waar het misging.
 kaarttekst: Van leerdoel tot rubric: welke stappen ik aan AI gaf bij een oefenset voor Power BI, en wat ik zelf bleef doen.
 soort: uitleg
+categorie: didactiek
+tags: lesontwerp, toetsing, data-analyse
 voor: docenten
 avatar: dide-rust
 datum: 2026-09-30

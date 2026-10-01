@@ -3,7 +3,9 @@
   "naam": "AI-leerlab",
   "auteur": "Frits Coers",
   "functie": "Docent in het hoger onderwijs",
-  "sameAs": ["https://www.linkedin.com/in/fritscoers/"],
+  "sameAs": [
+    "https://www.linkedin.com/in/fritscoers/"
+  ],
   "labels_bron": "Labels-bron: Boetje, J., & Baake, G. (2026). *Nine prototypical human-AI agency patterns* [Figuur]. figshare. https://doi.org/10.6084/m9.figshare.31706884 (CC BY 4.0).",
   "home": {
     "seotitel": "AI-leerlab · Leren werken met AI, voor studenten en docenten",
@@ -17,5 +19,63 @@
     "beschrijving": "Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.",
     "lede": "Tutorials en korte uitleg over werken met AI. Het nieuwste staat bovenaan."
   },
-  "over_kort": "Ik ben Frits Coers, docent in het hoger onderwijs. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer."
+  "over_kort": "Ik ben Frits Coers, docent in het hoger onderwijs. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer.",
+  "kopje": {
+    "categorie": "precies één slug uit 'categorieen', verplicht. Voorbeeld: categorie: didactiek",
+    "tags": "0 tot 3 waarden uit 'onderwerpen', met komma's. Voorbeeld: tags: lesontwerp, toetsing",
+    "serie": "naam van een bestand in inhoud/series/ zonder .md. Voorbeeld: serie: masterproject",
+    "deel": "geheel getal, uniek binnen de serie, alleen samen met serie. Voorbeeld: deel: 3",
+    "soort": "uitleg, tutorial, tool of verhaal"
+  },
+  "categorieen": [
+    {
+      "slug": "praktijk",
+      "naam": "AI in de praktijk",
+      "avatar": "james-rust",
+      "lede": "Hoe je AI inzet in je dagelijkse werk en studie, en welke afspraken je daarbij maakt.",
+      "seotitel": "AI in de praktijk: zo werk je elke dag met AI",
+      "beschrijving": "Artikelen en tutorials over werken met AI in je dagelijkse werk en studie: AI-agents, prompts en de afspraken die je erbij maakt."
+    },
+    {
+      "slug": "didactiek",
+      "naam": "Didactiek",
+      "avatar": "dide-rust",
+      "lede": "Hoe je AI inzet in je lessen, opdrachten en toetsing. En wat je beter zelf blijft doen.",
+      "seotitel": "AI in je onderwijs: lessen, opdrachten en toetsing",
+      "beschrijving": "Artikelen en tutorials over AI in je lessen: lesontwerp, opdrachten, feedback en toetsing. Wat je aan AI geeft en wat je zelf doet."
+    },
+    {
+      "slug": "techniek",
+      "naam": "Techniek",
+      "avatar": "job-rust",
+      "lede": "Hoe AI werkt, in gewone taal. Genoeg om goede keuzes te maken, zonder dat je hoeft te programmeren.",
+      "seotitel": "Techniek achter AI: hoe het werkt, in gewone taal",
+      "beschrijving": "Uitleg over de techniek achter AI, in gewone taal: hoe taalmodellen werken, wat agents doen en waar de grenzen liggen."
+    },
+    {
+      "slug": "onderzoek",
+      "naam": "Onderzoek",
+      "avatar": "onno-rust",
+      "lede": "Wat onderzoek zegt over leren met AI, en hoe je AI verantwoord gebruikt in je eigen onderzoek.",
+      "seotitel": "Onderzoek en AI: wat we weten over leren met AI",
+      "beschrijving": "Artikelen over onderzoek naar AI in het hoger onderwijs: wat we weten, hoe je zelf onderzoek doet en hoe je AI daarbij verantwoord gebruikt."
+    }
+  ],
+  "onderwerpen": [
+    "agents",
+    "prompts",
+    "lesontwerp",
+    "toetsing",
+    "feedback",
+    "schrijven",
+    "verantwoording",
+    "privacy",
+    "data-analyse",
+    "professionalisering"
+  ],
+  "series": {
+    "seotitel": "Series: artikelen in delen, op volgorde",
+    "beschrijving": "De series van AI-leerlab: reeksen artikelen over leren en werken met AI die je op volgorde leest, met regelmatig een nieuw deel.",
+    "lede": "Reeksen artikelen die je op volgorde leest. Een lopende serie krijgt regelmatig een nieuw deel."
+  }
 }

@@ -33,7 +33,14 @@ SOORTEN = {  # soort -> (label, meervoud, actietekst)
     "uitleg": ("Uitleg", "Uitleg", "Lees het artikel"),
     "tutorial": ("Tutorial", "Tutorials", "Open de tutorial"),
     "tool": ("Tool", "Tools", "Probeer de tool"),
+    "verhaal": ("Verhaal", "Verhalen", "Lees het verhaal"),
 }
+WEEKDAGEN = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"]
+# Categorieën en onderwerpen staan in site.json (één plek, ook voor de contentkalender).
+CATEGORIEEN = {c["slug"]: c for c in SITE.get("categorieen", [])}
+ONDERWERPEN = list(SITE.get("onderwerpen", []))
+MAX_TAGS = 3
+ONDERWERP_DREMPEL = 3      # een eigen pagina /onderwerp/<tag>/ pas vanaf zoveel artikelen
 WAARSCHUWINGEN = []
 
 
@@ -52,6 +59,9 @@ def icoon(naam, klasse=""):
         "klok": '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
         "scherm": '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/>',
         "download": '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+        "verhaal": '<path d="M5 5h14v10h-8l-4 4v-4H5z"/>',
+        "serie": '<path d="M8 3h12v14M5 6h12v15H5z"/>',
+        "pijl-terug": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
     }
     k = f' class="{klasse}"' if klasse else ""
     return f'<svg{k} viewBox="0 0 24 24" aria-hidden="true">{paden[naam]}</svg>'
@@ -240,6 +250,18 @@ class Item:
         self.bijgewerkt = lees_datum(m["bijgewerkt"]) if m.get("bijgewerkt") else self.datum
         self.avatar = m.get("avatar", "")
         self.uitgelicht = m.get("uitgelicht", "").lower() in ("ja", "yes", "true")
+        # Categorie (slug uit site.json), onderwerpen (tags) en een plek in een serie.
+        cat = m.get("categorie", "").strip()
+        self.categorie = next((c for c in CATEGORIEEN if cat.lower() in (c, CATEGORIEEN[c]["naam"].lower())), cat)
+        self.tags = [t.strip().lower() for t in m.get("tags", "").split(",") if t.strip()]
+        self.serie = m.get("serie", "").strip()
+        self.deel = None
+        if m.get("deel", "").strip():
+            try:
+                self.deel = int(m["deel"])
+            except ValueError:
+                let_op(f"{os.path.basename(pad)}: deel '{m['deel']}' is geen getal")
+        self.map = map_
         self.titel = m.get("titel", "")
         self.byline = ""
         self.transparantie = m.get("transparantie", "")
@@ -280,9 +302,25 @@ class Item:
     def soortlabel(self):
         return SOORTEN.get(self.soort, (self.soort.capitalize(),))[0]
 
+    @property
+    def is_deel(self):
+        """Een deel van een zichtbare serie (een serie verschijnt pas met één gepubliceerd deel)."""
+        return bool(self.serie and self.deel and self.serie in STAAT["series"])
+
+    @property
+    def categorie_info(self):
+        return CATEGORIEEN.get(self.categorie)
+
+
+# Wat er zichtbaar is, berekend in bouw(): alleen series met een gepubliceerd deel, categorieën
+# met artikelen en onderwerpen vanaf ONDERWERP_DREMPEL artikelen krijgen een pagina en een link.
+STAAT = {"series": {}, "categorieen": {}, "onderwerpen": {}}
+GEPLAND = []   # artikelen met een datum in de toekomst: nog niet op de site, wel nodig voor "Deel 6 verschijnt op ..."
+
 
 def lees_items():
     items = []
+    GEPLAND.clear()
     for map_ in ("leren", "tools"):
         d = os.path.join(INHOUD, map_)
         if not os.path.isdir(d):
@@ -294,15 +332,118 @@ def lees_items():
             # Gepland publiceren: een artikel met een datum in de toekomst gaat pas op die dag
             # online. De GitHub Action bouwt elke ochtend (zie README, "Gepland publiceren").
             if item.datum > datetime.date.today() and not item.concept:
+                GEPLAND.append(item)
                 continue
             items.append(item)
     return items
 
 
+# ---------------------------------------------------------------- series
+class Serie:
+    """Een serie: inhoud/series/<naam>.md met een kopje en de tekst voor "Over deze serie".
+    De delen zijn gewone artikelen met 'serie: <naam>' en 'deel: <nummer>' in hun kopje."""
+
+    def __init__(self, pad):
+        self.pad = pad
+        self.meta, tekst = lees_bestand(pad)
+        m = self.meta
+        self.slug = os.path.splitext(os.path.basename(pad))[0]
+        self.url = f"/series/{self.slug}/"
+        self.titel = m.get("titel", self.slug.capitalize())
+        self.seotitel = m.get("seotitel", self.titel)
+        self.beschrijving = m.get("beschrijving", "")
+        self.lede = m.get("lede", self.beschrijving)
+        self.categorie = m.get("categorie", "").strip()
+        self.avatar = m.get("avatar", "")
+        self.ritme = m.get("ritme", "").strip()          # "elke week"
+        self.dag = m.get("dag", "").strip()              # "donderdag", optioneel
+        self.lopend = m.get("status", "lopend").strip().lower() != "afgerond"
+        self.over = tekst.strip()
+        self.delen = []      # gepubliceerd, op volgorde
+        self.gepland = []    # datum in de toekomst, op volgorde
+        if self.categorie and self.categorie not in CATEGORIEEN:
+            let_op(f"series/{self.slug}.md: onbekende categorie '{self.categorie}'")
+        if not self.beschrijving:
+            let_op(f"series/{self.slug}.md: geen beschrijving (meta description)")
+
+    @property
+    def label(self):
+        if not self.lopend:
+            return "Serie · afgerond"
+        return f"Serie · {self.ritme}" if self.ritme else "Serie"
+
+    def buren(self, item):
+        """(vorige, volgende, gepland) rond een deel; gepland alleen als er geen volgende uit is."""
+        i = self.delen.index(item)
+        vorige = self.delen[i - 1] if i > 0 else None
+        volgende = self.delen[i + 1] if i + 1 < len(self.delen) else None
+        gepland = self.gepland[0] if not volgende and self.gepland and self.lopend else None
+        return vorige, volgende, gepland
+
+
+def lees_series(items):
+    """Leest inhoud/series/*.md en hangt de delen eraan. Alleen een serie met minstens één
+    gepubliceerd deel komt in STAAT["series"]; de rest blijft onzichtbaar (geen menu, geen sitemap)."""
+    alle = {}
+    d = os.path.join(INHOUD, "series")
+    if os.path.isdir(d):
+        for naam in sorted(os.listdir(d)):
+            if naam.endswith(".md") and not naam.startswith((".", "_")):
+                s = Serie(os.path.join(d, naam))
+                alle[s.slug] = s
+    for item in items + GEPLAND:
+        if item.serie and item.serie not in alle:
+            let_op(f"{os.path.basename(item.pad)}: serie '{item.serie}' bestaat niet (geen inhoud/series/{item.serie}.md)")
+            continue
+        if item.serie and not item.deel:
+            let_op(f"{os.path.basename(item.pad)}: serie '{item.serie}' zonder deelnummer (zet 'deel: 1' in het kopje)")
+            continue
+        if item.deel and not item.serie:
+            let_op(f"{os.path.basename(item.pad)}: deel {item.deel} zonder serie")
+            continue
+        if not item.serie or item.concept:
+            continue
+        s = alle[item.serie]
+        (s.gepland if item in GEPLAND else s.delen).append(item)
+    for s in alle.values():
+        s.delen.sort(key=lambda x: x.deel)
+        s.gepland.sort(key=lambda x: (x.deel, x.datum))
+        nummers = [x.deel for x in s.delen + s.gepland]
+        for n in sorted(set(nummers)):
+            if nummers.count(n) > 1:
+                let_op(f"serie '{s.slug}': deel {n} komt twee keer voor")
+    return {k: s for k, s in alle.items() if s.delen}
+
+
+def controleer_kopje(item):
+    """Waarschuwingen voor categorie, onderwerpen en de naam van een artikel."""
+    naam = os.path.basename(item.pad)
+    if item.map != "leren":
+        return
+    if not item.categorie:
+        let_op(f"{naam}: geen categorie (kies uit {', '.join(CATEGORIEEN)})")
+    elif item.categorie not in CATEGORIEEN:
+        let_op(f"{naam}: onbekende categorie '{item.categorie}' (kies uit {', '.join(CATEGORIEEN)})")
+    for t in item.tags:
+        if t not in ONDERWERPEN:
+            let_op(f"{naam}: onbekend onderwerp '{t}' (de lijst staat in site.json)")
+    if len(item.tags) > MAX_TAGS:
+        let_op(f"{naam}: {len(item.tags)} onderwerpen, hooguit {MAX_TAGS}")
+    if item.slug in CATEGORIEEN:
+        let_op(f"{naam}: heet als een categorie; /leren/{item.slug}/ is de categoriepagina. Kies een andere naam")
+
+
 # ---------------------------------------------------------------- onderdelen
+def soort_label(item):
+    """Het label boven een kaart of titel: soort, of bij een seriedeel "Deel 3" met het serie-icoon."""
+    if item.is_deel:
+        return f'{icoon("serie")}<span class="serie-deel">Deel {item.deel}</span>'
+    return f"{icoon(item.soort)}{esc(item.soortlabel)}"
+
+
 def kaart(item):
     return f"""<li class="kaart">
-  <p class="label">{icoon(item.soort)}{esc(item.soortlabel)}</p>
+  <p class="label">{soort_label(item)}</p>
   <h3><a href="{item.url}">{esc(item.titel)}</a></h3>
   <p class="uitleg">{esc(item.kaarttekst)}</p>
   <p class="voor">{esc(voor_tekst(item.voor))}</p>
@@ -455,6 +596,10 @@ def deelbeeld(slug):
 def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", deel="/assets/img/deel/ai-leerlab.png",
            schema="", noindex=False, extra_kop="", extra_voet="", hoofd_titel=None):
     volle_titel = hoofd_titel or f"{titel} · {SITE['naam']}"
+    # Series staat pas in het menu als er een serie met een gepubliceerd deel is.
+    huidig = ' aria-current="page"' if menu == "series" else ""
+    menu_series = f'\n        <a href="/series/"{huidig}>Series</a>' if STAAT["series"] else ""
+    voet_series = '\n        <a href="/series/">Series</a>' if STAAT["series"] else ""
     vervang = {
         "titel": esc(volle_titel),
         "ogtitel": esc(titel),
@@ -468,6 +613,8 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "extra_voet": extra_voet,
         "inhoud": inhoud,
         "menu_leren": ' aria-current="page"' if menu == "leren" else "",
+        "menu_series": menu_series,
+        "voet_series": voet_series,
         "menu_over": ' aria-current="page"' if menu == "over" else "",
         "jaar": str(datetime.date.today().year),
         "versie": VERSIE,
@@ -477,6 +624,29 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
     os.makedirs(os.path.dirname(doel), exist_ok=True)
     with open(doel, "w", encoding="utf-8") as f:
         f.write(tekst)
+
+
+def kruimel_html(*stappen):
+    """<p class="kruimel"> met links; stappen zijn (naam, url)."""
+    sep = ' <span aria-hidden="true">/</span> '
+    return '<p class="kruimel">' + sep.join(f'<a href="{u}">{esc(n)}</a>' for n, u in stappen) + "</p>"
+
+
+def item_stappen(item):
+    """Het kruimelpad boven een item: (naam, url) per stap, zonder het item zelf."""
+    if item.is_deel:
+        s = STAAT["series"][item.serie]
+        return [("Beginpagina", "/"), ("Series", "/series/"), (s.titel, s.url)]
+    stappen = [("Beginpagina", "/"), ("Leren", "/leren/")]
+    c = item.categorie_info
+    if c and not item.concept and c["slug"] in STAAT["categorieen"]:
+        stappen.append((c["naam"], f"/leren/{c['slug']}/"))
+    return stappen
+
+
+def item_kruimelpad_schema(item):
+    stappen = [("AI-leerlab" if n == "Beginpagina" else n, u) for n, u in item_stappen(item)]
+    return kruimelpad(*stappen, (item.titel, None))
 
 
 def item_kop(item, lede_html="", feiten_extra=()):
@@ -492,8 +662,8 @@ def item_kop(item, lede_html="", feiten_extra=()):
     return f"""<section class="item-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
     <div class="tekst">
-      <p class="kruimel"><a href="/">Beginpagina</a> <span aria-hidden="true">/</span> <a href="/leren/">Leren</a></p>
-      <p class="label">{icoon(item.soort)}{esc(item.soortlabel)}</p>
+      {kruimel_html(*item_stappen(item))}
+      <p class="label">{soort_label(item)}</p>
       <h1 id="titel">{esc(item.titel)}</h1>
       {lede_html}
       {byline}
@@ -504,14 +674,95 @@ def item_kop(item, lede_html="", feiten_extra=()):
 </section>"""
 
 
+def onderwerpen_html(item):
+    """De onderwerpen onder een item. Een link alleen als het onderwerp een eigen pagina heeft,
+    en nooit op een seriedeel: daar is de serienavigatie het enige blok met links."""
+    tags = [t for t in item.tags if t in ONDERWERPEN]
+    if not tags:
+        return ""
+    delen = []
+    for t in tags:
+        if t in STAAT["onderwerpen"] and not item.is_deel and not item.concept:
+            delen.append(f'<a href="/onderwerp/{t}/">{esc(t)}</a>')
+        else:
+            delen.append(f"<span>{esc(t)}</span>")
+    return f'<p class="onderwerpen"><span class="label">Onderwerpen</span>{"".join(delen)}</p>'
+
+
+def dag_nl(d):
+    """'donderdag 12 november', met het jaar erbij als dat niet dit jaar is."""
+    t = f"{WEEKDAGEN[d.weekday()]} {d.day} {MAANDEN[d.month - 1]}"
+    return t if d.year == datetime.date.today().year else f"{t} {d.year}"
+
+
+def serie_nav_html(item):
+    """Serienavigatie onder een deel: vorige en volgende naast elkaar, en een link naar alle delen.
+    Is het volgende deel gepland, dan de datum in een kaart met stippelrand, zonder link."""
+    if not item.is_deel or item.concept:
+        return ""
+    s = STAAT["series"][item.serie]
+    vorige, volgende, gepland = s.buren(item)
+    links = rechts = "<span></span>"
+    if vorige:
+        links = f"""<a class="stap vorige" href="{vorige.url}">
+            <span class="richting">{icoon("pijl-terug")}Deel {vorige.deel}</span>
+            <span class="titel">{esc(vorige.titel)}</span>
+          </a>"""
+    if volgende:
+        rechts = f"""<a class="stap volgende" href="{volgende.url}">
+            <span class="richting">Deel {volgende.deel}{icoon("pijl")}</span>
+            <span class="titel">{esc(volgende.titel)}</span>
+          </a>"""
+    elif gepland:
+        rechts = f"""<div class="stap volgende nog-niet">
+            <span class="richting">Deel {gepland.deel}</span>
+            <span class="titel">Verschijnt op {dag_nl(gepland.datum)}</span>
+          </div>"""
+    return f"""<nav class="serie-nav" aria-label="Andere delen van deze serie">
+        <p class="label">Serie · <a href="{s.url}">{esc(s.titel)}</a></p>
+        <div class="paar">
+          {links}
+          {rechts}
+        </div>
+        <a class="tekstlink alle" href="{s.url}">Alle delen van deze serie</a>
+      </nav>"""
+
+
 def verder(item, alle):
-    anderen = [x for x in alle if x is not item and not x.concept][:3]
+    """Verder lezen: eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie, dan de nieuwste.
+    Niet op een seriedeel, en geen seriedelen in de lijst (Bram, 01-10-2026)."""
+    if item.is_deel:
+        return ""
+    kandidaten = [x for x in alle if x is not item and not x.concept and not x.is_deel]
+
+    def score(x):
+        gedeeld = len(set(x.tags) & set(item.tags))
+        return (gedeeld, x.categorie == item.categorie and bool(item.categorie), x.datum)
+
+    anderen = sorted(kandidaten, key=score, reverse=True)[:3]
     if not anderen:
         return ""
     return f"""<section class="verder" aria-labelledby="verder-titel">
   <h2 id="verder-titel">Verder in het lab</h2>
   {raster(anderen)}
 </section>"""
+
+
+def schema_extra(item):
+    """articleSection en keywords; op een deel isPartOf de serie met position."""
+    extra = {}
+    if item.categorie_info:
+        extra["articleSection"] = item.categorie_info["naam"]
+    if item.tags:
+        extra["keywords"] = ", ".join(item.tags)
+    deel_van = [{"@id": f"{ADRES}/#site"}]
+    if item.is_deel:
+        s = STAAT["series"][item.serie]
+        deel_van.append({"@type": "CreativeWorkSeries", "@id": f"{ADRES}{s.url}#serie", "name": s.titel,
+                         "url": ADRES + s.url})
+        extra["position"] = item.deel
+    extra["isPartOf"] = deel_van if len(deel_van) > 1 else deel_van[0]
+    return extra
 
 
 def bouw_artikel(item, alle):
@@ -521,6 +772,8 @@ def bouw_artikel(item, alle):
 <div class="wrap">
   <article class="artikel">
     {lijf}
+    {onderwerpen_html(item)}
+    {serie_nav_html(item)}
     {transparantie_html(item)}
   </article>
   {verder(item, alle)}
@@ -530,11 +783,12 @@ def bouw_artikel(item, alle):
          "inLanguage": "nl", "datePublished": item.datum.isoformat(), "dateModified": item.bijgewerkt.isoformat(),
          "author": {"@id": f"{ADRES}/#frits"}, "publisher": {"@id": f"{ADRES}/#frits"},
          "image": ADRES + deelbeeld(item.slug), "mainEntityOfPage": ADRES + item.url,
-         "isPartOf": {"@id": f"{ADRES}/#site"}},
+         **schema_extra(item)},
         PERSOON, WEBSITE,
-        kruimelpad(("AI-leerlab", "/"), ("Leren", "/leren/"), (item.titel, None)))
+        item_kruimelpad_schema(item))
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
-           menu="leren", ogtype="article", deel=deelbeeld(item.slug), schema=schema, noindex=item.concept,
+           menu="series" if item.is_deel else "leren", ogtype="article", deel=deelbeeld(item.slug), schema=schema,
+           noindex=item.concept,
            extra_kop=f'<meta property="article:published_time" content="{item.datum.isoformat()}">\n'
                      f'  <meta property="article:modified_time" content="{item.bijgewerkt.isoformat()}">')
 
@@ -548,6 +802,7 @@ def bouw_html_item(item, alle):
   <div class="{esc(item.meta.get('klasse', 'eigen'))}">
 {item.tekst}
   </div>
+  {onderwerpen_html(item)}
   {verder(item, alle)}
 </div>"""
     stappen = [s.strip() for s in item.meta.get("stappen", "").split("|") if s.strip()]
@@ -559,15 +814,38 @@ def bouw_html_item(item, alle):
              "author": {"@id": f"{ADRES}/#frits"},
              "audience": [{"@type": "EducationalAudience",
                            "educationalRole": "student" if v.startswith("student") else "teacher"} for v in item.voor]}
+    extra = schema_extra(item)
+    extra.pop("isPartOf", None)
+    hoofd.update(extra)
     if stappen:
         hoofd["step"] = [{"@type": "HowToStep", "position": n + 1, "name": s, "url": f"{ADRES}{item.url}#stap-{n + 1}"}
                          for n, s in enumerate(stappen)]
-    schema = jsonld(hoofd, PERSOON, WEBSITE,
-                    kruimelpad(("AI-leerlab", "/"), ("Leren", "/leren/"), (item.titel, None)))
+    schema = jsonld(hoofd, PERSOON, WEBSITE, item_kruimelpad_schema(item))
     script = item.meta.get("script", "")
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
            menu="leren", deel=deelbeeld(item.slug), schema=schema, noindex=item.concept,
            extra_voet=f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "")
+
+
+def serie_regel(s):
+    """Eén regel op de beginpagina voor een lopende serie, in de stijl van "Lees ook"."""
+    laatste = s.delen[-1]
+    return f"""<nav class="lees-ook serie-regel" aria-label="Lopende serie">
+  <p class="label">{icoon("serie")}{esc(s.label.replace("Serie · ", "Serie, "))}</p>
+  <a href="{s.url}">{esc(s.titel)} · Deel {laatste.deel} is uit{icoon("pijl")}</a>
+</nav>"""
+
+
+def categorie_regel():
+    """Onder het raster op de beginpagina: de categorieën met artikelen."""
+    if not STAAT["categorieen"]:
+        return ""
+    links = "".join(f'<li><a href="/leren/{slug}/">{esc(CATEGORIEEN[slug]["naam"])}</a></li>'
+                    for slug in CATEGORIEEN if slug in STAAT["categorieen"])
+    return f"""<nav class="categorie-regel" aria-label="Categorieën">
+  <p class="label">Categorieën</p>
+  <ul>{links}</ul>
+</nav>"""
 
 
 def bouw_home(items):
@@ -580,7 +858,7 @@ def bouw_home(items):
     if uit:
         uitgelicht = f"""<article class="uitgelicht">
   <div class="tekst">
-    <p class="label">{icoon(uit.soort)}{esc(uit.soortlabel)} · <span class="nieuw">Nieuw</span></p>
+    <p class="label">{soort_label(uit)} · <span class="nieuw">Nieuw</span></p>
     <h2><a href="{uit.url}">{esc(uit.titel)}</a></h2>
     <p>{esc(uit.kaarttekst)}</p>
     <p class="voor">{esc(voor_tekst(uit.voor))}{(' · ' + esc(uit.meta['duur'])) if uit.meta.get('duur') else ''}</p>
@@ -588,6 +866,7 @@ def bouw_home(items):
   </div>
   <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
 </article>"""
+    series = "".join(serie_regel(s) for s in STAAT["series"].values() if s.lopend)
     inhoud = f"""<section class="held labpapier" aria-labelledby="titel">
   <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
   {avatar_img(h["avatar"], "held-avatar")}
@@ -599,7 +878,9 @@ def bouw_home(items):
 <div class="wrap" id="items">
   <h2 class="sr">Nieuw in het lab</h2>
   {uitgelicht}
+  {series}
   {raster(rest)}
+  {categorie_regel()}
 </div>
 <section class="wrap" aria-labelledby="over-titel">
   <div class="van-frits">
@@ -617,9 +898,31 @@ def bouw_home(items):
            schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"])
 
 
-def bouw_leren(items):
-    live = sorted([x for x in items if not x.concept and x.url.startswith("/leren/")],
+def leren_items(items):
+    return sorted([x for x in items if not x.concept and x.url.startswith("/leren/")],
                   key=lambda x: x.datum, reverse=True)
+
+
+def tabrij(items, actief=""):
+    """De categorieën als tabrij op /leren/ en /leren/<categorie>/. Een lege categorie verschijnt niet."""
+    if not STAAT["categorieen"]:
+        return ""
+    def tab(naam, url, n, aan):
+        huidig = ' aria-current="page"' if aan else ""
+        return f'<li><a href="{url}"{huidig}>{esc(naam)} <span class="aantal">{n}</span></a></li>'
+    tabs = [tab("Alles", "/leren/", len(leren_items(items)), not actief)]
+    for slug, c in CATEGORIEEN.items():
+        if slug in STAAT["categorieen"]:
+            tabs.append(tab(c["naam"], f"/leren/{slug}/", len(STAAT["categorieen"][slug]), actief == slug))
+    return f"""<nav class="tabrij" aria-label="Categorieën">
+  <div class="wrap">
+    <ul>{"".join(tabs)}</ul>
+  </div>
+</nav>"""
+
+
+def bouw_leren(items):
+    live = leren_items(items)
     inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
     <p class="kruimel"><a href="/">Beginpagina</a></p>
@@ -627,6 +930,7 @@ def bouw_leren(items):
     <p class="lede">{esc(SITE["leren"]["lede"])}</p>
   </div>
 </section>
+{tabrij(items)}
 <div class="wrap lijst">
   {raster(live)}
 </div>"""
@@ -635,6 +939,211 @@ def bouw_leren(items):
            schema=jsonld({"@type": "CollectionPage", "name": "Leren", "url": f"{ADRES}/leren/",
                           "isPartOf": {"@id": f"{ADRES}/#site"}}, WEBSITE, PERSOON,
                          kruimelpad(("AI-leerlab", "/"), ("Leren", None))))
+
+
+def lijst_schema(naam, url, beschrijving, leden, *kruimels):
+    return jsonld({"@type": "CollectionPage", "name": naam, "url": ADRES + url, "description": beschrijving,
+                   "isPartOf": {"@id": f"{ADRES}/#site"},
+                   "mainEntity": {"@type": "ItemList", "itemListElement": [
+                       {"@type": "ListItem", "position": n + 1, "url": ADRES + x.url, "name": x.titel}
+                       for n, x in enumerate(leden)]}},
+                  WEBSITE, PERSOON, kruimelpad(*kruimels))
+
+
+def bouw_categorieen(items):
+    """Een pagina per categorie met artikelen: /leren/<categorie>/, met de tabrij."""
+    for slug, leden in STAAT["categorieen"].items():
+        c = CATEGORIEEN[slug]
+        url = f"/leren/{slug}/"
+        inhoud = f"""<section class="item-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      {kruimel_html(("Beginpagina", "/"), ("Leren", "/leren/"))}
+      <h1 id="titel">{esc(c["naam"])}</h1>
+      <p class="lede">{esc(c["lede"])}</p>
+    </div>
+    <div class="kop-avatar">{avatar_img(c.get("avatar", ""), "")}</div>
+  </div>
+</section>
+{tabrij(items, slug)}
+<div class="wrap lijst">
+  {raster(leden)}
+</div>"""
+        pagina(url, titel=c["seotitel"], beschrijving=c["beschrijving"], inhoud=inhoud, url=url, menu="leren",
+               schema=lijst_schema(c["naam"], url, c["beschrijving"], leden,
+                                   ("AI-leerlab", "/"), ("Leren", "/leren/"), (c["naam"], None)))
+        EXTRA.append((url, max(x.bijgewerkt for x in leden)))
+
+
+def bouw_onderwerpen():
+    """/onderwerp/<tag>/, alleen voor onderwerpen met minstens ONDERWERP_DREMPEL artikelen."""
+    for tag, leden in STAAT["onderwerpen"].items():
+        url = f"/onderwerp/{tag}/"
+        naam = tag[0].upper() + tag[1:]
+        seotitel = f"{naam} en AI: artikelen en tutorials"
+        beschrijving = (f"Alle artikelen en tutorials van AI-leerlab over {tag}, "
+                        "voor studenten en docenten in het hoger onderwijs.")
+        inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    {kruimel_html(("Beginpagina", "/"), ("Leren", "/leren/"))}
+    <p class="label">Onderwerp</p>
+    <h1 id="titel">{esc(naam)}</h1>
+    <p class="lede">Alles in het lab over {esc(tag)}. Het nieuwste staat bovenaan.</p>
+  </div>
+</section>
+<div class="wrap lijst">
+  {raster(leden)}
+</div>"""
+        pagina(url, titel=seotitel, beschrijving=beschrijving, inhoud=inhoud, url=url, menu="leren",
+               schema=lijst_schema(naam, url, beschrijving, leden,
+                                   ("AI-leerlab", "/"), ("Leren", "/leren/"), (naam, None)))
+        EXTRA.append((url, max(x.bijgewerkt for x in leden)))
+
+
+def serie_feiten(s):
+    feiten = [f'<li>{icoon("tutorial")}{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"}</li>']
+    sinds = f"Sinds {datum_nl(s.delen[0].datum)}"
+    if s.lopend and (s.dag or s.ritme):
+        sinds += f", elke {s.dag}" if s.dag else f", {s.ritme}"
+    feiten.append(f'<li>{icoon("klok")}{esc(sinds)}</li>')
+    c = CATEGORIEEN.get(s.categorie)
+    if c:
+        naam = (f'<a href="/leren/{c["slug"]}/">{esc(c["naam"])}</a>' if c["slug"] in STAAT["categorieen"]
+                else esc(c["naam"]))
+        feiten.append(f'<li>{icoon("uitleg")}{naam}</li>')
+    return f'<ul class="feiten">{"".join(feiten)}</ul>'
+
+
+def bouw_series():
+    """/series/ en /series/<naam>/, alleen voor series met minstens één gepubliceerd deel."""
+    if not STAAT["series"]:
+        return
+    for s in STAAT["series"].values():
+        nieuwste = s.delen[-1]
+        knoppen = f'<a class="knop knop-primair" href="{s.delen[0].url}">Begin bij deel 1{icoon("pijl")}</a>'
+        if len(s.delen) > 1:
+            knoppen += f'\n            <a class="tekstlink" href="#deel-{nieuwste.deel}">Lees het nieuwste deel</a>'
+        rijen = []
+        for x in s.delen:
+            is_nieuw = x is nieuwste and s.lopend and len(s.delen) > 1
+            nieuw = '<span class="nieuw">Nieuw</span>' if is_nieuw else ""
+            rijen.append(f"""<li class="deel{' nieuwste' if is_nieuw else ''}" id="deel-{x.deel}">
+          <span class="nr" aria-hidden="true">{x.deel}</span>
+          <h3><a href="{x.url}"><span class="sr">Deel {x.deel}: </span>{esc(x.titel)}</a></h3>
+          <p>{esc(x.kaarttekst)}</p>
+          <p class="wanneer">{nieuw}<time datetime="{x.datum.isoformat()}">{datum_nl(x.datum)}</time></p>
+        </li>""")
+        if s.lopend and s.gepland:
+            g = s.gepland[0]
+            rijen.append(f"""<li class="deel gepland">
+          <span class="nr" aria-hidden="true">{g.deel}</span>
+          <h3>Deel {g.deel} verschijnt op {dag_nl(g.datum)}</h3>
+        </li>""")
+        over = ""
+        if s.over:
+            over = f"""<section class="serie-over" aria-labelledby="over-serie">
+        <h2 id="over-serie">Over deze serie</h2>
+        {markdown(s.over)}
+      </section>"""
+        inhoud = f"""<section class="item-kop serie-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      {kruimel_html(("Beginpagina", "/"), ("Series", "/series/"))}
+      <p class="label">{icoon("serie")}{esc(s.label)}</p>
+      <h1 id="titel">{esc(s.titel)}</h1>
+      <p class="lede">{esc(s.lede)}</p>
+      {serie_feiten(s)}
+      <div class="knoppen">
+        {knoppen}
+      </div>
+    </div>
+    <div class="kop-avatar">{avatar_img(s.avatar, "")}</div>
+  </div>
+</section>
+<div class="wrap lijst">
+  <h2 class="sr">Alle delen</h2>
+  <ol class="delen">
+    {"".join(rijen)}
+  </ol>
+  {over}
+</div>"""
+        reeks = {"@type": "CreativeWorkSeries", "@id": f"{ADRES}{s.url}#serie", "name": s.titel, "url": ADRES + s.url,
+                 "description": s.beschrijving, "inLanguage": "nl", "author": {"@id": f"{ADRES}/#frits"},
+                 "isPartOf": {"@id": f"{ADRES}/#site"}, "startDate": s.delen[0].datum.isoformat(),
+                 "hasPart": [{"@type": "Article", "headline": x.titel, "url": ADRES + x.url, "position": x.deel}
+                             for x in s.delen]}
+        if CATEGORIEEN.get(s.categorie):
+            reeks["genre"] = CATEGORIEEN[s.categorie]["naam"]
+        feed = f"{s.url}feed.xml"
+        pagina(s.url, titel=s.seotitel, beschrijving=s.beschrijving, inhoud=inhoud, url=s.url, menu="series",
+               schema=jsonld(reeks, PERSOON, WEBSITE,
+                             kruimelpad(("AI-leerlab", "/"), ("Series", "/series/"), (s.titel, None))),
+               extra_kop=f'<link rel="alternate" type="application/rss+xml" title="{esc(s.titel)}" href="{feed}">')
+        bouw_feed(s)
+        EXTRA.append((s.url, max(x.bijgewerkt for x in s.delen)))
+
+    # Het overzicht /series/
+    alle = sorted(STAAT["series"].values(), key=lambda s: s.delen[-1].datum, reverse=True)
+    kaarten = "\n".join(f"""<li class="kaart">
+  <p class="label">{icoon("serie")}{esc(s.label)}</p>
+  <h3><a href="{s.url}">{esc(s.titel)}</a></h3>
+  <p class="uitleg">{esc(s.lede)}</p>
+  <p class="voor">{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"} · nieuwste {datum_nl(s.delen[-1].datum)}</p>
+</li>""" for s in alle)
+    t = SITE.get("series", {})
+    beschrijving = t.get("beschrijving", "")
+    inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <p class="kruimel"><a href="/">Beginpagina</a></p>
+    <h1 id="titel">Series</h1>
+    <p class="lede">{esc(t.get("lede", ""))}</p>
+  </div>
+</section>
+<div class="wrap lijst">
+  <ul class="raster">
+{kaarten}
+  </ul>
+</div>"""
+    schema = jsonld({"@type": "CollectionPage", "name": "Series", "url": f"{ADRES}/series/", "description": beschrijving,
+                     "isPartOf": {"@id": f"{ADRES}/#site"},
+                     "mainEntity": {"@type": "ItemList", "itemListElement": [
+                         {"@type": "ListItem", "position": n + 1, "url": ADRES + s.url, "name": s.titel}
+                         for n, s in enumerate(alle)]}},
+                    WEBSITE, PERSOON, kruimelpad(("AI-leerlab", "/"), ("Series", None)))
+    pagina("/series/", titel=t.get("seotitel", "Series"), beschrijving=beschrijving, inhoud=inhoud, url="/series/",
+           menu="series", schema=schema)
+    EXTRA.append(("/series/", max(s.delen[-1].bijgewerkt for s in alle)))
+
+
+def bouw_feed(s):
+    """RSS per serie: /series/<naam>/feed.xml, nieuwste deel bovenaan."""
+    import email.utils
+
+    def rfc(d):
+        return email.utils.format_datetime(datetime.datetime(d.year, d.month, d.day, 7, 0, tzinfo=datetime.timezone.utc))
+
+    items = "\n".join(f"""  <item>
+    <title>Deel {x.deel}: {esc(x.titel)}</title>
+    <link>{ADRES}{x.url}</link>
+    <guid>{ADRES}{x.url}</guid>
+    <pubDate>{rfc(x.datum)}</pubDate>
+    <description>{esc(x.beschrijving)}</description>
+  </item>""" for x in reversed(s.delen))
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>{esc(s.titel)} · {esc(SITE["naam"])}</title>
+  <link>{ADRES}{s.url}</link>
+  <atom:link href="{ADRES}{s.url}feed.xml" rel="self" type="application/rss+xml"/>
+  <description>{esc(s.beschrijving)}</description>
+  <language>nl</language>
+  <lastBuildDate>{rfc(s.delen[-1].bijgewerkt)}</lastBuildDate>
+{items}
+</channel>
+</rss>
+"""
+    with open(os.path.join(UIT, s.url.strip("/"), "feed.xml"), "w", encoding="utf-8") as f:
+        f.write(xml)
 
 
 def bouw_losse_paginas(items):
@@ -695,7 +1204,8 @@ def bouw_sitemap(items):
     regels = []
     live = [x for x in items if not x.concept]
     laatste = max([x.bijgewerkt for x in live] or [datetime.date.today()])
-    lijst = [("/", laatste), ("/leren/", laatste)] + LOSSE + [(x.url, x.bijgewerkt) for x in live]
+    # EXTRA: categorie-, serie- en onderwerppagina's, alleen de pagina's die er echt zijn.
+    lijst = [("/", laatste), ("/leren/", laatste)] + EXTRA + LOSSE + [(x.url, x.bijgewerkt) for x in live]
     for url, d in lijst:
         regels.append(f"  <url><loc>{ADRES}{url}</loc><lastmod>{d.isoformat()}</lastmod></url>")
     with open(os.path.join(UIT, "sitemap.xml"), "w", encoding="utf-8") as f:
@@ -709,6 +1219,7 @@ def bouw_sitemap(items):
 
 # ---------------------------------------------------------------- bouwen
 LOSSE = []
+EXTRA = []
 VERSIE = datetime.datetime.now().strftime("%Y%m%d%H%M")
 
 
@@ -720,10 +1231,22 @@ def bouw():
     urls = [x.url for x in items]
     if len(urls) != len(set(urls)):
         let_op("twee items hebben hetzelfde adres")
+    for item in items + GEPLAND:
+        controleer_kopje(item)
+    # Wat zichtbaar is: series met een gepubliceerd deel, categorieën met artikelen, onderwerpen vanaf de drempel.
+    STAAT["series"] = lees_series(items)
+    live = leren_items(items)
+    STAAT["categorieen"] = {c: [x for x in live if x.categorie == c] for c in CATEGORIEEN
+                            if any(x.categorie == c for x in live)}
+    STAAT["onderwerpen"] = {t: [x for x in live if t in x.tags] for t in ONDERWERPEN
+                            if sum(t in x.tags for x in live) >= ONDERWERP_DREMPEL}
     for item in items:
         (bouw_artikel if item.vorm == "md" else bouw_html_item)(item, items)
     bouw_home(items)
     bouw_leren(items)
+    bouw_categorieen(items)
+    bouw_series()
+    bouw_onderwerpen()
     bouw_losse_paginas(items)
     bouw_404()
     bouw_sitemap(items)

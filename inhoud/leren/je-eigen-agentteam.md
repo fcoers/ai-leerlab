@@ -3,6 +3,8 @@ seotitel: Je eigen AI-agentteam: zo begin je
 beschrijving: Hoe je een team van AI-agents inzet in je werk of studie, welke afspraken erbij horen en wat er bij mij misging. Met tips om klein te beginnen.
 kaarttekst: Hoe ik werk met een team van AI-agents, welke afspraken daarbij horen en waar het misging.
 soort: uitleg
+categorie: praktijk
+tags: agents, verantwoording
 voor: studenten, docenten
 avatar: james-rust
 datum: 2026-09-30

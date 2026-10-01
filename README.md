@@ -32,6 +32,8 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    beschrijving: Eén of twee zinnen voor Google, hooguit 155 tekens.
    kaarttekst: De uitleg op de kaart op de beginpagina, twee regels.
    soort: uitleg
+   categorie: didactiek
+   tags: lesontwerp, toetsing
    voor: studenten, docenten
    avatar: onno-rust
    datum: 2026-10-14
@@ -39,7 +41,8 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    ```
 
    - `seotitel` is de titel in Google en in het tabblad, hooguit ongeveer 50 tekens (" · AI-leerlab" komt er vanzelf achter).
-   - `soort` is `uitleg`, `tutorial` of `tool`.
+   - `soort` is `uitleg`, `tutorial`, `tool` of `verhaal`.
+   - `categorie` en `tags`: zie hieronder, "Categorieën, onderwerpen en series".
    - `avatar` is de naam van een bestand in `statisch/assets/img/avatars/` zonder `.webp`. Kies het teamlid dat bij het onderwerp past, in rustpose; een tutorial krijgt de rolpose. Nooit dezelfde avatar als het artikel waar je naar verwijst.
    - `datum` in de toekomst plant het artikel: het gaat op die dag online (zie Gepland publiceren).
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
@@ -61,6 +64,39 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
 7. Wil je een eigen deelafbeelding voor LinkedIn en Teams: `python3 maak-deelafbeeldingen.py` maakt er een voor elk artikel dat er nog geen heeft. Bouw daarna opnieuw.
 
 Een foto of schermafbeelding zet je in `statisch/assets/img/` en gebruik je in de tekst met `![Wat erop staat](/assets/img/naam.webp)`.
+
+## Categorieën, onderwerpen en series
+
+Vier velden in het kopje. De namen zijn vast; de contentkalender in de Productiviteit-app schrijft dezelfde regels. De lijsten staan op één plek, in `site.json` (`categorieen`, `onderwerpen`, en onder `kopje` een korte uitleg per veld).
+
+| Veld | Waarde | Voorbeeld |
+|---|---|---|
+| `categorie` | precies één slug: `praktijk`, `didactiek`, `techniek` of `onderzoek`. Verplicht | `categorie: didactiek` |
+| `tags` | 0 tot 3 onderwerpen uit de lijst in `site.json`, met komma's | `tags: lesontwerp, toetsing` |
+| `serie` | naam van een bestand in `inhoud/series/`, zonder `.md` | `serie: masterproject` |
+| `deel` | het nummer binnen de serie, alleen samen met `serie` | `deel: 3` |
+
+- Een artikel blijft altijd op `/leren/<naam>/`. De categorie zit niet in het adres, dus een artikel van categorie wisselen breekt geen link. Daarom mag een artikel niet `praktijk`, `didactiek`, `techniek` of `onderzoek` heten.
+- Elke categorie met artikelen krijgt een eigen pagina, `/leren/<categorie>/`, en een tab bovenaan Leren. Een categorie zonder artikelen verschijnt nergens: geen tab, geen pagina, niet in de sitemap.
+- Een onderwerp staat als tekst onder het artikel. Pas vanaf drie artikelen krijgt het een pagina `/onderwerp/<tag>/` en wordt het een link. Een nieuw onderwerp zet je in `site.json` als twee artikelen het nodig hebben. Nooit de naam van een categorie, soort of product.
+- "Verder in het lab" onder een artikel kiest eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie.
+
+### Series
+
+Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, met `titel`, `seotitel`, `beschrijving`, `lede`, `categorie`, `avatar`, `ritme` (bijvoorbeeld `elke week`), eventueel `dag` (`donderdag`) en `status` (`lopend` of `afgerond`). De tekst onder het kopje wordt "Over deze serie". Een deel is een gewoon artikel met `serie:` en `deel:` in het kopje.
+
+Een serie verschijnt pas als er minstens één deel gepubliceerd is: een deel zonder `status: concept` en met een datum van vandaag of eerder. Tot dan staat Series niet in het menu en niet in de voet, is er geen pagina `/series/` of `/series/<naam>/`, staat er niets over op de beginpagina en niets in de sitemap. Dat regelt `bouw.py` vanzelf; zodra het eerste deel online gaat (ook via gepland publiceren), komt alles tegelijk.
+
+`inhoud/series/masterproject.md` staat er al, met een werktitel. De echte naam zet je daar neer voordat deel 1 verschijnt.
+
+Wat er dan komt:
+
+- `/series/` met alle series en `/series/<naam>/` met de delen in leesvolgorde, "Begin bij deel 1" en "Lees het nieuwste deel". Staat het volgende deel gepland, dan zegt de pagina "Deel 6 verschijnt op donderdag 12 november".
+- Op een deel: kruimelpad Beginpagina / Series / <serie>, het label "Deel 3", onderaan vorige en volgende plus "Alle delen van deze serie". Geen "Verder in het lab", en de onderwerpen zonder links. In "Verder in het lab" bij andere artikelen komen geen seriedelen.
+- Op de beginpagina onder het uitgelichte item één regel per lopende serie: "Logboek masterproject · Deel 5 is uit".
+- Een RSS-feed per serie: `/series/<naam>/feed.xml`.
+
+`bouw.py` waarschuwt onder "Let op" bij: geen of een onbekende categorie, een onbekend onderwerp, meer dan drie onderwerpen, een serie zonder deelnummer of een deelnummer zonder serie, een serie die niet bestaat, een deelnummer dat twee keer voorkomt, en een artikel dat heet als een categorie.
 
 ## Publiceren
 
@@ -111,7 +147,8 @@ git push -u origin main
 |---|---|
 | `inhoud/leren/` | De artikelen (`.md`) en de tutorial (`.html`, eigen opmaak met een kopje bovenaan) |
 | `inhoud/over.md` | De pagina Over, met privacy en colofon |
-| `site.json` | Adres, teksten van de beginpagina en de pagina Leren |
+| `inhoud/series/` | De series (`.md`, kopje plus de tekst "Over deze serie") |
+| `site.json` | Adres, teksten van de beginpagina, Leren en Series, de categorieën en de lijst onderwerpen |
 | `sjablonen/basis.html` | Wat op elke pagina staat: de kop, de voet en alles voor Google |
 | `statisch/` | Gaat ongewijzigd mee: opmaak (`assets/site.css`), letters, avatars, logo, favicons, downloads, `.htaccess` |
 | `bouw.py` | Het bouwscript |
@@ -120,7 +157,7 @@ git push -u origin main
 
 ## Vindbaarheid
 
-Per pagina: een eigen titel en beschrijving, canonical op https://ai-leerlab.nl, Open Graph- en Twitter-tags met deelafbeelding, schema.org (Article of LearningResource met HowTo, Person, WebSite en een kruimelpad). Voor de hele site: `sitemap.xml`, `robots.txt`, favicons en een webmanifest. Alle tekst staat als gewone HTML in de pagina; de site werkt ook zonder JavaScript. Alleen pagina's onder `/test/` en de 404-pagina staan op noindex.
+Per pagina: een eigen titel en beschrijving, canonical op https://ai-leerlab.nl, Open Graph- en Twitter-tags met deelafbeelding, schema.org (Article of LearningResource met HowTo, met articleSection en keywords; CollectionPage op categorie- en onderwerppagina's; CreativeWorkSeries op een seriepagina en als isPartOf met position op een deel; Person, WebSite en een kruimelpad). Voor de hele site: `sitemap.xml`, `robots.txt`, favicons en een webmanifest. Alle tekst staat als gewone HTML in de pagina; de site werkt ook zonder JavaScript. Alleen pagina's onder `/test/` en de 404-pagina staan op noindex.
 
 ## Privacy
 
@@ -131,5 +168,5 @@ Geen cookies, geen statistieken, geen letters of scripts van andere diensten. Ko
 De opzet houdt hier rekening mee, zonder verbouwing:
 
 - Tools: een map `inhoud/tools/`. Een tool is een `.html`-bestand met een kopje, net als de tutorial, plus een eigen script in `statisch/assets/`. Ze komen op `/tools/<naam>/`. Zet dan ook een menulink in `sjablonen/basis.html`.
-- Filters op de beginpagina (voor wie, soort): pas zinvol vanaf een stuk of acht items. Soort en doelgroep staan al in elk kopje.
+- Filters op voor wie en soort: pas zinvol vanaf een stuk of acht items. Soort en doelgroep staan al in elk kopje.
 - Zoeken, een nieuwsbrief en statistieken met toestemming.

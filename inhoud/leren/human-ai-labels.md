@@ -3,6 +3,8 @@ seotitel: Human-AI labels: zo werkte je samen met AI
 beschrijving: Negen labels van Boetje en Baake maken zichtbaar hoe je de regie tussen jezelf en AI verdeelt. Zo gebruik je ze als docent en als student.
 kaarttekst: Negen labels die laten zien wie het denkwerk deed, jij of de AI. Met tips voor je les en je GenAI-verklaring.
 soort: uitleg
+categorie: didactiek
+tags: verantwoording, toetsing
 voor: studenten, docenten
 avatar: mark-rust
 datum: 2026-09-30

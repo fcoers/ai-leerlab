@@ -105,7 +105,7 @@ Vier velden in het kopje. De namen zijn vast; de contentkalender in de Productiv
 
 ### Series
 
-Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, met `titel`, `kaartnaam` (een korte naam voor de kaarten en het kruimelpad op mobiel, hooguit ongeveer 18 tekens; zonder neemt het script de titel), `seotitel`, `beschrijving`, `lede`, `categorie`, `avatar`, `ritme` (bijvoorbeeld `elke week`), eventueel `dag` (`donderdag`) en `status` (`lopend` of `afgerond`). De tekst onder het kopje wordt "Over deze serie". Een deel is een gewoon artikel met `serie:` en `deel:` in het kopje.
+Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, met `titel`, `kaartnaam` (een korte naam voor smalle kaarten en het kruimelpad op mobiel, hooguit ongeveer 18 tekens; zonder neemt het script de titel), `seotitel`, `beschrijving`, `lede`, `categorie`, `avatar`, `ritme` (bijvoorbeeld `elke week`), eventueel `dag` (`donderdag`) en `status` (`lopend` of `afgerond`). De tekst onder het kopje wordt "Over deze serie". Een deel is een gewoon artikel met `serie:` en `deel:` in het kopje.
 
 Een serie verschijnt pas als er minstens één deel gepubliceerd is: een deel zonder `status: concept` en met een datum van vandaag of eerder. Tot dan staat Series niet in het menu en niet in de voet, is er geen pagina `/series/` of `/series/<naam>/`, staat er niets over op de beginpagina en niets in de sitemap. Dat regelt `bouw.py` vanzelf; zodra het eerste deel online gaat (ook via gepland publiceren), komt alles tegelijk.
 
@@ -127,9 +127,9 @@ Ontwerp van Bram (01-10-2026), met twee besluiten van Frits die afwijken van Bra
 - Bovenaan één uitgelicht item: het item met `uitgelicht: ja`, anders het nieuwste.
 - Daaronder de kop "Laatst verschenen" met de kaarten op datum, het nieuwste eerst, hooguit zes (`HOME_MAX` in `bouw.py`). Wat ouder is, staat op Leren. Een rij hoeft niet vol te zijn: drie en twee mag, want de meeste bezoekers kijken op mobiel (Frits; Bram stelde alleen hele rijen voor).
 - Een serie neemt één plek in: bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1. Op de kaart staat als label "Serie", het deelnummer klein vóór de titel en de serienaam onderaan.
-- "Nieuw" staat op een item op de publicatiedag en de zes dagen daarna (`NIEUW_DAGEN` in `bouw.py`; Frits; Bram stelde alleen de laatste publicatiedag voor). De GitHub Action bouwt elke ochtend, dus het label verdwijnt vanzelf, ook als er niets nieuws verschijnt. Alleen op de beginpagina.
-- Elke kaart toont de publicatiedatum, kort: "1 okt 2026". Ook op Leren en de categoriepagina's.
-- De voetregel van een kaart staat altijd op één regel (Frits, 01-10-2026). Voor wie staat er alleen als een item voor één groep is ("Voor docenten"); bij een seriedeel staat de `kaartnaam` van de serie. Wordt de regel langer dan 33 tekens, dan waarschuwt `bouw.py` onder "Let op".
+- "Nieuw" staat op een item op de publicatiedag en de zes dagen daarna (`NIEUW_DAGEN` in `bouw.py`; Frits; Bram stelde alleen de laatste publicatiedag voor). Het is een klein icoon (een kiemplantje) rechts in de voetregel, met "Nieuw" voor schermlezers. De GitHub Action bouwt elke ochtend, dus het teken verdwijnt vanzelf, ook als er niets nieuws verschijnt. Op de beginpagina en bij de delen op een seriepagina.
+- Elke kaart toont de publicatiedatum als kleine pill rechts in de labelregel: "1 okt 2026". Ook op Leren en de categoriepagina's.
+- De voetregel van een kaart staat altijd op één regel (Frits, 01-10-2026): voor wie, of bij een seriedeel de serienaam. Is de kaart te smal, dan staat er de korte vorm: "Studenten en docenten", of de `kaartnaam` van de serie. Past ook die niet, dan waarschuwt `bouw.py` onder "Let op".
 - Het kruimelpad begint zonder "Beginpagina", want het logo gaat daarheen. In het schema voor Google staat de beginpagina er wel in.
 
 ## Publiceren

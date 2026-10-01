@@ -65,6 +65,9 @@ def icoon(naam, klasse=""):
         "verhaal": '<path d="M5 5h14v10h-8l-4 4v-4H5z"/>',
         "serie": '<path d="M8 3h12v14M5 6h12v15H5z"/>',
         "pijl-terug": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+        # Nieuw: een kiemplantje, twee blaadjes in mos met een lijn in inkt.
+        "nieuw": '<path d="M12 21v-8"/><path class="blad" d="M12 14C7.6 14 5 11.4 5 7c4.4 0 7 2.6 7 7z"/>'
+                 '<path class="blad" d="M12 12c0-4.2 2.4-6.8 7-6.8 0 4.2-2.4 6.8-7 6.8z"/>',
     }
     k = f' class="{klasse}"' if klasse else ""
     return f'<svg{k} viewBox="0 0 24 24" aria-hidden="true">{paden[naam]}</svg>'
@@ -111,19 +114,43 @@ def voor_tekst(voor):
     return "Voor " + (" en ".join(v) if len(v) <= 2 else ", ".join(v[:-1]) + " en " + v[-1])
 
 
-def voor_kaart(voor):
-    """Voor wie, op een kaart: alleen als het item voor één groep is. Alles op de site is voor studenten
-    én docenten, tenzij er iets anders staat; zo past de voetregel van een kaart op één regel (Frits, 01-10-2026)."""
-    namen = {"student": "studenten", "docent": "docenten"}
-    v = {namen.get(x, x) for x in voor}
-    if not v or {"studenten", "docenten"} <= v:
-        return ""
-    return voor_tekst(voor)
+def voor_kort(voor):
+    """Korte vorm van voor wie, voor een smalle kaart: "Studenten en docenten" zonder "Voor"."""
+    t = voor_tekst(voor)
+    return t[5].upper() + t[6:] if t.startswith("Voor ") and " en " in t else t
 
 
-# De voetregel van een kaart moet op één regel passen, ook op de smalste kaart (ongeveer 265px bij 16px).
-# "30 sep 2026 · Productiviteitsapp" is 32 tekens; daarboven waarschuwt het script.
-VOET_MAX = 33
+# De voetregel van een kaart staat op één regel (Frits, 01-10-2026). Hij toont de lange vorm (volledige
+# serienaam, "Voor studenten en docenten") en wisselt naar de korte vorm als de kaart te smal is. Dat doet
+# een container query op de kaart; het script schat hier per regel de breedte waaronder dat moet.
+# Tekenbreedte bij 16px Roboto Flex: ongeveer 7,7px (400) en 8,1px (500). Plus 28px voor het Nieuw-icoon.
+DREMPELS = range(200, 421, 20)     # moet gelijk lopen met de @container-regels in site.css
+KAART_SMALST = 230                 # smalste kaart (telefoon van 320px), tekstbreedte in px
+
+
+def voet_breedte(tekst, vet=False):
+    return len(tekst) * (8.1 if vet else 7.7) + 28
+
+
+def voet_html(item, lang, kort, vet=False, nieuw=False):
+    """Voetregel van een kaart: tekst links (lang en kort), Nieuw-icoon rechts. Geeft (html, klasse)."""
+    klasse = ""
+    if kort and kort != lang:
+        nodig = voet_breedte(lang, vet) + 8
+        drempel = next((d for d in DREMPELS if d >= nodig), None)
+        if drempel is None:
+            klasse = " altijd-kort"            # te lang voor elke kaart: altijd de korte vorm
+        elif nodig > KAART_SMALST:
+            klasse = f" past-{drempel}"        # lang vanaf deze breedte, daaronder kort
+        tekst = f'<span class="v-lang">{esc(lang)}</span><span class="v-kort">{esc(kort)}</span>'
+    else:
+        tekst = esc(lang)
+        kort = lang
+    if voet_breedte(kort, vet) > KAART_SMALST:
+        waar = f"series/{item.serie}.md: kaartnaam" if item.is_deel else os.path.basename(item.pad)
+        let_op(f"{waar}: '{kort}' past op een smalle kaart niet op één regel")
+    span = f'<span class="v-tekst{" serie-voet" if vet else ""}">{tekst}</span>' if lang else ""
+    return f'<p class="voor">{span}{NIEUW_ICOON if nieuw else ""}</p>', klasse
 
 
 def beeldmaat(pad):
@@ -508,7 +535,14 @@ def soort_label(item):
     return f"{icoon(item.soort)}{esc(item.soortlabel)}"
 
 
-NIEUW_TEKEN = '<span class="nieuw-teken">Nieuw</span>'
+# "Nieuw" is een klein icoon rechts in de voetregel, met de tekst voor schermlezers en als tooltip
+# (Frits, 01-10-2026: minder nadruk dan het blokje in de labelregel).
+NIEUW_ICOON = ('<span class="nieuw-icoon" title="Nieuw">' + icoon("nieuw") + '<span class="sr">Nieuw</span></span>')
+
+
+def datum_pill(item):
+    """De publicatiedatum als kleine pill rechts in de labelregel van een kaart."""
+    return f'<time class="datum-pill" datetime="{item.datum.isoformat()}">{datum_kort(item.datum)}</time>'
 
 
 def kaart_label(item):
@@ -526,31 +560,19 @@ def titel_html(item):
     return esc(item.titel)
 
 
-def tijd_html(item):
-    return f'<time datetime="{item.datum.isoformat()}">{datum_kort(item.datum)}</time>'
-
-
-def voet_controle(item, rest):
-    tekst = datum_kort(item.datum) + (" · " + rest if rest else "")
-    if len(tekst) > VOET_MAX:
-        waar = (f"series/{item.serie}.md: kaartnaam" if item.is_deel else os.path.basename(item.pad))
-        let_op(f"{waar}: de voetregel '{tekst}' past op een smalle kaart niet op één regel; "
-               f"hooguit {VOET_MAX} tekens")
-
-
 def kaart(item, nieuw=False):
+    """Een kaart: labelregel met de datum als pill rechts, titel, uitleg, en onderaan de serienaam of voor
+    wie, met rechts het Nieuw-icoon (Frits, 01-10-2026)."""
     if item.is_deel:
-        naam = STAAT["series"][item.serie].kaartnaam
-        voet_controle(item, naam)
-        voet = f'<span class="serie-voet">{esc(naam)}</span>'
+        s = STAAT["series"][item.serie]
+        voet, klasse = voet_html(item, s.titel, s.kaartnaam, vet=True, nieuw=nieuw)
     else:
-        voet = esc(voor_kaart(item.voor))
-        voet_controle(item, voet)
-    return f"""<li class="kaart">
-  <p class="label">{kaart_label(item)}{NIEUW_TEKEN if nieuw else ""}</p>
+        voet, klasse = voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw)
+    return f"""<li class="kaart{klasse}">
+  <p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>
   <h3><a href="{item.url}">{titel_html(item)}</a></h3>
   <p class="uitleg">{esc(item.kaarttekst)}</p>
-  <p class="voor">{tijd_html(item)}{" · " if voet else ""}{voet}</p>
+  {voet}
 </li>"""
 
 
@@ -992,14 +1014,20 @@ def bouw_home(items):
     h = SITE["home"]
     uitgelicht = ""
     if uit:
-        feiten = [voor_kaart(uit.voor), uit.meta.get("duur", "")]
-        feiten = " · ".join(esc(f) for f in feiten if f)
-        uitgelicht = f"""<article class="uitgelicht">
+        duur = uit.meta.get("duur", "")
+        if uit.is_deel:
+            s = STAAT["series"][uit.serie]
+            lang, kort = s.titel, s.kaartnaam
+        else:
+            lang = " · ".join(f for f in (voor_tekst(uit.voor), duur) if f)
+            kort = voor_tekst(uit.voor) or duur    # smal: alleen voor wie, de duur staat ook op het item zelf
+        voet, klasse = voet_html(uit, lang, kort, vet=uit.is_deel, nieuw=is_nieuw(uit))
+        uitgelicht = f"""<article class="uitgelicht{klasse}">
   <div class="tekst">
-    <p class="label">{kaart_label(uit)}{NIEUW_TEKEN if is_nieuw(uit) else ""}</p>
+    <p class="label"><span class="soort">{kaart_label(uit)}</span>{datum_pill(uit)}</p>
     <h2><a href="{uit.url}">{titel_html(uit)}</a></h2>
     <p>{esc(uit.kaarttekst)}</p>
-    <p class="voor">{tijd_html(uit)}{" · " if feiten else ""}{feiten}</p>
+    {voet}
     <div class="knoppen"><a class="knop knop-primair" href="{uit.url}" tabindex="-1" aria-hidden="true">{esc(SOORTEN.get(uit.soort, ('', '', 'Bekijk'))[2])}{icoon("pijl")}</a></div>
   </div>
   <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
@@ -1168,13 +1196,13 @@ def bouw_series():
             knoppen += f'\n            <a class="tekstlink" href="#deel-{nieuwste.deel}">Lees het nieuwste deel</a>'
         rijen = []
         for x in s.delen:
-            is_nieuw = x is nieuwste and s.lopend and len(s.delen) > 1
-            nieuw = '<span class="nieuw">Nieuw</span>' if is_nieuw else ""
-            rijen.append(f"""<li class="deel{' nieuwste' if is_nieuw else ''}" id="deel-{x.deel}">
+            is_nieuwste = x is nieuwste and s.lopend and len(s.delen) > 1
+            nieuw = NIEUW_ICOON if is_nieuw(x) else ""
+            rijen.append(f"""<li class="deel{' nieuwste' if is_nieuwste else ''}" id="deel-{x.deel}">
           <span class="nr" aria-hidden="true">{x.deel}</span>
           <h3><a href="{x.url}"><span class="sr">Deel {x.deel}: </span>{esc(x.titel)}</a></h3>
           <p>{esc(x.kaarttekst)}</p>
-          <p class="wanneer">{nieuw}<time datetime="{x.datum.isoformat()}">{datum_nl(x.datum)}</time></p>
+          <p class="wanneer"><time datetime="{x.datum.isoformat()}">{datum_nl(x.datum)}</time>{nieuw}</p>
         </li>""")
         if s.lopend and s.gepland:
             g = s.gepland[0]

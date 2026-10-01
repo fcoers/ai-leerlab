@@ -134,7 +134,8 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .kaart h3 a::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
 .kaart:hover h3 a { text-decoration: underline; text-decoration-thickness: 2px; }
 .kaart .uitleg { margin: 0; }
-.voor { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--lijn); font-size: 16px; color: var(--inkt-zacht); }
+.voor { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--lijn); font-size: 16px; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; min-height: 24px; }
+.voor .v-tekst { min-width: 0; white-space: nowrap; }
 
 .van-frits { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: center; border-top: 1px solid var(--lijn); padding: 72px 0 0; margin-top: 48px; }
 .van-frits img { width: 220px; background: #fff; border: 1px solid var(--lijn); border-radius: 8px; }
@@ -435,7 +436,6 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .deel:hover h3 a { text-decoration: underline; text-decoration-thickness: 2px; }
 .deel p { margin: 0; }
 .deel .wanneer { font-size: 16px; color: var(--inkt-zacht); display: flex; gap: 12px; align-items: center; }
-.deel .wanneer .nieuw { font: 500 14px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--labgroen); }
 .deel.nieuwste .nr { background: var(--inkt); color: var(--mos); border-color: var(--inkt); }
 .deel.gepland { color: var(--inkt-zacht); }
 .deel.gepland .nr { border: 1.5px dashed var(--inkt-zacht); color: var(--inkt-zacht); font-weight: 500; }
@@ -487,8 +487,34 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @media (max-width: 640px) { .raster-kop { margin-top: 40px; } }
 /* "Nieuw": één vorm, rechts in de labelregel. De negatieve marge houdt de labelregel even hoog,
    zodat titels op elke kaart op dezelfde hoogte beginnen. Mos alleen op inkt. */
-.label .nieuw-teken { margin-left: auto; flex: none; background: var(--inkt); color: var(--mos); font: 500 14px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 8px 4px; border-radius: 4px; margin-block: -5px; }
-.uitgelicht .label .nieuw-teken { margin-left: 8px; }
+/* De datum als kleine pill rechts in de labelregel (Frits, 01-10-2026). Gewone letter, geen kapitalen;
+   de negatieve marge houdt de labelregel even hoog, zodat titels in een rij op dezelfde hoogte beginnen. */
+.label .soort { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.datum-pill { margin-left: auto; flex: none; font: 400 15px/1 var(--sans); letter-spacing: 0; text-transform: none; color: var(--inkt-zacht); background: var(--papier); border: 1px solid var(--lijn); border-radius: 999px; padding: 5px 10px; margin-block: -6px; white-space: nowrap; }
+.uitgelicht .datum-pill { margin-left: 12px; background: var(--vlak); }
+/* Nieuw: een klein icoon rechts in de voetregel, met "Nieuw" voor schermlezers en als tooltip.
+   De vorm (een kiemplantje) draagt het teken, niet de kleur. */
+.nieuw-icoon { margin-left: auto; flex: none; display: inline-flex; width: 22px; height: 22px; }
+.nieuw-icoon svg { width: 22px; height: 22px; fill: none; stroke: var(--inkt); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.nieuw-icoon svg .blad { fill: var(--mos); }
+.deel .wanneer .nieuw-icoon, .uitgelicht .nieuw-icoon { margin-left: 4px; }
+/* Voetregel lang of kort: de kaart is een container; past de lange vorm niet, dan de korte.
+   De drempels (past-200 tot past-420) rekent bouw.py uit. */
+.kaart, .uitgelicht .tekst { container-type: inline-size; }
+.v-kort { display: none; }
+.altijd-kort .v-lang { display: none; } .altijd-kort .v-kort { display: inline; }
+@container (max-width: 199px) { .past-200 .v-lang { display: none; } .past-200 .v-kort { display: inline; } }
+@container (max-width: 219px) { .past-220 .v-lang { display: none; } .past-220 .v-kort { display: inline; } }
+@container (max-width: 239px) { .past-240 .v-lang { display: none; } .past-240 .v-kort { display: inline; } }
+@container (max-width: 259px) { .past-260 .v-lang { display: none; } .past-260 .v-kort { display: inline; } }
+@container (max-width: 279px) { .past-280 .v-lang { display: none; } .past-280 .v-kort { display: inline; } }
+@container (max-width: 299px) { .past-300 .v-lang { display: none; } .past-300 .v-kort { display: inline; } }
+@container (max-width: 319px) { .past-320 .v-lang { display: none; } .past-320 .v-kort { display: inline; } }
+@container (max-width: 339px) { .past-340 .v-lang { display: none; } .past-340 .v-kort { display: inline; } }
+@container (max-width: 359px) { .past-360 .v-lang { display: none; } .past-360 .v-kort { display: inline; } }
+@container (max-width: 379px) { .past-380 .v-lang { display: none; } .past-380 .v-kort { display: inline; } }
+@container (max-width: 399px) { .past-400 .v-lang { display: none; } .past-400 .v-kort { display: inline; } }
+@container (max-width: 419px) { .past-420 .v-lang { display: none; } .past-420 .v-kort { display: inline; } }
 .categorie-regel { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; padding: 16px 0 0; border-top: 1px solid var(--lijn); margin: 8px 0 0; }
 .categorie-regel ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 24px; }
 .categorie-regel a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 500; }

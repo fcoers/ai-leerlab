@@ -41,6 +41,7 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    - `seotitel` is de titel in Google en in het tabblad, hooguit ongeveer 50 tekens (" · AI-leerlab" komt er vanzelf achter).
    - `soort` is `uitleg`, `tutorial` of `tool`.
    - `avatar` is de naam van een bestand in `statisch/assets/img/avatars/` zonder `.webp`. Kies het teamlid dat bij het onderwerp past, in rustpose; een tutorial krijgt de rolpose. Nooit dezelfde avatar als het artikel waar je naar verwijst.
+   - `datum` in de toekomst plant het artikel: het gaat op die dag online (zie Gepland publiceren).
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
    - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk.
@@ -72,6 +73,19 @@ git push
 ```
 
 Plesk haalt de nieuwe versie op en binnen een minuut staat hij online.
+
+### Gepland publiceren
+
+Een artikel met een `datum:` in de toekomst slaat `bouw.py` over: het staat wel in de repository, maar nog niet op de site. Elke ochtend rond zes uur bouwt GitHub de site opnieuw (`.github/workflows/dagelijks-bouwen.yml`). Is de dag van een artikel gekomen, dan legt die bouw `public/` vast en pusht hij, en zet Plesk het artikel online. De Mac hoeft daarvoor niet aan te staan. Je plant per dag, niet per uur.
+
+- Is er die ochtend niets nieuws, dan legt de bouw niets vast. Alleen een nieuw versienummer achter de css-link telt niet als iets nieuws.
+- Met de hand starten kan bij GitHub onder Actions, "Dagelijks bouwen", "Run workflow".
+- GitHub zet geplande Actions uit in een repository waar zestig dagen niets is gebeurd. Komt er een mail daarover, zet hem dan onder Actions weer aan.
+- `status: concept` gaat voor: een concept staat altijd op `/test/`, ook met een datum in de toekomst.
+
+### Vanuit de Productiviteit-app
+
+De contentkalender in de Productiviteit-app schrijft een artikel als `.md` in `inhoud/leren/`, draait `bouw.py`, legt het vast en pusht. Zonder datum gaat het meteen online, met een datum wordt het gepland zoals hierboven. De app overschrijft geen artikel dat je hier met de hand hebt aangepast, en pusht niet als er in deze map nog andere wijzigingen klaarstaan: leg die eerst zelf vast.
 
 ### Eenmalig: de repository koppelen aan GitHub
 

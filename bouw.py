@@ -290,7 +290,12 @@ def lees_items():
         for naam in sorted(os.listdir(d)):
             if naam.startswith((".", "_")) or not naam.endswith((".md", ".html")):
                 continue
-            items.append(Item(os.path.join(d, naam), map_))
+            item = Item(os.path.join(d, naam), map_)
+            # Gepland publiceren: een artikel met een datum in de toekomst gaat pas op die dag
+            # online. De GitHub Action bouwt elke ochtend (zie README, "Gepland publiceren").
+            if item.datum > datetime.date.today() and not item.concept:
+                continue
+            items.append(item)
     return items
 
 

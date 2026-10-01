@@ -1,0 +1,47 @@
+name: Dagelijks bouwen
+
+# Zet geplande artikelen op hun dag online, ook als de Mac uit staat.
+# Een artikel met een `datum:` in de toekomst slaat bouw.py over. Deze bouw draait
+# elke ochtend; staat er die dag iets nieuws in public/, dan legt hij dat vast en
+# pusht hij. Plesk haalt het daarna op zoals na elke push. Zie README, "Gepland publiceren".
+
+on:
+  schedule:
+    - cron: "15 4 * * *"   # 04:15 UTC: 06:15 in de zomer, 05:15 in de winter
+  workflow_dispatch: {}    # met de hand starten kan ook, onder Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dagelijks-bouwen
+  cancel-in-progress: false
+
+jobs:
+  bouwen:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Amsterdam   # bouw.py rekent "vandaag" in Nederlandse tijd
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bouwen
+        run: python3 bouw.py
+
+      - name: Vastleggen als er iets nieuws is
+        run: |
+          git add public
+          # Elke bouw zet een nieuw versienummer achter de links naar css en scripts
+          # (?v=…). Dat alleen is geen reden om iets vast te leggen.
+          if git diff --cached --quiet -I '\?v=[0-9]{12}' -- public; then
+            echo "Niets nieuws vandaag."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "Dagelijkse bouw $(date +%F): geplande artikelen online"
+          git push

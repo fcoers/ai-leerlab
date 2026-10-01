@@ -11,7 +11,7 @@ datum: 2026-09-30
 
 ## Van Frits
 
-Ik ben Frits Coers, docent in het hoger onderwijs. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer.
+Ik ben Frits Coers, docent bij Windesheim. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer.
 
 Sinds augustus 2023 ben ik docent bij Hogeschool Windesheim bij de opleiding Technische Bedrijfskunde. Daarnaast volg ik de master Leren & Innoveren.
 

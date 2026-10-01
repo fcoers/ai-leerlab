@@ -566,6 +566,9 @@ PERSOON = {
 }
 if SITE.get("sameAs"):
     PERSOON["sameAs"] = SITE["sameAs"]
+if SITE.get("werkgever"):
+    PERSOON["worksFor"] = {"@type": "CollegeOrUniversity", "name": SITE["werkgever"]["naam"],
+                           "url": SITE["werkgever"]["url"]}
 WEBSITE = {"@type": "WebSite", "@id": f"{ADRES}/#site", "name": SITE["naam"], "url": f"{ADRES}/",
            "inLanguage": "nl", "publisher": {"@id": f"{ADRES}/#frits"}}
 

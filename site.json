@@ -2,7 +2,8 @@
   "adres": "https://ai-leerlab.nl",
   "naam": "AI-leerlab",
   "auteur": "Frits Coers",
-  "functie": "Docent in het hoger onderwijs",
+  "functie": "Docent bij Hogeschool Windesheim",
+  "werkgever": {"naam": "Hogeschool Windesheim", "url": "https://www.windesheim.nl/"},
   "sameAs": [
     "https://www.linkedin.com/in/fritscoers/"
   ],
@@ -19,7 +20,7 @@
     "beschrijving": "Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.",
     "lede": "Tutorials en korte uitleg over werken met AI. Het nieuwste staat bovenaan."
   },
-  "over_kort": "Ik ben Frits Coers, docent in het hoger onderwijs. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer.",
+  "over_kort": "Ik ben Frits Coers, docent bij Hogeschool Windesheim. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer.",
   "kopje": {
     "categorie": "precies één slug uit 'categorieen', verplicht. Voorbeeld: categorie: didactiek",
     "tags": "0 tot 3 waarden uit 'onderwerpen', met komma's. Voorbeeld: tags: lesontwerp, toetsing",

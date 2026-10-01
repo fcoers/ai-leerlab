@@ -35,11 +35,14 @@ SOORTEN = {  # soort -> (label, meervoud, actietekst)
     "tool": ("Tool", "Tools", "Probeer de tool"),
     "verhaal": ("Verhaal", "Verhalen", "Lees het verhaal"),
 }
+MAANDEN_KORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
 WEEKDAGEN = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"]
 # Categorieën en onderwerpen staan in site.json (één plek, ook voor de contentkalender).
 CATEGORIEEN = {c["slug"]: c for c in SITE.get("categorieen", [])}
 ONDERWERPEN = list(SITE.get("onderwerpen", []))
 MAX_TAGS = 3
+HOME_MAX = 6               # hooguit zoveel kaarten onder "Laatst verschenen"; de rest staat op Leren
+NIEUW_DAGEN = 7            # "Nieuw" staat er zeven dagen: op de publicatiedag en de zes dagen daarna (Frits, 01-10-2026)
 ONDERWERP_DREMPEL = 3      # een eigen pagina /onderwerp/<tag>/ pas vanaf zoveel artikelen
 WAARSCHUWINGEN = []
 
@@ -74,6 +77,18 @@ def esc(t):
 
 def datum_nl(d):
     return f"{d.day} {MAANDEN[d.month - 1]} {d.year}"
+
+
+def datum_kort(d):
+    """Korte datum op een kaart: "1 okt 2026"."""
+    return f"{d.day} {MAANDEN_KORT[d.month - 1]} {d.year}"
+
+
+def is_nieuw(item, vandaag=None):
+    """Nieuw tot en met de zesde dag na de publicatiedatum. De site wordt elke ochtend opnieuw gebouwd
+    (GitHub Action), dus het teken verdwijnt vanzelf, ook als er niets nieuws verschijnt."""
+    vandaag = vandaag or datetime.date.today()
+    return 0 <= (vandaag - item.datum).days < NIEUW_DAGEN
 
 
 def lees_datum(t):
@@ -474,17 +489,46 @@ def soort_label(item):
     return f"{icoon(item.soort)}{esc(item.soortlabel)}"
 
 
-def kaart(item):
+NIEUW_TEKEN = '<span class="nieuw-teken">Nieuw</span>'
+
+
+def kaart_label(item):
+    """Labelregel van een kaart. Een seriedeel krijgt alleen "Serie", net als "Uitleg" of "Tutorial";
+    het deelnummer staat vóór de titel en de serienaam onderaan (Bram, 01-10-2026)."""
+    if item.is_deel:
+        return f"{icoon('serie')}Serie"
+    return f"{icoon(item.soort)}{esc(item.soortlabel)}"
+
+
+def titel_html(item):
+    """De titel, bij een seriedeel met het nummer ervoor. Een schermlezer leest "Deel 3: titel"."""
+    if item.is_deel:
+        return f'<span class="nr"><span class="sr">Deel </span>{item.deel}<span class="sr">:</span></span> {esc(item.titel)}'
+    return esc(item.titel)
+
+
+def tijd_html(item):
+    return f'<time datetime="{item.datum.isoformat()}">{datum_kort(item.datum)}</time>'
+
+
+def kaart(item, nieuw=False):
+    if item.is_deel:
+        voet = f'<span class="serie-voet">{esc(STAAT["series"][item.serie].titel)}</span>'
+    else:
+        voet = esc(voor_tekst(item.voor))
     return f"""<li class="kaart">
-  <p class="label">{soort_label(item)}</p>
-  <h3><a href="{item.url}">{esc(item.titel)}</a></h3>
+  <p class="label">{kaart_label(item)}{NIEUW_TEKEN if nieuw else ""}</p>
+  <h3><a href="{item.url}">{titel_html(item)}</a></h3>
   <p class="uitleg">{esc(item.kaarttekst)}</p>
-  <p class="voor">{esc(voor_tekst(item.voor))}</p>
+  <p class="voor">{tijd_html(item)}{" · " if voet else ""}{voet}</p>
 </li>"""
 
 
-def raster(items):
-    return '<ul class="raster">\n' + "\n".join(kaart(x) for x in items) + "\n</ul>"
+def raster(items, nieuw=False, kop=""):
+    """Kaarten in een raster. Met nieuw=True krijgen items van de afgelopen NIEUW_DAGEN het teken
+    (alleen op de beginpagina). kop is het id van een zichtbare kop boven het raster."""
+    attr = f' aria-labelledby="{kop}"' if kop else ""
+    return f'<ul class="raster"{attr}>\n' + "\n".join(kaart(x, nieuw and is_nieuw(x)) for x in items) + "\n</ul>"
 
 
 def avatar_img(naam, klasse, hoogte=None):
@@ -875,15 +919,6 @@ def bouw_html_item(item, alle):
            extra_voet=f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "")
 
 
-def serie_regel(s):
-    """Eén regel op de beginpagina voor een lopende serie, in de stijl van "Lees ook"."""
-    laatste = s.delen[-1]
-    return f"""<nav class="lees-ook serie-regel" aria-label="Lopende serie">
-  <p class="label">{icoon("serie")}{esc(s.label.replace("Serie · ", "Serie, "))}</p>
-  <a href="{s.url}">{esc(s.titel)} · Deel {laatste.deel} is uit{icoon("pijl")}</a>
-</nav>"""
-
-
 def categorie_regel():
     """Onder het raster op de beginpagina: de categorieën met artikelen."""
     if not STAAT["categorieen"]:
@@ -896,25 +931,46 @@ def categorie_regel():
 </nav>"""
 
 
+def home_raster(live, uit):
+    """De kaarten onder "Laatst verschenen": van elke zichtbare serie één deel (lopend: het nieuwste,
+    afgerond: deel 1), dan op datum met het nieuwste eerst, hooguit HOME_MAX. Geen eis van hele rijen:
+    een rij van drie en een van twee mag, want de meeste bezoekers kijken op mobiel (Frits, 01-10-2026)."""
+    gekozen = {slug: (s.delen[-1] if s.lopend else s.delen[0]) for slug, s in STAAT["series"].items()}
+    kaarten = [x for x in live if x is not uit and (not x.is_deel or gekozen.get(x.serie) is x)]
+    return kaarten[:HOME_MAX]
+
+
 def bouw_home(items):
     live = [x for x in items if not x.concept]
     live.sort(key=lambda x: x.datum, reverse=True)
-    uit = next((x for x in live if x.uitgelicht), live[0] if live else None)
-    rest = [x for x in live if x is not uit]
+    gemarkeerd = [x for x in live if x.uitgelicht]
+    if len(gemarkeerd) > 1:
+        let_op("meer dan één item heeft 'uitgelicht: ja' (" + ", ".join(os.path.basename(x.pad) for x in gemarkeerd)
+               + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
+    uit = gemarkeerd[0] if gemarkeerd else (live[0] if live else None)
+    rest = home_raster(live, uit)
     h = SITE["home"]
     uitgelicht = ""
     if uit:
+        feiten = [voor_tekst(uit.voor), uit.meta.get("duur", "")]
+        feiten = " · ".join(esc(f) for f in feiten if f)
         uitgelicht = f"""<article class="uitgelicht">
   <div class="tekst">
-    <p class="label">{soort_label(uit)} · <span class="nieuw">Nieuw</span></p>
-    <h2><a href="{uit.url}">{esc(uit.titel)}</a></h2>
+    <p class="label">{kaart_label(uit)}{NIEUW_TEKEN if is_nieuw(uit) else ""}</p>
+    <h2><a href="{uit.url}">{titel_html(uit)}</a></h2>
     <p>{esc(uit.kaarttekst)}</p>
-    <p class="voor">{esc(voor_tekst(uit.voor))}{(' · ' + esc(uit.meta['duur'])) if uit.meta.get('duur') else ''}</p>
+    <p class="voor">{tijd_html(uit)}{" · " if feiten else ""}{feiten}</p>
     <div class="knoppen"><a class="knop knop-primair" href="{uit.url}" tabindex="-1" aria-hidden="true">{esc(SOORTEN.get(uit.soort, ('', '', 'Bekijk'))[2])}{icoon("pijl")}</a></div>
   </div>
   <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
 </article>"""
-    series = "".join(serie_regel(s) for s in STAAT["series"].values() if s.lopend)
+    kop = ""
+    if rest:
+        kop = f"""<div class="raster-kop">
+    <h2 id="laatst">Laatst verschenen</h2>
+    <a href="/leren/">Alles op Leren <span class="aantal">{len(leren_items(items))}</span>{icoon("pijl")}</a>
+  </div>
+  {raster(rest, nieuw=True, kop="laatst")}"""
     inhoud = f"""<section class="held labpapier" aria-labelledby="titel">
   <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
   {avatar_img(h["avatar"], "held-avatar")}
@@ -924,10 +980,8 @@ def bouw_home(items):
   </div>
 </section>
 <div class="wrap" id="items">
-  <h2 class="sr">Nieuw in het lab</h2>
   {uitgelicht}
-  {series}
-  {raster(rest)}
+  {kop}
   {categorie_regel()}
 </div>
 <section class="wrap" aria-labelledby="over-titel">
@@ -940,8 +994,10 @@ def bouw_home(items):
     </div>
   </div>
 </section>"""
+    # Het schema volgt wat er op de pagina staat: het uitgelichte item en de kaarten.
+    getoond = ([uit] if uit else []) + rest
     lijst = {"@type": "ItemList", "itemListElement": [
-        {"@type": "ListItem", "position": n + 1, "url": ADRES + x.url, "name": x.titel} for n, x in enumerate(live)]}
+        {"@type": "ListItem", "position": n + 1, "url": ADRES + x.url, "name": x.titel} for n, x in enumerate(getoond)]}
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",
            schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"])
 

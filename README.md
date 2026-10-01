@@ -47,7 +47,7 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    - `datum` in de toekomst plant het artikel: het gaat op die dag online (zie Gepland publiceren).
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
-   - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk.
+   - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk; staat het bij meer items, dan neemt de beginpagina het nieuwste en waarschuwt het script.
 3. Daaronder de tekst, gewoon in Markdown. De eerste regel `# Titel` wordt de titel van de pagina. Een regel die begint met "Frits Coers" direct onder de titel komt in de kop.
 4. Onderaan, na een regel met `---`, de GenAI-vermelding die begint met `**Transparantie GenAI.**`. Die is verplicht bij artikelen; zonder vermelding waarschuwt het script. Alleen artikelen krijgen hem. De beginpagina, `/leren/`, `/over/`, de 404 en tutorials niet: daar stoort hij (afspraak Frits, 30-09-2026). Zet er `Human-AI Agency Label: <label>.` in: op de site wordt dat één zin met het label, en de rest komt in een uitklap. De bron van de labels (Boetje & Baake) komt er vanzelf onder als je een label noemt.
 5. Verwijzen naar een tutorial, tool of ander artikel gaat met een blok:
@@ -115,10 +115,20 @@ Wat er dan komt:
 
 - `/series/` met alle series en `/series/<naam>/` met de delen in leesvolgorde, "Begin bij deel 1" en "Lees het nieuwste deel". Staat het volgende deel gepland, dan zegt de pagina "Deel 6 verschijnt op donderdag 12 november".
 - Op een deel: kruimelpad Beginpagina / Series / <serie>, het label "Deel 3", onderaan vorige en volgende plus "Alle delen van deze serie". Geen "Verder in het lab", en de onderwerpen zonder links. In "Verder in het lab" bij andere artikelen komen geen seriedelen.
-- Op de beginpagina onder het uitgelichte item één regel per lopende serie: "Logboek masterproject · Deel 5 is uit".
+- Op de beginpagina één kaart per serie onder "Laatst verschenen": bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1 (zie "De beginpagina").
 - Een RSS-feed per serie: `/series/<naam>/feed.xml`.
 
 `bouw.py` waarschuwt onder "Let op" bij: geen of een onbekende categorie, een onbekend onderwerp, meer dan drie onderwerpen, een serie zonder deelnummer of een deelnummer zonder serie, een serie die niet bestaat, een deelnummer dat twee keer voorkomt, en een artikel dat heet als een categorie.
+
+## De beginpagina
+
+Ontwerp van Bram (01-10-2026), met twee besluiten van Frits die afwijken van Brams voorstel.
+
+- Bovenaan één uitgelicht item: het item met `uitgelicht: ja`, anders het nieuwste.
+- Daaronder de kop "Laatst verschenen" met de kaarten op datum, het nieuwste eerst, hooguit zes (`HOME_MAX` in `bouw.py`). Wat ouder is, staat op Leren. Een rij hoeft niet vol te zijn: drie en twee mag, want de meeste bezoekers kijken op mobiel (Frits; Bram stelde alleen hele rijen voor).
+- Een serie neemt één plek in: bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1. Op de kaart staat als label "Serie", het deelnummer klein vóór de titel en de serienaam onderaan.
+- "Nieuw" staat op een item op de publicatiedag en de zes dagen daarna (`NIEUW_DAGEN` in `bouw.py`; Frits; Bram stelde alleen de laatste publicatiedag voor). De GitHub Action bouwt elke ochtend, dus het label verdwijnt vanzelf, ook als er niets nieuws verschijnt. Alleen op de beginpagina.
+- Elke kaart toont de publicatiedatum, kort: "1 okt 2026". Ook op Leren en de categoriepagina's.
 
 ## Publiceren
 
@@ -136,6 +146,7 @@ Plesk haalt de nieuwe versie op en binnen een minuut staat hij online.
 
 Een artikel met een `datum:` in de toekomst slaat `bouw.py` over: het staat wel in de repository, maar nog niet op de site. Elke ochtend rond zes uur bouwt GitHub de site opnieuw (`.github/workflows/dagelijks-bouwen.yml`). Is de dag van een artikel gekomen, dan legt die bouw `public/` vast en pusht hij, en zet Plesk het artikel online. De Mac hoeft daarvoor niet aan te staan. Je plant per dag, niet per uur.
 
+- Dezelfde bouw haalt het label "Nieuw" weg als een item zeven dagen oud is, en legt dat vast.
 - Is er die ochtend niets nieuws, dan legt de bouw niets vast. Alleen een nieuw versienummer achter de css-link telt niet als iets nieuws.
 - Met de hand starten kan bij GitHub onder Actions, "Dagelijks bouwen", "Run workflow".
 - GitHub zet geplande Actions uit in een repository waar zestig dagen niets is gebeurd. Komt er een mail daarover, zet hem dan onder Actions weer aan.

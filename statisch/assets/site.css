@@ -42,7 +42,6 @@ main:focus, h1:focus, h2:focus { outline: none; }
 /* ---------- labels, knoppen ---------- */
 .label { font: 500 14px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; margin: 0; }
 .label svg { width: 20px; height: 20px; flex: none; stroke: var(--inkt); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.label .nieuw { color: var(--labgroen); }
 .knoppen { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 .knop { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 22px; border-radius: 8px; font: 600 18px/1.2 var(--sans); text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: background-color .15s var(--uit), border-color .15s var(--uit); }
 .knop svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -396,6 +395,12 @@ main:focus, h1:focus, h2:focus { outline: none; }
 
 /* ---------- kaart van een seriedeel ---------- */
 .label .serie-deel { color: var(--inkt); }
+/* label "Serie", het deelnummer klein en grijs vóór de titel, de serienaam onderaan */
+.kaart h3 .nr, .uitgelicht h2 .nr { font: 500 .9em/1 var(--mono); color: var(--inkt-zacht); margin-right: .35em; }
+.kaart:hover h3 .nr, .uitgelicht:hover h2 .nr { text-decoration: none; display: inline-block; }
+.kaart .serie-voet { color: var(--inkt); font-weight: 500; }
+/* voetregel van een kaart: eerst de publicatiedatum ("1 okt 2026"), dan voor wie of de serie */
+.voor time { white-space: nowrap; }
 
 /* ---------- seriepagina: kop ---------- */
 .serie-kop .knoppen { align-items: center; gap: 8px 24px; margin-top: 12px; }
@@ -455,8 +460,18 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @media (max-width: 640px) { .serie-nav .paar > span:empty { display: none; } }
 .wrap > .onderwerpen { margin-top: 32px; }
 
-/* beginpagina: de lopende serie onder het uitgelichte item, de categorieën onder het raster */
-.serie-regel { margin: 0 0 32px; }
+/* beginpagina (01-10-2026): één uitgelicht item als keuze, daaronder "Laatst verschenen" als volgorde,
+   de categorieën onder het raster */
+.raster-kop { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 24px; margin: 56px 0 20px; }
+.raster-kop h2 { font: 700 22px/1.25 var(--sans); margin: 0; }
+.raster-kop a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; }
+.raster-kop a svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.raster-kop .aantal { font: 500 14px/1 var(--mono); color: var(--inkt-zacht); }
+@media (max-width: 640px) { .raster-kop { margin-top: 40px; } }
+/* "Nieuw": één vorm, rechts in de labelregel. De negatieve marge houdt de labelregel even hoog,
+   zodat titels op elke kaart op dezelfde hoogte beginnen. Mos alleen op inkt. */
+.label .nieuw-teken { margin-left: auto; flex: none; background: var(--inkt); color: var(--mos); font: 500 14px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 8px 4px; border-radius: 4px; margin-block: -5px; }
+.uitgelicht .label .nieuw-teken { margin-left: 8px; }
 .categorie-regel { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; padding: 16px 0 0; border-top: 1px solid var(--lijn); margin: 8px 0 0; }
 .categorie-regel ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 24px; }
 .categorie-regel a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 500; }

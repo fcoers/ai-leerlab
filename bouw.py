@@ -41,7 +41,7 @@ WEEKDAGEN = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag
 CATEGORIEEN = {c["slug"]: c for c in SITE.get("categorieen", [])}
 ONDERWERPEN = list(SITE.get("onderwerpen", []))
 MAX_TAGS = 3
-HOME_MAX = 6               # hooguit zoveel kaarten onder "Laatst verschenen"; de rest staat op Leren
+CAT_LIJST_MAX = 3          # per categorieblok op de beginpagina: naast de grote kaart hooguit zoveel in de lijst
 NIEUW_DAGEN = 7            # "Nieuw" staat er zeven dagen: op de publicatiedag en de zes dagen daarna (Frits, 01-10-2026)
 ONDERWERP_DREMPEL = 3      # een eigen pagina /onderwerp/<tag>/ pas vanaf zoveel artikelen
 WAARSCHUWINGEN = []
@@ -339,7 +339,11 @@ class Item:
         self.datum = lees_datum(m["datum"]) if m.get("datum") else datetime.date.today()
         self.bijgewerkt = lees_datum(m["bijgewerkt"]) if m.get("bijgewerkt") else self.datum
         self.avatar = m.get("avatar", "")
-        self.uitgelicht = m.get("uitgelicht", "").lower() in ("ja", "yes", "true")
+        # uitgelicht: ja        -> groot bovenaan de beginpagina
+        # uitgelicht: categorie -> de grote kaart in het blok van zijn categorie op de beginpagina (Frits, 02-10-2026)
+        u = m.get("uitgelicht", "").strip().lower()
+        self.uitgelicht = u in ("ja", "yes", "true")
+        self.uitgelicht_categorie = u == "categorie"
         # Categorie (slug uit site.json), onderwerpen (tags) en een plek in een serie.
         cat = m.get("categorie", "").strip()
         self.categorie = next((c for c in CATEGORIEEN if cat.lower() in (c, CATEGORIEEN[c]["naam"].lower())), cat)
@@ -981,25 +985,116 @@ def bouw_html_item(item, alle):
            extra_voet=f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "")
 
 
-def categorie_regel():
-    """Onder het raster op de beginpagina: de categorieën met artikelen."""
-    if not STAAT["categorieen"]:
-        return ""
-    links = "".join(f'<li><a href="/leren/{slug}/">{esc(CATEGORIEEN[slug]["naam"])}</a></li>'
-                    for slug in CATEGORIEEN if slug in STAAT["categorieen"])
-    return f"""<nav class="categorie-regel" aria-label="Categorieën">
-  <p class="label">Categorieën</p>
-  <ul>{links}</ul>
-</nav>"""
+def serie_keuze():
+    """Per zichtbare serie het deel dat op de beginpagina één plek krijgt: lopend het nieuwste, afgerond deel 1."""
+    return {slug: (s.delen[-1] if s.lopend else s.delen[0]) for slug, s in STAAT["series"].items()}
 
 
-def home_raster(live, uit):
-    """De kaarten onder "Laatst verschenen": van elke zichtbare serie één deel (lopend: het nieuwste,
-    afgerond: deel 1), dan op datum met het nieuwste eerst, hooguit HOME_MAX. Geen eis van hele rijen:
-    een rij van drie en een van twee mag, want de meeste bezoekers kijken op mobiel (Frits, 01-10-2026)."""
-    gekozen = {slug: (s.delen[-1] if s.lopend else s.delen[0]) for slug, s in STAAT["series"].items()}
-    kaarten = [x for x in live if x is not uit and (not x.is_deel or gekozen.get(x.serie) is x)]
-    return kaarten[:HOME_MAX]
+def kaart_figuur(slug):
+    """Het figuur in de cirkel op de grote kaart van een categorieblok: de avatar van de categorie uit site.json.
+    Staat die al in de kop van de beginpagina (nu james-rust), dan de rol-pose, zodat dezelfde avatar
+    niet twee keer op de pagina staat (Bram, 02-10-2026)."""
+    naam = CATEGORIEEN[slug].get("avatar", "")
+    if naam and naam == SITE["home"].get("avatar"):
+        rol = re.sub(r"-rust$", "-rol", naam)
+        if avatar(rol):
+            naam = rol
+    return avatar_img(naam, "kaart-figuur")
+
+
+def categorie_keuze(slug, live, uit):
+    """(grote kaart, lijst, totaal) voor het blok van een categorie op de beginpagina.
+
+    Het uitgelichte item van de beginpagina komt niet terug. Een serie neemt één plek in.
+    De grote kaart is het artikel met 'uitgelicht: categorie' (Frits kiest, 02-10-2026), anders het nieuwste.
+    De lijst: de nieuwste andere, hooguit CAT_LIJST_MAX."""
+    alle = [x for x in live if x.categorie == slug]
+    totaal = len(alle)
+    rest = [x for x in alle if x is not uit]
+    if not rest:
+        return None, [], totaal
+    keuze = serie_keuze()
+    gemarkeerd = [x for x in rest if x.uitgelicht_categorie]
+    if len(gemarkeerd) > 1:
+        let_op(f"categorie '{slug}': meer dan één artikel met 'uitgelicht: categorie' ("
+               + ", ".join(os.path.basename(x.pad) for x in gemarkeerd)
+               + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
+    pool = [x for x in rest if not x.is_deel or keuze.get(x.serie) is x]
+    groot = gemarkeerd[0] if gemarkeerd else pool[0]
+    lijst = [x for x in pool if x is not groot and not (groot.is_deel and x.is_deel and x.serie == groot.serie)]
+    return groot, lijst[:CAT_LIJST_MAX], totaal
+
+
+def voet_van(item, nieuw):
+    if item.is_deel:
+        s = STAAT["series"][item.serie]
+        return voet_html(item, s.titel, s.kaartnaam, vet=True, nieuw=nieuw)
+    return voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw)
+
+
+def groot_kaart(item, slug, breed):
+    """De grote kaart links in een categorieblok, met rechtsonder de belletjes en het figuur van de categorie.
+    Breed (bij een categorie met alleen dit artikel): titel links, uitleg rechts, over de hele breedte."""
+    voet, klasse = voet_van(item, is_nieuw(item))
+    sfeer = ('<span class="bel-kaart" aria-hidden="true"></span><span class="bel-kaart klein" aria-hidden="true"></span>'
+             + kaart_figuur(slug))
+    label = f'<p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>'
+    titel = f'<h3><a href="{item.url}">{titel_html(item)}</a></h3>'
+    uitleg = f'<p class="uitleg">{esc(item.kaarttekst)}</p>'
+    if breed:
+        return f"""<article class="kaart kaart-groot kaart-breed met-figuur{klasse}">
+        {sfeer}
+        <div class="links">
+          {label}
+          {titel}
+        </div>
+        <div class="rechts">
+          {uitleg}
+          {voet}
+        </div>
+      </article>"""
+    return f"""<article class="kaart kaart-groot met-figuur{klasse}">
+        {sfeer}
+        {label}
+        {titel}
+        {uitleg}
+        {voet}
+      </article>"""
+
+
+def lijst_regel(item):
+    """Eén regel in de lijst "Laatst verschenen" van een categorieblok: titel, en eronder soort en datum."""
+    if item.is_deel:
+        soort = f'Serie · <span class="serie-naam">{esc(STAAT["series"][item.serie].titel)}</span>'
+    else:
+        soort = esc(item.soortlabel)
+    tijd = f'<time datetime="{item.datum.isoformat()}">{datum_kort(item.datum)}</time>'
+    return f"""<li>
+            <h3><a href="{item.url}">{titel_html(item)}</a></h3>
+            <p class="meta">{soort} · {tijd}{NIEUW_ICOON if is_nieuw(item) else ""}</p>
+          </li>"""
+
+
+def categorie_blok(slug, groot, lijst, totaal):
+    c = CATEGORIEEN[slug]
+    enkel = not lijst
+    rechts = ""
+    if lijst:
+        rechts = f"""
+      <div class="cat-nieuwste">
+        <p class="label" id="n-{slug}">Laatst verschenen</p>
+        <ul aria-labelledby="n-{slug}">
+          {"".join(lijst_regel(x) for x in lijst)}
+        </ul>
+      </div>"""
+    return f"""<section class="cat-blok{' enkel' if enkel else ''}" aria-labelledby="c-{slug}">
+    <h2 id="c-{slug}">{esc(c["naam"])}</h2>
+    <p class="cat-lede">{esc(c["lede"])}</p>
+    <div class="cat-lijf">
+      {groot_kaart(groot, slug, enkel)}{rechts}
+    </div>
+    <a class="cat-alles" href="/leren/{slug}/">Alles in {esc(c["naam"])} <span class="aantal">{totaal}</span>{icoon("pijl")}</a>
+  </section>"""
 
 
 def bouw_home(items):
@@ -1010,7 +1105,6 @@ def bouw_home(items):
         let_op("meer dan één item heeft 'uitgelicht: ja' (" + ", ".join(os.path.basename(x.pad) for x in gemarkeerd)
                + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
     uit = gemarkeerd[0] if gemarkeerd else (live[0] if live else None)
-    rest = home_raster(live, uit)
     h = SITE["home"]
     uitgelicht = ""
     if uit:
@@ -1032,13 +1126,19 @@ def bouw_home(items):
   </div>
   <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
 </article>"""
-    kop = ""
-    if rest:
-        kop = f"""<div class="raster-kop">
-    <h2 id="laatst">Laatst verschenen</h2>
-    <a href="/leren/">Alles op Leren <span class="aantal">{len(leren_items(items))}</span>{icoon("pijl")}</a>
-  </div>
-  {raster(rest, nieuw=True, kop="laatst")}"""
+    # Per categorie een blok, in de vaste volgorde van site.json (praktijk, didactiek, onderzoek, techniek;
+    # Frits, 02-10-2026). Een categorie zonder artikelen, of met alleen het uitgelichte item, krijgt geen blok.
+    # Het raster "Laatst verschenen" en de categorieregel zijn vervallen (Frits, 02-10-2026).
+    blokken, getoond = [], ([uit] if uit else [])
+    for slug in CATEGORIEEN:
+        if slug not in STAAT["categorieen"]:
+            continue
+        groot, lijst, totaal = categorie_keuze(slug, live, uit)
+        if not groot:
+            continue
+        blokken.append(categorie_blok(slug, groot, lijst, totaal))
+        getoond += [groot] + lijst
+    blokken_html = "\n  ".join(blokken)
     inhoud = f"""<section class="held labpapier" aria-labelledby="titel">
   <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
   {avatar_img(h["avatar"], "held-avatar")}
@@ -1049,8 +1149,7 @@ def bouw_home(items):
 </section>
 <div class="wrap" id="items">
   {uitgelicht}
-  {kop}
-  {categorie_regel()}
+  {blokken_html}
 </div>
 <section class="wrap" aria-labelledby="over-titel">
   <div class="van-frits">
@@ -1062,8 +1161,7 @@ def bouw_home(items):
     </div>
   </div>
 </section>"""
-    # Het schema volgt wat er op de pagina staat: het uitgelichte item en de kaarten.
-    getoond = ([uit] if uit else []) + rest
+    # Het schema volgt wat er op de pagina staat: het uitgelichte item en de blokken, in die volgorde.
     lijst = {"@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": n + 1, "url": ADRES + x.url, "name": x.titel} for n, x in enumerate(getoond)]}
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",

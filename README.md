@@ -48,6 +48,7 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
    - `uitgelicht: ja` zet een item groot bovenaan de beginpagina. Zet dat bij één item tegelijk; staat het bij meer items, dan neemt de beginpagina het nieuwste en waarschuwt het script.
+   - `uitgelicht: categorie` maakt het artikel de grote kaart in het blok van zijn categorie op de beginpagina. Eén per categorie; staat het bij meer, dan neemt de beginpagina het nieuwste en waarschuwt het script. Zonder keuze wordt het nieuwste artikel van de categorie de grote kaart.
 3. Daaronder de tekst, gewoon in Markdown. De eerste regel `# Titel` wordt de titel van de pagina. Een losse regel "Frits Coers, docent bij Windesheim" direct onder de titel laat `bouw.py` weg: Frits is de enige auteur (afspraak Frits, 01-10-2026). Hij blijft author in schema.org. Staat zijn naam ergens anders, of begint een gewone alinea ermee, dan blijft die staan.
 4. Onderaan, na een regel met `---`, de GenAI-vermelding die begint met `**Transparantie GenAI.**`. Die is verplicht bij artikelen; zonder vermelding waarschuwt het script. Alleen artikelen krijgen hem. De beginpagina, `/leren/`, `/over/`, de 404 en tutorials niet: daar stoort hij (afspraak Frits, 30-09-2026). Zet er `Human-AI Agency Label: <label>.` in: op de site wordt dat één zin met het label, en de rest komt in een uitklap. De bron van de labels (Boetje & Baake) komt er vanzelf onder als je een label noemt.
 5. Verwijzen naar een tutorial, tool of ander artikel gaat met een blok:
@@ -115,18 +116,21 @@ Wat er dan komt:
 
 - `/series/` met alle series en `/series/<naam>/` met de delen in leesvolgorde, "Begin bij deel 1" en "Lees het nieuwste deel". Staat het volgende deel gepland, dan zegt de pagina "Deel 6 verschijnt op donderdag 12 november".
 - Op een deel: kruimelpad Series / <serie>, het label "Deel 3", onderaan vorige en volgende plus "Alle delen van deze serie". Geen "Verder in het lab", en de onderwerpen zonder links. In "Verder in het lab" bij andere artikelen komen geen seriedelen.
-- Op de beginpagina één kaart per serie onder "Laatst verschenen": bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1 (zie "De beginpagina").
+- Op de beginpagina één plek per serie in het blok van haar categorie: bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1 (zie "De beginpagina").
 - Een RSS-feed per serie: `/series/<naam>/feed.xml`.
 
 `bouw.py` waarschuwt onder "Let op" bij: geen of een onbekende categorie, een onbekend onderwerp, meer dan drie onderwerpen, een serie zonder deelnummer of een deelnummer zonder serie, een serie die niet bestaat, een deelnummer dat twee keer voorkomt, en een artikel dat heet als een categorie.
 
 ## De beginpagina
 
-Ontwerp van Bram (01-10-2026), met twee besluiten van Frits die afwijken van Brams voorstel.
+Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.
 
 - Bovenaan één uitgelicht item: het item met `uitgelicht: ja`, anders het nieuwste.
-- Daaronder de kop "Laatst verschenen" met de kaarten op datum, het nieuwste eerst, hooguit zes (`HOME_MAX` in `bouw.py`). Wat ouder is, staat op Leren. Een rij hoeft niet vol te zijn: drie en twee mag, want de meeste bezoekers kijken op mobiel (Frits; Bram stelde alleen hele rijen voor).
-- Een serie neemt één plek in: bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1. Op de kaart staat als label "Serie", het deelnummer klein vóór de titel en de serienaam onderaan.
+- Daaronder per categorie een blok, in de vaste volgorde van de lijst `categorieen` in `site.json`: AI in de praktijk, Didactiek, Onderzoek, Techniek (Frits, 02-10-2026). De tabrij op Leren volgt dezelfde volgorde. Een categorie zonder artikelen, of met alleen het uitgelichte item, krijgt geen blok.
+- In elk blok: de naam als kop, de korte uitleg uit `site.json`, links een grote kaart en rechts onder "Laatst verschenen" de nieuwste andere artikelen, hooguit drie (`CAT_LIJST_MAX` in `bouw.py`). De grote kaart is het artikel met `uitgelicht: categorie`, anders het nieuwste. Is er naast de grote kaart niets, dan wordt hij één brede kaart. Onderaan de link "Alles in <categorie>" met het aantal artikelen.
+- Op de grote kaart staan rechtsonder de belletjes uit de kop met het figuur van de categorie: het `avatar`-veld van de categorie in `site.json`. Is dat dezelfde avatar als in de kop van de beginpagina, dan neemt het script de rol-pose (nu: James).
+- Het uitgelichte item komt niet terug in zijn eigen blok. Het raster "Laatst verschenen" en de regel met categorieën zijn vervallen (Frits, 02-10-2026).
+- Een serie neemt in een blok één plek in: bij een lopende serie het nieuwste deel, bij een afgeronde serie deel 1. Op de kaart staat als label "Serie", het deelnummer klein vóór de titel en de serienaam onderaan.
 - "Nieuw" staat op een item op de publicatiedag en de zes dagen daarna (`NIEUW_DAGEN` in `bouw.py`; Frits; Bram stelde alleen de laatste publicatiedag voor). Het is een klein icoon (een kiemplantje) rechts in de voetregel, met "Nieuw" voor schermlezers. De GitHub Action bouwt elke ochtend, dus het teken verdwijnt vanzelf, ook als er niets nieuws verschijnt. Op de beginpagina en bij de delen op een seriepagina.
 - Elke kaart toont de publicatiedatum als kleine pill rechts in de labelregel: "1 okt 2026". Ook op Leren en de categoriepagina's.
 - De voetregel van een kaart staat altijd op één regel (Frits, 01-10-2026): voor wie, of bij een seriedeel de serienaam. Is de kaart te smal, dan staat er de korte vorm: "Studenten en docenten", of de `kaartnaam` van de serie. Past ook die niet, dan waarschuwt `bouw.py` onder "Let op".

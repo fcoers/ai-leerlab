@@ -479,12 +479,6 @@ main:focus, h1:focus, h2:focus { outline: none; }
 
 /* beginpagina (01-10-2026): één uitgelicht item als keuze, daaronder "Laatst verschenen" als volgorde,
    de categorieën onder het raster */
-.raster-kop { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 24px; margin: 56px 0 20px; }
-.raster-kop h2 { font: 700 22px/1.25 var(--sans); margin: 0; }
-.raster-kop a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; }
-.raster-kop a svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.raster-kop .aantal { font: 500 14px/1 var(--mono); color: var(--inkt-zacht); }
-@media (max-width: 640px) { .raster-kop { margin-top: 40px; } }
 /* "Nieuw": één vorm, rechts in de labelregel. De negatieve marge houdt de labelregel even hoog,
    zodat titels op elke kaart op dezelfde hoogte beginnen. Mos alleen op inkt. */
 /* De datum als kleine pill rechts in de labelregel (Frits, 01-10-2026). Gewone letter, geen kapitalen;
@@ -515,11 +509,78 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @container (max-width: 379px) { .past-380 .v-lang { display: none; } .past-380 .v-kort { display: inline; } }
 @container (max-width: 399px) { .past-400 .v-lang { display: none; } .past-400 .v-kort { display: inline; } }
 @container (max-width: 419px) { .past-420 .v-lang { display: none; } .past-420 .v-kort { display: inline; } }
-.categorie-regel { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; padding: 16px 0 0; border-top: 1px solid var(--lijn); margin: 8px 0 0; }
-.categorie-regel ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 24px; }
-.categorie-regel a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 500; }
 
 @media (prefers-reduced-motion: reduce) { .tabrij a, .serie-nav .stap { transition: none; } }
+
+/* ================= Beginpagina: een blok per categorie (Roel, 02-10-2026, naar Brams mockup.css) ================= */
+/* Onder het uitgelichte item een blok per categorie, in de vaste volgorde van site.json. Een dikke lijn in inkt
+   opent het blok. Links de grote kaart (keuze van Frits), rechts de lijst "Laatst verschenen" (volgorde).
+   De link "Alles in ..." staat in de broncode als laatste, zodat de tab-toets eerst de artikelen langsgaat. */
+.cat-blok { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "kop alles" "lede lede" "lijf lijf"; column-gap: 32px; border-top: 2px solid var(--inkt); padding-top: 24px; margin-top: 72px; }
+.uitgelicht + .cat-blok { margin-top: 56px; }
+.cat-blok h2 { grid-area: kop; font: 700 28px/1.2 var(--sans); letter-spacing: -.01em; margin: 0; }
+.cat-lede { grid-area: lede; margin: 6px 0 0; font-size: 17px; line-height: 1.5; color: var(--inkt-zacht); max-width: 48em; }
+.cat-alles { grid-area: alles; align-self: center; justify-self: end; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; white-space: nowrap; }
+.cat-alles svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cat-alles .aantal { font: 500 14px/1 var(--mono); color: var(--inkt-zacht); }
+.cat-lijf { grid-area: lijf; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px 40px; margin-top: 24px; align-items: start; }
+
+/* de grote kaart: dezelfde kaart als op Leren, ruimer en met een grotere titel */
+.kaart-groot { padding: 28px 28px 24px; gap: 14px; }
+.kaart-groot h3 { font-size: 26px; line-height: 1.2; letter-spacing: -.01em; }
+
+/* de lijst: geen kaarten, alleen haarlijnen. Het verschil in gewicht is de hiërarchie */
+.cat-nieuwste > .label { margin: 4px 0 12px; }
+.cat-nieuwste ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--lijn); }
+.cat-nieuwste li { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 16px 0; border-bottom: 1px solid var(--lijn); }
+.cat-nieuwste h3 { font: 600 19px/1.3 var(--sans); margin: 0; }
+.cat-nieuwste h3 a { color: var(--inkt); text-decoration: none; }
+.cat-nieuwste h3 a::after { content: ""; position: absolute; inset: 0; }
+.cat-nieuwste li:hover h3 a { text-decoration: underline; text-decoration-thickness: 2px; }
+.cat-nieuwste h3 .nr { font: 500 .9em/1 var(--mono); color: var(--inkt-zacht); margin-right: .35em; }
+.cat-nieuwste li:hover h3 .nr { text-decoration: none; display: inline-block; }
+.cat-nieuwste .meta { margin: 0; font-size: 15px; line-height: 1.4; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; }
+.cat-nieuwste .meta .serie-naam { color: var(--inkt); font-weight: 500; }
+
+/* één artikel in de categorie: geen lege kolom, de kaart neemt de volle breedte (titel links, uitleg rechts) */
+.cat-blok.enkel .cat-lijf { grid-template-columns: minmax(0, 1fr); }
+.kaart-breed { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 14px 40px; align-items: start; }
+.kaart-breed .links, .kaart-breed .rechts { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.kaart-breed .rechts { padding-top: 34px; height: 100%; container-type: inline-size; }   /* de voetregel kiest lang of kort op de breedte van deze kolom */
+
+/* sfeer: rechtsonder de belletjes in mos uit de kop, met het figuur van de categorie op de grote cirkel.
+   Cirkels en figuur liggen achter de inhoud (z-index -1 in een eigen stapel); de tekst eindigt ervoor.
+   De belletjes staan alleen hier en in de kop (DESIGN.md). */
+.kaart-groot { overflow: hidden; isolation: isolate; }
+.met-figuur { padding-right: 190px; min-height: 230px; }
+.met-figuur.kaart-breed { padding-right: 200px; }
+.bel-kaart { position: absolute; z-index: -1; border-radius: 50%; background: var(--mos); width: 200px; height: 200px; right: -20px; bottom: -110px; }
+.bel-kaart.klein { width: 28px; height: 28px; right: 150px; bottom: 150px; }
+.kaart-figuur { position: absolute; z-index: -1; right: 36px; bottom: 0; height: 150px; width: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  .bel-kaart { transition: transform .4s var(--uit); }
+  .kaart-groot:hover .bel-kaart { transform: translateY(-6px); }
+}
+
+@media (max-width: 1000px) {
+  .cat-lijf, .kaart-breed { grid-template-columns: minmax(0, 1fr); }
+  .kaart-breed .rechts { padding-top: 0; }
+}
+@media (max-width: 640px) {
+  /* op mobiel komt de link onder de artikelen: eerst zien wat er is, dan verder */
+  .cat-blok { grid-template-columns: minmax(0, 1fr); grid-template-areas: "kop" "lede" "lijf" "alles"; margin-top: 56px; }
+  .uitgelicht + .cat-blok { margin-top: 40px; }
+  .cat-blok h2 { font-size: 26px; }
+  .cat-alles { justify-self: start; margin-top: 8px; }
+  .kaart-groot { padding: 24px 20px 20px; }
+  .kaart-groot h3 { font-size: 24px; }
+  /* geen plek voor tekst én figuur naast elkaar: het figuur staat onder de tekst */
+  .met-figuur, .met-figuur.kaart-breed { padding-right: 20px; padding-bottom: 132px; min-height: 0; }
+  .bel-kaart { width: 160px; height: 160px; right: 8px; bottom: -96px; }
+  .bel-kaart.klein { width: 24px; height: 24px; right: 170px; bottom: 74px; }
+  .kaart-figuur { height: 120px; right: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .kaart, .uitgelicht { transition: none; } }
 
 /* ================= Toestemming voor statistieken (Roel, 01-10-2026) ================= */
 /* Een rustige kaart onderaan, geen scherm dat de pagina blokkeert. Accepteren en Weigeren wegen even zwaar. */

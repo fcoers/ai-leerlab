@@ -9,6 +9,7 @@ voor: studenten, docenten
 avatar: job-rust
 serie: bouw-je-eigen-productiviteitsapp
 deel: 1
+uitgelicht: categorie
 datum: 2026-10-01
 ---
 

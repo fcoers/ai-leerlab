@@ -47,20 +47,20 @@
       "beschrijving": "Artikelen en tutorials over AI in je lessen: lesontwerp, opdrachten, feedback en toetsing. Wat je aan AI geeft en wat je zelf doet."
     },
     {
-      "slug": "techniek",
-      "naam": "Techniek",
-      "avatar": "job-rust",
-      "lede": "Hoe AI werkt, in gewone taal. Genoeg om goede keuzes te maken, zonder dat je hoeft te programmeren.",
-      "seotitel": "Techniek achter AI: hoe het werkt, in gewone taal",
-      "beschrijving": "Uitleg over de techniek achter AI, in gewone taal: hoe taalmodellen werken, wat agents doen en waar de grenzen liggen."
-    },
-    {
       "slug": "onderzoek",
       "naam": "Onderzoek",
       "avatar": "onno-rust",
       "lede": "Wat onderzoek zegt over leren met AI, en hoe je AI verantwoord gebruikt in je eigen onderzoek.",
       "seotitel": "Onderzoek en AI: wat we weten over leren met AI",
       "beschrijving": "Artikelen over onderzoek naar AI in het hoger onderwijs: wat we weten, hoe je zelf onderzoek doet en hoe je AI daarbij verantwoord gebruikt."
+    },
+    {
+      "slug": "techniek",
+      "naam": "Techniek",
+      "avatar": "job-rust",
+      "lede": "Hoe AI werkt, in gewone taal. Genoeg om goede keuzes te maken, zonder dat je hoeft te programmeren.",
+      "seotitel": "Techniek achter AI: hoe het werkt, in gewone taal",
+      "beschrijving": "Uitleg over de techniek achter AI, in gewone taal: hoe taalmodellen werken, wat agents doen en waar de grenzen liggen."
     }
   ],
   "onderwerpen": [

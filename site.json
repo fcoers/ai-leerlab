@@ -27,7 +27,8 @@
     "tags": "0 tot 3 waarden uit 'onderwerpen', met komma's. Voorbeeld: tags: lesontwerp, toetsing",
     "serie": "naam van een bestand in inhoud/series/ zonder .md. Voorbeeld: serie: masterproject",
     "deel": "geheel getal, uniek binnen de serie, alleen samen met serie. Voorbeeld: deel: 3",
-    "soort": "uitleg, tutorial, tool of verhaal"
+    "soort": "uitleg, tutorial, tool of verhaal",
+    "avatar": "optioneel, het figuur bij het artikel: naam van een bestand in statisch/assets/img/avatars/ zonder .webp, in de vorm <teamlid>-<versie>. Voorbeeld: avatar: james-blij. De contentkalender in de Productiviteit-app laat kiezen uit Anouks stills (<Naam> - <versie>.png); een versie zonder .webp in die map toont nog geen figuur"
   },
   "categorieen": [
     {

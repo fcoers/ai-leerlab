@@ -44,6 +44,7 @@ De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Termina
    - `soort` is `uitleg`, `tutorial`, `tool` of `verhaal`.
    - `categorie` en `tags`: zie hieronder, "Categorieën, onderwerpen en series".
    - `avatar` is de naam van een bestand in `statisch/assets/img/avatars/` zonder `.webp`. Kies het teamlid dat bij het onderwerp past, in rustpose; een tutorial krijgt de rolpose. Nooit dezelfde avatar als het artikel waar je naar verwijst.
+     De vorm is `<teamlid>-<versie>`, in kleine letters: `james-rust`, `james-rol`, en straks ook expressies als `james-blij` of `james-vragend`. In de contentkalender van de Productiviteit-app kiest Frits het figuur per artikel (teamlid, dan versie). De app leest de versies uit de bestandsnamen van Anouks stills (`Styleguides/Windesheim/Leveringen/Avatars 3D - set 2/Stills/` en `Avatars 3D - expressies/Stills/`, `<Naam> - <versie>.png`); `James - blij.png` wordt `avatar: james-blij`. Staat er nog geen `james-blij.webp` in `statisch/assets/img/avatars/`, dan waarschuwt `bouw.py` en blijft het figuur weg; de app zegt dat bij de keuze ("nog niet op de site").
    - `datum` in de toekomst plant het artikel: het gaat op die dag online (zie Gepland publiceren).
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.

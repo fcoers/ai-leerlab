@@ -10,7 +10,7 @@ avatar: dide-rust
 datum: 2026-09-30
 ---
 
-# Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf houdt
+# Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet
 
 Frits Coers, docent bij Windesheim
 

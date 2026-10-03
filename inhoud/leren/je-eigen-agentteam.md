@@ -6,7 +6,7 @@ soort: uitleg
 categorie: praktijk
 tags: agents, verantwoording
 voor: studenten, docenten
-avatar: james-rust
+avatar: james-overdragen
 datum: 2026-09-30
 ---
 

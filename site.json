@@ -13,7 +13,7 @@
     "seotitel": "AI-leerlab · Leren werken met AI, voor studenten en docenten",
     "beschrijving": "Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.",
     "kop": "Leren werken met AI, door het te doen.",
-    "lede": "Tutorials, tools en korte uitleg voor studenten en docenten. Ik maak ze voor mijn eigen onderwijs en zet ze hier neer, zodat jij ze ook kunt gebruiken.",
+    "lede": "Tutorials, tools en uitleg voor studenten en docenten. Ik werk met AI in mijn eigen onderwijs en deel hier mijn ervaringen, zodat jij ze ook kunt gebruiken.",
     "avatar": "james-rust"
   },
   "leren": {
@@ -21,7 +21,7 @@
     "beschrijving": "Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.",
     "lede": "Tutorials en korte uitleg over werken met AI. Het nieuwste staat bovenaan."
   },
-  "over_kort": "Ik ben Frits Coers, docent bij Hogeschool Windesheim. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik daarvoor maak, zet ik hier neer.",
+  "over_kort": "Ik ben Frits Coers, docent bij Hogeschool Windesheim. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik maak en leer deel ik op deze website.",
   "kopje": {
     "categorie": "precies één slug uit 'categorieen', verplicht. Voorbeeld: categorie: didactiek",
     "tags": "0 tot 3 waarden uit 'onderwerpen', met komma's. Voorbeeld: tags: lesontwerp, toetsing",
@@ -35,7 +35,7 @@
       "slug": "praktijk",
       "naam": "AI in de praktijk",
       "avatar": "james-rust",
-      "lede": "Hoe je AI inzet in je dagelijkse werk en studie, en welke afspraken je daarbij maakt.",
+      "lede": "Hoe je AI inzet in je dagelijkse werk of studie, met tips, valkuilen en best practices.",
       "seotitel": "AI in de praktijk: zo werk je elke dag met AI",
       "beschrijving": "Artikelen en tutorials over werken met AI in je dagelijkse werk en studie: AI-agents, prompts en de afspraken die je erbij maakt."
     },
@@ -59,7 +59,7 @@
       "slug": "techniek",
       "naam": "Techniek",
       "avatar": "job-rust",
-      "lede": "Hoe AI werkt, in gewone taal. Genoeg om goede keuzes te maken, zonder dat je hoeft te programmeren.",
+      "lede": "Bouw je eigen tools en websites, zonder te programmeren, gewoon met AI.",
       "seotitel": "Techniek achter AI: hoe het werkt, in gewone taal",
       "beschrijving": "Uitleg over de techniek achter AI, in gewone taal: hoe taalmodellen werken, wat agents doen en waar de grenzen liggen."
     }

@@ -20,3 +20,6 @@ AddType image/webp .webp
   ExpiresByType image/png "access plus 1 month"
   ExpiresByType image/svg+xml "access plus 1 month"
 </IfModule>
+
+# De zelftest stond eerst als testversie op /test/ (03-10-2026); dat adres verwijst door naar de live versie.
+Redirect 301 /test/zelftest-human-ai-label/ https://ai-leerlab.nl/tools/zelftest-human-ai-label/

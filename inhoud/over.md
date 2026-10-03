@@ -30,3 +30,5 @@ Geef je wel toestemming, dan zet Google Analytics een paar cookies in je browser
 De tutorial onthoudt bij welke stap je was. Dat staat alleen in je eigen browser en gaat nergens heen. Wis je je browsergegevens, dan begin je opnieuw.
 
 De site is gemaakt met mijn AI-team: de teksten, het ontwerp en de bouw. Ik bepaal wat er komt en keur alles voordat het online gaat. Onder elk artikel staat hoe we hebben samengewerkt. De getekende avatars zijn de teamleden van dat AI-team. Letters: Roboto Flex en Roboto Mono (SIL Open Font License).
+
+Redactioneel verantwoordelijk voor AI-leerlab ben ik, Frits Coers. Bij het maken van de inhoud gebruik ik AI, maar ik lees elk stuk inhoudelijk na en controleer de feiten voordat het online komt. Onder elk artikel en elke tool staat een korte AI-verklaring met het Human-AI-label dat past bij hoe het gemaakt is. Zie je iets wat niet klopt, laat het me dan weten via [LinkedIn](https://www.linkedin.com/in/fritscoers/).

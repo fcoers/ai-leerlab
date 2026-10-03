@@ -146,18 +146,21 @@ Alle drie gebruiken het canonieke adres op https://ai-leerlab.nl. Geen knoppen o
 
 Een tool is een `.html`-bestand in `inhoud/tools/` met een kopje, net als de tutorial (`soort: tool`), plus een eigen script in `statisch/assets/` via `script:` in het kopje. Live komt hij op `/tools/<naam>/`; met `status: concept` op `/test/<naam>/`.
 
+- Zodra er een live tool is, maakt `bouw.py` de pagina `/tools/` (teksten onder `tools` in `site.json`) en staat Tools in het menu en de voet. Zonder live tool verschijnt er niets.
+- Een tool hoort net als een artikel bij een categorie: hij staat op Leren, op de categoriepagina en in het categorieblok op de beginpagina. Het kruimelpad is Tools.
+- `uitgelicht: categorie` werkt ook voor een tool: hij wordt de grote kaart in het blok van zijn categorie op de beginpagina en staat vooraan op de categoriepagina.
+
 - Zet `transparantie: **Transparantie GenAI.** … Human-AI Agency Label: <label>.` in het kopje, dan krijgt de tool dezelfde GenAI-vermelding als een artikel. Tutorials krijgen hem niet.
 - Zet `<!--deelknoppen-->` in de tekst en de deelrij komt op die plek in plaats van onderaan, bijvoorbeeld bij een uitslag. Die rij staat er ook in de testversie en deelt dan al het live adres.
 
 ### Zelftest: welk Human-AI-label past bij jou?
 
-`inhoud/tools/zelftest-human-ai-label.html` met `statisch/assets/zelftest.js` (03-10-2026). Staat nog als testversie op `/test/zelftest-human-ai-label/` (noindex, niet in sitemap, feed of menu). Tekst en scoring van Dide (`Leveringen/_bron/Zelftest Human-AI-label.md`; deel A staat er letterlijk in).
+`inhoud/tools/zelftest-human-ai-label.html` met `statisch/assets/zelftest.js` (03-10-2026). Live op `/tools/zelftest-human-ai-label/`, categorie Didactiek, met `uitgelicht: categorie` (Frits, 03-10-2026). Het oude testadres `/test/zelftest-human-ai-label/` verwijst met een 301 door (`statisch/.htaccess`). Tekst en scoring van Dide (`Leveringen/_bron/Zelftest Human-AI-label.md`; deel A staat er letterlijk in).
 
 - Eén vraag per scherm. Op mobiel past een vraag met zijn antwoorden op één scherm, je raakt je plek niet kwijt en Volgende staat steeds op dezelfde plek. De vragen zijn gewone fieldsets met keuzerondjes; het script toont er één tegelijk en zet de focus op het antwoord, zodat een schermlezer de vraag voorleest.
 - Alles gebeurt in de browser: niets wordt verstuurd of opgeslagen, ook de taak niet. Zonder JavaScript blijft het formulier weg en staat er een melding; de negen labels, de disclaimer en de bronnen blijven leesbaar.
 - Uitslag: alleen het label, eventueel een tweede (som hooguit 2 lager) of bij een niet te beslissen gelijke stand twee labels. Geen punten of percentages. De puntentabel staat bovenin `zelftest.js` (`PUNTEN`), de uitslagregel in `uitslag()`.
 - Na een wijziging in de scoring: draai Dides twaalf testgevallen. `uitslag()` laadt ook in Node (`require('./statisch/assets/zelftest.js').uitslag(['A', …])`).
-- Live zetten: haal `status: concept` weg en zet een menulink Tools in `sjablonen/basis.html`.
 
 ## De beginpagina
 
@@ -223,7 +226,7 @@ git push -u origin main
 | Map of bestand | Wat erin staat |
 |---|---|
 | `inhoud/leren/` | De artikelen (`.md`) en de tutorial (`.html`, eigen opmaak met een kopje bovenaan) |
-| `inhoud/over.md` | De pagina Over, met privacy en colofon |
+| `inhoud/over.md` | De pagina Over, met privacy en colofon. In de colofon staat Frits als redactioneel verantwoordelijke (03-10-2026, AI-verordening art. 50 lid 4) |
 | `inhoud/series/` | De series (`.md`, kopje plus de tekst "Over deze serie") |
 | `site.json` | Adres, teksten van de beginpagina, Leren en Series, de categorieën en de lijst onderwerpen |
 | `sjablonen/basis.html` | Wat op elke pagina staat: de kop, de voet en alles voor Google |
@@ -244,6 +247,5 @@ Statistieken via Google Analytics (meet-ID `analytics` in `site.json`), alleen n
 
 De opzet houdt hier rekening mee, zonder verbouwing:
 
-- Tools: een map `inhoud/tools/`. Een tool is een `.html`-bestand met een kopje, net als de tutorial, plus een eigen script in `statisch/assets/`. Ze komen op `/tools/<naam>/`. Zet dan ook een menulink in `sjablonen/basis.html`.
 - Filters op voor wie en soort: pas zinvol vanaf een stuk of acht items. Soort en doelgroep staan al in elk kopje.
 - Zoeken en een nieuwsbrief.

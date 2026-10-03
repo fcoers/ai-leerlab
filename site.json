@@ -17,6 +17,7 @@
     "lede": "Tutorials, tools en uitleg voor studenten en docenten. Ik werk met AI in mijn eigen onderwijs en deel hier mijn ervaringen, zodat jij ze ook kunt gebruiken.",
     "avatar": "james-rust"
   },
+  "tools": {"seotitel": "Tools om bewust met AI te werken", "beschrijving": "Kleine hulpmiddelen van AI-leerlab om je eigen AI-gebruik te bekijken, voor studenten en docenten. Alles werkt in je browser.", "lede": "Kleine hulpmiddelen om je eigen AI-gebruik te bekijken. Alles werkt in je browser en er wordt niets opgeslagen."},
   "leren": {
     "seotitel": "Leren werken met AI: tutorials en uitleg",
     "beschrijving": "Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.",

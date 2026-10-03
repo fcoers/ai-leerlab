@@ -417,7 +417,7 @@ class Item:
 
 # Wat er zichtbaar is, berekend in bouw(): alleen series met een gepubliceerd deel, categorieën
 # met artikelen en onderwerpen vanaf ONDERWERP_DREMPEL artikelen krijgen een pagina en een link.
-STAAT = {"series": {}, "categorieen": {}, "onderwerpen": {}}
+STAAT = {"series": {}, "categorieen": {}, "onderwerpen": {}, "tools": []}
 GEPLAND = []   # artikelen met een datum in de toekomst: nog niet op de site, wel nodig voor "Deel 6 verschijnt op ..."
 
 
@@ -780,6 +780,10 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
     # Series staat pas in het menu als er een serie met een gepubliceerd deel is.
     huidig = ' aria-current="page"' if menu == "series" else ""
     menu_series = f'\n        <a href="/series/"{huidig}>Series</a>' if STAAT["series"] else ""
+    # Tools staat pas in het menu als er een live tool is.
+    huidig_t = ' aria-current="page"' if menu == "tools" else ""
+    menu_tools = f'\n        <a href="/tools/"{huidig_t}>Tools</a>' if STAAT["tools"] else ""
+    voet_tools = '\n        <a href="/tools/">Tools</a>' if STAAT["tools"] else ""
     voet_series = '\n        <a href="/series/">Series</a>' if STAAT["series"] else ""
     vervang = {
         "titel": esc(volle_titel),
@@ -797,6 +801,8 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "inhoud": inhoud,
         "menu_leren": ' aria-current="page"' if menu == "leren" else "",
         "menu_series": menu_series,
+        "menu_tools": menu_tools,
+        "voet_tools": voet_tools,
         "voet_series": voet_series,
         "voet_profielen": voet_profielen(),
         "menu_over": ' aria-current="page"' if menu == "over" else "",
@@ -836,6 +842,8 @@ def item_stappen(item):
     if item.is_deel:
         s = STAAT["series"][item.serie]
         return [("Series", "/series/"), (s.titel, s.url, s.kaartnaam)]
+    if item.map == "tools" and not item.concept:
+        return [("Tools", "/tools/")]
     stappen = [("Leren", "/leren/")]
     c = item.categorie_info
     if c and not item.concept and c["slug"] in STAAT["categorieen"]:
@@ -1077,7 +1085,8 @@ def bouw_html_item(item, alle):
     schema = jsonld(hoofd, PERSOON, WEBSITE, item_kruimelpad_schema(item))
     script = item.meta.get("script", "")
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
-           menu="leren", deel=deelbeeld(item.slug), schema=schema, noindex=item.concept,
+           menu="tools" if item.map == "tools" else "leren", deel=deelbeeld(item.slug), schema=schema,
+           noindex=item.concept,
            extra_voet="\n  ".join(x for x in (
                f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "",
                delen_script(item, altijd=eigen_delen)) if x))
@@ -1261,7 +1270,9 @@ def bouw_home(items):
 
 
 def leren_items(items):
-    return sorted([x for x in items if not x.concept and x.url.startswith("/leren/")],
+    """Alles wat onder Leren en de categorieën valt: artikelen, tutorials en tools (een tool heeft een categorie,
+    zoals de zelftest in Didactiek; Frits, 03-10-2026). Series en losse pagina's niet."""
+    return sorted([x for x in items if not x.concept and x.url.startswith(("/leren/", "/tools/"))],
                   key=lambda x: x.datum, reverse=True)
 
 
@@ -1302,6 +1313,26 @@ def bouw_leren(items):
                          kruimelpad(("AI-leerlab", "/"), ("Leren", None))))
 
 
+def bouw_tools(items):
+    """/tools/ met alle live tools, alleen als er een is. De menulink Tools hangt aan dezelfde lijst."""
+    if not STAAT["tools"]:
+        return
+    t = SITE["tools"]
+    inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <h1 id="titel">Tools</h1>
+    <p class="lede">{esc(t["lede"])}</p>
+  </div>
+</section>
+<div class="wrap lijst">
+  {raster(STAAT["tools"])}
+</div>"""
+    pagina("/tools/", titel=t["seotitel"], beschrijving=t["beschrijving"], inhoud=inhoud, url="/tools/", menu="tools",
+           schema=lijst_schema("Tools", "/tools/", t["beschrijving"], STAAT["tools"],
+                               ("AI-leerlab", "/"), ("Tools", None)))
+    EXTRA.append(("/tools/", max(x.bijgewerkt for x in STAAT["tools"])))
+
+
 def lijst_schema(naam, url, beschrijving, leden, *kruimels):
     return jsonld({"@type": "CollectionPage", "name": naam, "url": ADRES + url, "description": beschrijving,
                    "isPartOf": {"@id": f"{ADRES}/#site"},
@@ -1315,6 +1346,9 @@ def bouw_categorieen(items):
     """Een pagina per categorie met artikelen: /leren/<categorie>/, met de tabrij."""
     for slug, leden in STAAT["categorieen"].items():
         c = CATEGORIEEN[slug]
+        # Het item met 'uitgelicht: categorie' staat ook op de categoriepagina vooraan (Frits, 03-10-2026);
+        # daarna de rest, nieuwste eerst.
+        leden = sorted(leden, key=lambda x: not x.uitgelicht_categorie)
         url = f"/leren/{slug}/"
         inhoud = f"""<section class="item-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
@@ -1637,11 +1671,13 @@ def bouw():
     live = leren_items(items)
     STAAT["categorieen"] = {c: [x for x in live if x.categorie == c] for c in CATEGORIEEN
                             if any(x.categorie == c for x in live)}
+    STAAT["tools"] = [x for x in live if x.map == "tools"]
     STAAT["onderwerpen"] = {t: [x for x in live if t in x.tags] for t in ONDERWERPEN
                             if sum(t in x.tags for x in live) >= ONDERWERP_DREMPEL}
     for item in items:
         (bouw_artikel if item.vorm == "md" else bouw_html_item)(item, items)
     bouw_home(items)
+    bouw_tools(items)
     bouw_leren(items)
     bouw_categorieen(items)
     bouw_series()

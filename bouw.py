@@ -17,6 +17,7 @@ import re
 import shutil
 import struct
 import sys
+import urllib.parse
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 INHOUD = os.path.join(HIER, "inhoud")
@@ -67,6 +68,9 @@ def icoon(naam, klasse=""):
         # Profielen in de voet: lijntekeningen in dezelfde stijl als de andere iconen, geen gevulde merklogo's.
         "linkedin": '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/>',
         "instagram": '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/>',
+        # Delen onder een item (03-10-2026): dezelfde lijnstijl als de profielen in de voet.
+        "mail": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/>',
+        "link": '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
         "pijl-terug": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
         # Nieuw: een kiemplantje, twee blaadjes in mos met een lijn in inkt.
         "nieuw": '<path d="M12 21v-8"/><path class="blad" d="M12 14C7.6 14 5 11.4 5 7c4.4 0 7 2.6 7 7z"/>'
@@ -884,6 +888,33 @@ def onderwerpen_html(item):
     return f'<p class="onderwerpen"><span class="label">Onderwerpen</span>{"".join(delen)}</p>'
 
 
+DELEN_JS = "/assets/delen.js"
+
+
+def delen_html(item):
+    """Delen onder een artikel, tutorial of seriedeel: LinkedIn, mail en link kopiëren (03-10-2026).
+    LinkedIn en mail zijn gewone links: geen scripts of knoppen van derden, geen trackers.
+    Link kopiëren staat er alleen met JavaScript: de knop is hidden tot delen.js hem toont.
+    Niet op een concept: een adres onder /test/ deel je niet."""
+    if item.concept:
+        return ""
+    url = ADRES + item.url
+    q = urllib.parse.quote
+    linkedin = "https://www.linkedin.com/sharing/share-offsite/?url=" + q(url, safe="")
+    mail = f"mailto:?subject={q(item.titel)}&body={q(item.titel + chr(10) + chr(10) + url)}"
+    return f"""<div class="deelrij" role="group" aria-label="Deel deze pagina">
+      <span class="label" aria-hidden="true">Delen</span>
+      <a class="deelknop" href="{esc(linkedin)}" target="_blank" rel="noopener" aria-label="Delen op LinkedIn (opent in een nieuw tabblad)">{icoon("linkedin")}</a>
+      <a class="deelknop" href="{esc(mail)}" aria-label="Delen per mail">{icoon("mail")}</a>
+      <button class="deelknop" type="button" data-kopieer="{esc(url)}" aria-label="Link kopiëren" hidden>{icoon("link")}</button>
+      <span class="gekopieerd" role="status" aria-live="polite"></span>
+    </div>"""
+
+
+def delen_script(item):
+    return "" if item.concept else f'<script src="{DELEN_JS}?v={VERSIE}" defer></script>'
+
+
 def dag_nl(d):
     """'donderdag 12 november', met het jaar erbij als dat niet dit jaar is."""
     t = f"{WEEKDAGEN[d.weekday()]} {d.day} {MAANDEN[d.month - 1]}"
@@ -975,6 +1006,7 @@ def bouw_artikel(item, alle):
   <article class="artikel">
     {lijf}
     {onderwerpen_html(item)}
+    {delen_html(item)}
     {serie_nav_html(item)}
     {transparantie_html(item)}
   </article>
@@ -990,7 +1022,7 @@ def bouw_artikel(item, alle):
         item_kruimelpad_schema(item))
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
            menu="series" if item.is_deel else "leren", ogtype="article", deel=deelbeeld(item.slug), schema=schema,
-           noindex=item.concept,
+           noindex=item.concept, extra_voet=delen_script(item),
            extra_kop=f'<meta property="article:published_time" content="{item.datum.isoformat()}">\n'
                      f'  <meta property="article:modified_time" content="{item.bijgewerkt.isoformat()}">')
 
@@ -1005,6 +1037,7 @@ def bouw_html_item(item, alle):
 {item.tekst}
   </div>
   {onderwerpen_html(item)}
+  {delen_html(item)}
   {verder(item, alle)}
 </div>"""
     stappen = [s.strip() for s in item.meta.get("stappen", "").split("|") if s.strip()]
@@ -1030,7 +1063,9 @@ def bouw_html_item(item, alle):
     script = item.meta.get("script", "")
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
            menu="leren", deel=deelbeeld(item.slug), schema=schema, noindex=item.concept,
-           extra_voet=f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "")
+           extra_voet="\n  ".join(x for x in (
+               f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "",
+               delen_script(item)) if x))
 
 
 def kaart_figuur(slug):

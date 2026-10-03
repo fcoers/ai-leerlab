@@ -132,6 +132,16 @@ Wat er dan komt:
 - Per serie blijft er een eigen feed: `/series/<naam>/feed.xml`.
 - Beide feeds maakt `bouw.py` (`bouw_site_feed` en `bouw_feed`). Controleren kan met https://validator.w3.org/feed/.
 
+## Delen
+
+Onder elk artikel, elke tutorial en elk seriedeel staat een rij "Delen" met drie iconen, direct onder de onderwerpen (03-10-2026, idee 3 uit Brams featureideeën):
+
+- LinkedIn: een gewone link naar `linkedin.com/sharing/share-offsite/?url=…`, opent in een nieuw tabblad.
+- Mail: een `mailto:`-link met de titel als onderwerp en titel plus adres in de tekst.
+- Link kopiëren: zet het adres op het klembord en toont "Gekopieerd" naast de knop (ook voor schermlezers). Dit is het enige stukje JavaScript, `statisch/assets/delen.js`, van ons zelf. De knop staat in de HTML op `hidden` en verschijnt pas als het script draait; zonder JavaScript blijven LinkedIn en mail over.
+
+Alle drie gebruiken het canonieke adres op https://ai-leerlab.nl. Geen knoppen of scripts van LinkedIn of andere diensten, dus geen trackers en geen extra cookies. Een concept onder `/test/` krijgt geen deelrij. Iconen in dezelfde lijnstijl als de profielen in de voet, klikvlak 44 px, icoon 24 px. Code: `delen_html` in `bouw.py`, opmaak onder `.deelrij` in `site.css`.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.

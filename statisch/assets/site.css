@@ -522,6 +522,18 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @media (max-width: 640px) { .serie-nav .paar > span:empty { display: none; } }
 .wrap > .onderwerpen { margin-top: 32px; }
 
+/* delen onder een artikel, tutorial of seriedeel (03-10-2026): één rij in de stijl van de onderwerpen,
+   iconen in dezelfde lijnstijl als de profielen in de voet. Klikvlak 44 px, icoon 24 px. */
+.deelrij { max-width: var(--tekst); margin: 40px 0 0; font-size: 16px; color: var(--inkt-zacht); display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.deelrij .label { margin-right: 8px; }
+.deelrij .deelknop { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--inkt); cursor: pointer; }
+.deelrij .deelknop[hidden] { display: none; }
+.deelrij .deelknop svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.deelrij .deelknop:hover, .deelrij .deelknop:focus-visible { color: var(--labgroen); background: var(--munt); }
+.deelrij .gekopieerd { margin-left: 4px; color: var(--labgroen-donker); font-weight: 600; }
+.deelrij .gekopieerd:empty { display: none; }
+.onderwerpen + .deelrij { margin-top: 8px; }
+
 /* beginpagina (01-10-2026): één uitgelicht item als keuze, daaronder "Laatst verschenen" als volgorde,
    de categorieën onder het raster */
 /* "Nieuw": één vorm, rechts in de labelregel. De negatieve marge houdt de labelregel even hoog,

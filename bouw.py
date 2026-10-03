@@ -758,7 +758,7 @@ def deelbeeld(slug):
 
 
 # Profielen van Frits als icoon in de voet. Bron: sameAs in site.json; een nieuw adres daar verschijnt vanzelf.
-PROFIELEN = (("linkedin.com", "linkedin", "LinkedIn"), ("instagram.com", "instagram", "Instagram"))
+PROFIELEN = (("linkedin.com", "linkedin", "Frits Coers op LinkedIn"), ("instagram.com", "instagram", "AI-leerlab op Instagram"))
 
 
 def voet_profielen():
@@ -766,7 +766,7 @@ def voet_profielen():
     for domein, naam, label in PROFIELEN:
         url = next((u for u in SITE.get("sameAs", []) if domein in u), "")
         if url:
-            links.append(f'<a class="profiel" href="{esc(url)}" aria-label="Frits Coers op {label}">{icoon(naam)}</a>')
+            links.append(f'<a class="profiel" href="{esc(url)}" aria-label="{label}">{icoon(naam)}</a>')
     return ("\n        " + "".join(links)) if links else ""
 
 

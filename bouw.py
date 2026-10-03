@@ -587,12 +587,31 @@ def raster(items, nieuw=False, kop=""):
     return f'<ul class="raster"{attr}>\n' + "\n".join(kaart(x, nieuw and is_nieuw(x)) for x in items) + "\n</ul>"
 
 
+def figuur(naam):
+    """Het teamlid in een avatarwaarde: 'job-bouwen' wordt 'job'. De versie (rust, rol, bouwen) telt niet mee."""
+    return naam.split("-", 1)[0] if naam else ""
+
+
+def avatar_schaal(naam, h):
+    """Hoe hoog dit bestand is ten opzichte van de rustpose van dezelfde figuur. Een expressie staat op de
+    schaal van rust (still 1635 px wordt 560 px), dus blij met opgeheven armen is hoger dan 560. De css
+    vermenigvuldigt de vaste hoogte met deze factor, zodat het lijf even groot blijft en niet het bestand
+    (Bram, 03-10-2026). Rust en de rol-bestanden van de site zijn 560 hoog en geven 1."""
+    rust = os.path.join(STATISCH, "assets", "img", "avatars", f"{figuur(naam)}-rust.webp")
+    if not os.path.exists(rust):
+        return 1.0
+    maat = beeldmaat(rust)
+    return h / maat[1] if maat and maat[1] else 1.0
+
+
 def avatar_img(naam, klasse, hoogte=None):
     a = avatar(naam) if naam else None
     if not a:
         return ""
     url, w, h = a
-    return f'<img class="{klasse}" src="{url}" width="{w}" height="{h}" alt="">'
+    schaal = avatar_schaal(naam, h)
+    stijl = f' style="--schaal: {schaal:.3f}"' if abs(schaal - 1) > 0.005 else ""
+    return f'<img class="{klasse}" src="{url}" width="{w}" height="{h}" alt=""{stijl}>'
 
 
 def maak_verwijzing(pagina, alle):
@@ -632,8 +651,14 @@ def maak_verwijzing(pagina, alle):
         label = SOORTEN.get(soort, (soort.capitalize(),))[0]
         actie = linktekst if linktekst and linktekst != titel else SOORTEN.get(soort, ("", "", "Bekijk"))[2]
         teken = f'<div class="teken" aria-hidden="true">{icoon(soort if soort in SOORTEN else "tool")}</div>'
-        if doel and doel.avatar and doel.avatar != pagina.avatar:
-            a = avatar(doel.avatar)
+        # Dubbelcontrole op de figuur, niet op de versie: james-overdragen in de kop en james-rust in het
+        # blok is twee keer James (Bram, 03-10-2026). Het teken is uitgesneden op het hoofd van de rust- en
+        # rolpose; bij een expressie toont het daarom de rustpose van die figuur.
+        if doel and doel.avatar and figuur(doel.avatar) != figuur(pagina.avatar):
+            teken_naam = doel.avatar
+            if teken_naam.split("-", 1)[-1] not in ("rust", "rol"):
+                teken_naam = f"{figuur(teken_naam)}-rust"
+            a = avatar(teken_naam)
             if a:
                 teken = f'<div class="teken avatar" aria-hidden="true"><img src="{a[0]}" alt=""></div>'
         extra = f" · {esc(doel.meta['duur'])}" if doel and doel.meta.get("duur") else ""
@@ -985,11 +1010,6 @@ def bouw_html_item(item, alle):
            extra_voet=f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "")
 
 
-def serie_keuze():
-    """Per zichtbare serie het deel dat op de beginpagina één plek krijgt: lopend het nieuwste, afgerond deel 1."""
-    return {slug: (s.delen[-1] if s.lopend else s.delen[0]) for slug, s in STAAT["series"].items()}
-
-
 def kaart_figuur(slug):
     """Het figuur in de cirkel op de grote kaart van een categorieblok: de avatar van de categorie uit site.json.
     Staat die al in de kop van de beginpagina (nu james-rust), dan de rol-pose, zodat dezelfde avatar
@@ -1005,7 +1025,8 @@ def kaart_figuur(slug):
 def categorie_keuze(slug, live, uit):
     """(grote kaart, lijst, totaal) voor het blok van een categorie op de beginpagina.
 
-    Het uitgelichte item van de beginpagina komt niet terug. Een serie neemt één plek in.
+    Het uitgelichte item van de beginpagina komt niet terug. Een seriedeel telt als gewoon artikel: deel 1
+    groot en deel 2 in de lijst kan (Frits, 03-10-2026; eerder nam een serie één plek in).
     De grote kaart is het artikel met 'uitgelicht: categorie' (Frits kiest, 02-10-2026), anders het nieuwste.
     De lijst: de nieuwste andere, hooguit CAT_LIJST_MAX."""
     alle = [x for x in live if x.categorie == slug]
@@ -1013,15 +1034,13 @@ def categorie_keuze(slug, live, uit):
     rest = [x for x in alle if x is not uit]
     if not rest:
         return None, [], totaal
-    keuze = serie_keuze()
     gemarkeerd = [x for x in rest if x.uitgelicht_categorie]
     if len(gemarkeerd) > 1:
         let_op(f"categorie '{slug}': meer dan één artikel met 'uitgelicht: categorie' ("
                + ", ".join(os.path.basename(x.pad) for x in gemarkeerd)
                + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
-    pool = [x for x in rest if not x.is_deel or keuze.get(x.serie) is x]
-    groot = gemarkeerd[0] if gemarkeerd else pool[0]
-    lijst = [x for x in pool if x is not groot and not (groot.is_deel and x.is_deel and x.serie == groot.serie)]
+    groot = gemarkeerd[0] if gemarkeerd else rest[0]
+    lijst = [x for x in rest if x is not groot]
     return groot, lijst[:CAT_LIJST_MAX], totaal
 
 
@@ -1452,15 +1471,17 @@ def bouw_losse_paginas(items):
 
 
 def bouw_404():
-    inhoud = f"""<section class="item-kop labpapier" aria-labelledby="titel">
+    """Onno in oeps, groter dan in een gewone kop en ook op mobiel zichtbaar: het vergrootglas valt, de pagina
+    is zoek. Onze misser, niet die van de lezer (Bram en Frits, 03-10-2026)."""
+    inhoud = f"""<section class="item-kop niet-gevonden labpapier" aria-labelledby="titel">
   <div class="wrap">
     <div class="tekst">
       <p class="label">Pagina niet gevonden</p>
-      <h1 id="titel">Deze pagina bestaat niet (meer)</h1>
+      <h1 id="titel">Deze pagina is zoek</h1>
       <p class="lede">Misschien is het adres veranderd. Op de beginpagina vind je alles wat er in het lab staat.</p>
       <div class="knoppen"><a class="knop knop-primair" href="/">Naar de beginpagina{icoon("pijl")}</a></div>
     </div>
-    <div class="kop-avatar">{avatar_img("onno-rust", "")}</div>
+    <div class="kop-avatar">{avatar_img("onno-oeps", "")}</div>
   </div>
 </section>"""
     pagina("/404.html", titel="Pagina niet gevonden", beschrijving="Deze pagina bestaat niet (meer).", inhoud=inhoud,

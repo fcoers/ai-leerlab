@@ -6,7 +6,7 @@ soort: uitleg
 categorie: didactiek
 tags: lesontwerp, toetsing, data-analyse
 voor: docenten
-avatar: dide-rust
+avatar: dide-nadenken
 datum: 2026-09-30
 ---
 

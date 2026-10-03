@@ -770,7 +770,9 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "ogtype": ogtype,
         "deelafbeelding": ADRES + deel,
         "schema": schema,
-        "extra_kop": extra_kop,
+        # De feed van de hele site op elke pagina, zodat een feedlezer hem vindt met alleen ai-leerlab.nl.
+        "extra_kop": f'<link rel="alternate" type="application/rss+xml" title="{esc(SITE["naam"])}" href="{FEED}">'
+                     + (f"\n  {extra_kop}" if extra_kop else ""),
         "extra_voet": extra_voet,
         "inhoud": inhoud,
         "menu_leren": ' aria-current="page"' if menu == "leren" else "",
@@ -1003,6 +1005,10 @@ def bouw_html_item(item, alle):
     if stappen:
         hoofd["step"] = [{"@type": "HowToStep", "position": n + 1, "name": s, "url": f"{ADRES}{item.url}#stap-{n + 1}"}
                          for n, s in enumerate(stappen)]
+    # hulpmiddelen: ChatGPT Work | Claude  -> de tools waarmee je de tutorial kunt volgen (HowToTool)
+    hulp = [h.strip() for h in item.meta.get("hulpmiddelen", "").split("|") if h.strip()]
+    if stappen and hulp:
+        hoofd["tool"] = [{"@type": "HowToTool", "name": h} for h in hulp]
     schema = jsonld(hoofd, PERSOON, WEBSITE, item_kruimelpad_schema(item))
     script = item.meta.get("script", "")
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
@@ -1402,13 +1408,51 @@ def bouw_series():
     EXTRA.append(("/series/", max(s.delen[-1].bijgewerkt for s in alle)))
 
 
+def rfc(d):
+    """Datum als RFC 822 voor RSS (07:00 UTC, het tijdstip van de ochtendbouw)."""
+    import email.utils
+    return email.utils.format_datetime(datetime.datetime(d.year, d.month, d.day, 7, 0, tzinfo=datetime.timezone.utc))
+
+
+FEED = "/feed.xml"   # de feed van de hele site; elke pagina verwijst ernaar in de kop en de voet
+
+
+def bouw_site_feed(items):
+    """RSS van de hele site: /feed.xml, alle gepubliceerde items (geen concepten, geen geplande), nieuwste bovenaan."""
+    live = sorted([x for x in items if not x.concept], key=lambda x: (x.datum, x.titel), reverse=True)
+
+    def regel(x):
+        titel = f"Deel {x.deel}: {x.titel}" if x.is_deel else x.titel
+        c = x.categorie_info
+        cat = f"\n    <category>{esc(c['naam'])}</category>" if c else ""
+        return f"""  <item>
+    <title>{esc(titel)}</title>
+    <link>{ADRES}{x.url}</link>
+    <guid isPermaLink="true">{ADRES}{x.url}</guid>
+    <pubDate>{rfc(x.datum)}</pubDate>
+    <description>{esc(x.beschrijving)}</description>{cat}
+  </item>"""
+
+    laatste = max([x.bijgewerkt for x in live] or [datetime.date.today()])
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>{esc(SITE["naam"])}</title>
+  <link>{ADRES}/</link>
+  <atom:link href="{ADRES}{FEED}" rel="self" type="application/rss+xml"/>
+  <description>{esc(SITE["home"]["beschrijving"])}</description>
+  <language>nl</language>
+  <lastBuildDate>{rfc(laatste)}</lastBuildDate>
+{chr(10).join(regel(x) for x in live)}
+</channel>
+</rss>
+"""
+    with open(os.path.join(UIT, FEED.lstrip("/")), "w", encoding="utf-8") as f:
+        f.write(xml)
+
+
 def bouw_feed(s):
     """RSS per serie: /series/<naam>/feed.xml, nieuwste deel bovenaan."""
-    import email.utils
-
-    def rfc(d):
-        return email.utils.format_datetime(datetime.datetime(d.year, d.month, d.day, 7, 0, tzinfo=datetime.timezone.utc))
-
     items = "\n".join(f"""  <item>
     <title>Deel {x.deel}: {esc(x.titel)}</title>
     <link>{ADRES}{x.url}</link>
@@ -1538,6 +1582,7 @@ def bouw():
     bouw_losse_paginas(items)
     bouw_404()
     bouw_sitemap(items)
+    bouw_site_feed(items)
     # Controle: interne links die nergens heen gaan.
     for wortel, _, bestanden in os.walk(UIT):
         for b in bestanden:

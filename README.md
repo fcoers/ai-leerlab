@@ -119,9 +119,17 @@ Wat er dan komt:
 - `/series/` met alle series en `/series/<naam>/` met de delen in leesvolgorde, "Begin bij deel 1" en "Lees het nieuwste deel". Staat het volgende deel gepland, dan zegt de pagina "Deel 6 verschijnt op donderdag 12 november".
 - Op een deel: kruimelpad Series / <serie>, het label "Deel 3", onderaan vorige en volgende plus "Alle delen van deze serie". Geen "Verder in het lab", en de onderwerpen zonder links. In "Verder in het lab" bij andere artikelen komen geen seriedelen.
 - Op de beginpagina tellen de delen in het blok van hun categorie mee als gewone artikelen (zie "De beginpagina").
-- Een RSS-feed per serie: `/series/<naam>/feed.xml`.
+- Een RSS-feed per serie: `/series/<naam>/feed.xml` (zie "RSS-feeds").
 
 `bouw.py` waarschuwt onder "Let op" bij: geen of een onbekende categorie, een onbekend onderwerp, meer dan drie onderwerpen, een serie zonder deelnummer of een deelnummer zonder serie, een serie die niet bestaat, een deelnummer dat twee keer voorkomt, en een artikel dat heet als een categorie.
+
+### RSS-feeds
+
+- De hele site: `https://ai-leerlab.nl/feed.xml` (03-10-2026). Alle gepubliceerde items, nieuwste bovenaan, met titel, link, beschrijving, publicatiedatum en categorie. Een seriedeel heet daarin "Deel 2: <titel>". Concepten (`/test/`) en geplande artikelen staan er niet in; een gepland artikel komt erin op de dag dat de ochtendbouw het publiceert.
+- Elke pagina heeft in de kop `<link rel="alternate" type="application/rss+xml" href="/feed.xml">`, zodat een feedlezer de feed vindt als je alleen ai-leerlab.nl invoert. Op een seriepagina staat de seriefeed er als tweede onder.
+- In de voet van elke pagina staat de link "RSS-feed".
+- Per serie blijft er een eigen feed: `/series/<naam>/feed.xml`.
+- Beide feeds maakt `bouw.py` (`bouw_site_feed` en `bouw_feed`). Controleren kan met https://validator.w3.org/feed/.
 
 ## De beginpagina
 

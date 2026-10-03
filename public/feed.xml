@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>AI-leerlab</title>
+  <link>https://ai-leerlab.nl/</link>
+  <atom:link href="https://ai-leerlab.nl/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.</description>
+  <language>nl</language>
+  <lastBuildDate>Sat, 03 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Deel 2: Zo installeer je de basis van je app op Mac en Windows</title>
+    <link>https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</guid>
+    <pubDate>Sat, 03 Oct 2026 07:00:00 +0000</pubDate>
+    <description>Zo zet je de basis voor je eigen productiviteitsapp neer: Python, Flask, htmx en SQLite op Mac en Windows, met prompts voor je AI-assistent.</description>
+    <category>Techniek</category>
+  </item>
+  <item>
+    <title>Deel 1: Waarom ik mijn eigen productiviteitsapp bouwde, en wat jij nodig hebt</title>
+    <link>https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/</guid>
+    <pubDate>Thu, 01 Oct 2026 07:00:00 +0000</pubDate>
+    <description>Waarom ik mijn eigen productiviteitsapp bouwde met AI-agents, en wat je nodig hebt om zelf te beginnen: kosten, voordelen en valkuilen, op Mac of Windows.</description>
+    <category>Techniek</category>
+  </item>
+  <item>
+    <title>Je eigen agentteam: zo begin je, en hier ging het bij mij mis</title>
+    <link>https://ai-leerlab.nl/leren/je-eigen-agentteam/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/je-eigen-agentteam/</guid>
+    <pubDate>Wed, 30 Sep 2026 07:00:00 +0000</pubDate>
+    <description>Hoe je een team van AI-agents inzet in je werk of studie, welke afspraken erbij horen en wat er bij mij misging. Met tips om klein te beginnen.</description>
+    <category>AI in de praktijk</category>
+  </item>
+  <item>
+    <title>Hoe werkte jij samen met AI? Negen labels die het zichtbaar maken</title>
+    <link>https://ai-leerlab.nl/leren/human-ai-labels/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/human-ai-labels/</guid>
+    <pubDate>Wed, 30 Sep 2026 07:00:00 +0000</pubDate>
+    <description>Negen labels van Boetje en Baake maken zichtbaar hoe je de regie tussen jezelf en AI verdeelt. Zo gebruik je ze als docent en als student.</description>
+    <category>Didactiek</category>
+  </item>
+  <item>
+    <title>Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet</title>
+    <link>https://ai-leerlab.nl/leren/een-les-ontwerpen-met-ai/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/een-les-ontwerpen-met-ai/</guid>
+    <pubDate>Wed, 30 Sep 2026 07:00:00 +0000</pubDate>
+    <description>Hoe ik met AI een oefenset voor Power BI maakte: welke stappen ik uitbesteedde, wat ik zelf bleef doen en waar het misging.</description>
+    <category>Didactiek</category>
+  </item>
+  <item>
+    <title>Bouw je eigen AI-team</title>
+    <link>https://ai-leerlab.nl/leren/bouw-je-eigen-ai-team/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/bouw-je-eigen-ai-team/</guid>
+    <pubDate>Wed, 30 Sep 2026 07:00:00 +0000</pubDate>
+    <description>Maak in vier stappen je eigen AI-team in ChatGPT Work: een coördinator en twee rollen die jij bedenkt. Met sjabloon om te downloaden. Voor beginners.</description>
+    <category>AI in de praktijk</category>
+  </item>
+</channel>
+</rss>

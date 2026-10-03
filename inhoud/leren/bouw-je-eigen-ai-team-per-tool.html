@@ -1,0 +1,796 @@
+---
+titel: Bouw je eigen AI-team
+adres: bouw-je-eigen-ai-team
+status: concept
+seotitel: Bouw je eigen AI-team in ChatGPT of Claude
+beschrijving: Maak in vier stappen je eigen AI-team: een coördinator en twee rollen die jij bedenkt. Voor ChatGPT Work en Claude. Voor beginners.
+lede: Maak in vier stappen een klein team van AI-hulpjes: één coördinator die het werk verdeelt over twee rollen die jij bedenkt. Kies hieronder de tool waarmee je werkt.
+kaarttekst: Maak in vier stappen een klein team van AI-hulpjes: één coördinator die het werk verdeelt over twee rollen die jij bedenkt. In ChatGPT Work of Claude, met een sjabloon om te downloaden.
+soort: tutorial
+categorie: praktijk
+tags: agents, prompts
+voor: studenten, docenten
+avatar: harriet-rol
+duur: Vier stappen
+feiten: tutorial=Vier stappen | scherm=ChatGPT Work of Claude
+stappen: Open de ChatGPT-app of de Claude-app | Download het sjabloon en pak het uit | Maak een project en koppel je map | Kies je klus en laat de AI de twee rollen invullen
+hulpmiddelen: ChatGPT Work | Claude
+klasse: tutorial
+script: /assets/tutorial-tool.js
+datum: 2026-09-30
+bijgewerkt: 2026-10-03
+---
+<!-- TESTVERSIE met toolkeuze, twee routes: ChatGPT Work en Claude (Roel, 03-10-2026). Tekst: Dide, "Tutorial AI-team per tool.md".
+     Gaat live door dit bestand over bouw-je-eigen-ai-team.html te zetten en de regel "status: concept" weg te halen.
+     Zonder JavaScript staan de keuze, en daarna de twee routes, onder elkaar.
+     Met JavaScript toont assets/tutorial-tool.js alleen de gekozen route, één stap per scherm, en onthoudt tool en stap.
+     Adres per tool: ?tool=chatgpt of ?tool=claude. -->
+    <nav class="voortgang" aria-label="Voortgang">
+      <p class="voortgang-tekst" id="voortgang-tekst" aria-live="polite">Vier stappen</p>
+      <ol class="voortgang-balk">
+        <li><a href="#stap-1" data-ga="1"><span class="sr">Stap 1</span></a></li>
+        <li><a href="#stap-2" data-ga="2"><span class="sr">Stap 2</span></a></li>
+        <li><a href="#stap-3" data-ga="3"><span class="sr">Stap 3</span></a></li>
+        <li><a href="#stap-4" data-ga="4"><span class="sr">Stap 4</span></a></li>
+      </ol>
+      <p class="tool-stand" id="tool-stand" hidden><span id="tool-stand-naam"></span>
+        <button type="button" class="link-knop" id="andere-tool">Andere tool</button></p>
+    </nav>
+    <div class="terug-melding" id="terug-melding" hidden>
+    <p><span id="terug-tekst">Welkom terug. Je gaat verder waar je gebleven was.</span>
+      <button type="button" class="link-knop" id="opnieuw">Liever opnieuw beginnen</button></p>
+  </div>
+    <div class="schermen">
+
+    <!-- ================= START: KIES JE TOOL ================= -->
+    <section class="scherm scherm-start" id="start" data-naam="start" aria-labelledby="t-start">
+      <h2 id="t-start" tabindex="-1">Welke tool gebruik je?</h2>
+
+      <ul class="toolkeuze" aria-label="Kies je tool">
+        <li><a class="tool-optie" href="?tool=chatgpt#route-chatgpt" data-tool="chatgpt">
+          <span class="tool-teken" aria-hidden="true"></span>
+          <span class="tool-tekst"><span class="tool-naam">ChatGPT Work</span>
+          <span class="tool-uitleg">Werkt met een map op je laptop, in de ChatGPT-app. Je hebt een betaald abonnement nodig.</span></span></a></li>
+        <li><a class="tool-optie" href="?tool=claude#route-claude" data-tool="claude">
+          <span class="tool-teken" aria-hidden="true"></span>
+          <span class="tool-tekst"><span class="tool-naam">Claude</span>
+          <span class="tool-uitleg">Werkt met een map op je laptop, in de Claude-desktopapp. Je hebt een betaald abonnement nodig.</span>
+          <span class="tool-noot">In de desktopapp; de functie heette tot september Cowork.</span></span></a></li>
+      </ul>
+      <p class="keuze-melding" id="keuze-melding" hidden>Kies eerst je tool. Daarna zie je de stappen die erbij horen.</p>
+
+      <h3 class="start-kop">Voordat je begint</h3>
+
+      <div class="per-tool" data-tool="chatgpt">
+        <p class="per-tool-label label">ChatGPT Work</p>
+        <p>Wat je nodig hebt: een laptop en de ChatGPT-app. Je hebt een betaald abonnement nodig.</p>
+      </div>
+
+      <div class="per-tool" data-tool="claude">
+        <p class="per-tool-label label">Claude</p>
+        <p>Wat je nodig hebt: een laptop met de Claude-desktopapp, en de app moet openstaan zolang Claude in je map werkt. Je hebt een betaald abonnement nodig.</p>
+      </div>
+
+      <p>Spelregel: gebruik geen persoonsgegevens en niets vertrouwelijks. Kies een klus die je gerust aan een collega zou laten zien.</p>
+      <p>Je hoeft niet klaar te komen in de workshop. Deze pagina blijft online, dus thuis verder gaan kan altijd.</p>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat is een agentteam?</summary>
+        <div class="meer-inhoud">
+          <p>Een agent is een AI-hulpje met één taak. Een agentteam is een paar van die hulpjes, met één coördinator die het werk verdeelt, zoals een teamleider. Elk hulpje krijgt een korte beschrijving van zijn rol. Die beschrijvingen zet je in gewone tekstbestanden. De AI-tool leest ze en weet dan wie wat doet.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ======================================================================
+         ROUTE 1: CHATGPT WORK
+         ====================================================================== -->
+    <div class="route" id="route-chatgpt" data-tool="chatgpt">
+    <h2 class="route-kop">De route voor ChatGPT Work</h2>
+
+    <section class="scherm" id="chatgpt-stap-1" data-naam="stap-1" aria-labelledby="t-cg-1">
+      <p class="stapnummer">Stap 1 van 4</p>
+      <h2 id="t-cg-1" tabindex="-1">Open de ChatGPT-app en kies Work</h2>
+      <p class="uitleg">Je werkt in de app op je laptop, niet in de browser. Alleen de app kan bij een map op je laptop.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Open de ChatGPT-app. Heb je die nog niet: download hem via <a href="https://chatgpt.com/download" rel="noopener">chatgpt.com/download</a> en log in.</li>
+        <li>Kijk bovenin het venster: daar staan twee knoppen, Chat en Work.</li>
+        <li>Klik op Work.</li>
+      </ol>
+
+      <div class="gelukt">
+        <h3>Zo ziet het eruit als het gelukt is</h3>
+        <p>In het midden staat de vraag "Waar zullen we aan werken?".</p>
+        <figure class="schermafbeelding">
+          <img src="/assets/img/stap1-work-gekozen.webp" width="1000" height="788" loading="lazy" alt="Schermafbeelding uit de ChatGPT-app: bovenin is Work gekozen, in het midden staat de vraag Waar zullen we aan werken?, daaronder het invoerveld Werk met ChatGPT en de knop Project.">
+          <figcaption>Bovenin is Work gekozen. Onder het invoerveld zie je de knop Project, die heb je in stap 3 nodig.</figcaption>
+        </figure>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: app of browser, en wat als ik geen Work zie?</summary>
+        <div class="meer-inhoud">
+          <p>De app heeft een eigen venster en een eigen icoon in je Dock (Mac) of taakbalk (Windows). Zie je bovenin een adresbalk met chatgpt.com, dan zit je in de browser. Sluit dat venster en open de app.</p>
+          <p>Zie je geen knop Work? Dan heeft je account (nog) geen toegang. Log in met het account van je werk of school, of kijk mee bij je buurman of buurvrouw en probeer het thuis opnieuw.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="scherm" id="chatgpt-stap-2" data-naam="stap-2" aria-labelledby="t-cg-2">
+      <p class="stapnummer">Stap 2 van 4</p>
+      <h2 id="t-cg-2" tabindex="-1">Download het sjabloon en pak het uit</h2>
+      <p class="uitleg">Het sjabloon is een map voor je agentteam. Belangrijkste bestand is de instructie voor de coördinator: die vertelt hem dat hij het werk verdeelt, eerst een plan aan jou voorlegt en niets doet zonder jouw akkoord. Er zitten ook twee lege rollen in, die je in stap 4 invult, en een paar mappen om het overzicht te houden.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Klik op de knop "Download het sjabloon".
+          <p class="download"><a class="knop knop-primair" href="/downloads/Mijn%20agentteam.zip" download="Mijn agentteam.zip">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download het sjabloon</a>
+            <span class="download-info">Mijn agentteam.zip, 3 kB</span></p>
+        </li>
+        <li>Open je map Downloads en dubbelklik op "Mijn agentteam.zip".</li>
+        <li>Sleep de map "Mijn agentteam" die verschijnt naar je map Documenten.</li>
+        <li>Open de map en kijk wat erin staat.</li>
+      </ol>
+
+      <div class="gelukt">
+        <h3>Zo ziet het eruit als het gelukt is</h3>
+        <p>Je ziet vier mappen (Team, Projecten, Inbox, Kennis) en de bestanden AGENTS.md, CLAUDE.md en LEESMIJ.md.</p>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat zit er in de map?</summary>
+        <div class="meer-inhoud">
+<pre class="boom" aria-label="Mappenstructuur van Mijn agentteam">Mijn agentteam/
+├── AGENTS.md           de startinstructie: "jij bent de coördinator"
+├── CLAUDE.md           hetzelfde, voor wie Claude gebruikt
+├── LEESMIJ.md          uitleg van de mappen
+├── Team/               wie er in je team zit
+│   ├── Coordinator.md  de instructie voor de coördinator
+│   ├── Rol-1.md        eerste rol, nog leeg
+│   └── Rol-2.md        tweede rol, nog leeg
+├── Projecten/          per klus een eigen map met het werk en de resultaten
+├── Inbox/              hier zet jij bestanden neer die het team mag gebruiken
+└── Kennis/             wat het team moet onthouden
+    ├── Huisregels.md   de afspraken die altijd gelden
+    └── Logboek.md      na elke klus één regel: wat is er gedaan</pre>
+          <p>Waarom zo? Een agentteam maakt snel veel bestanden. Met een vaste plek voor alles raak je het overzicht niet kwijt: rollen in Team, werk per klus in Projecten, jouw input in Inbox, afspraken en geschiedenis in Kennis. Een AI onthoudt niets tussen twee gesprekken; wat in Kennis staat, leest hij de volgende keer opnieuw.</p>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat staat er in de instructie voor de coördinator?</summary>
+        <div class="meer-inhoud">
+          <p>In het kort: je doet het werk niet zelf maar verdeelt het. Lees eerst de huisregels. Maak bij elke klus een kort plan en wacht op akkoord. Zet per rol een agent aan het werk. Controleer de resultaten, zet ze in de map van de klus en leg ze voor. Schrijf daarna een regel in het logboek. De volledige tekst staat hieronder.</p>
+          <figure class="kopieer">
+            <figcaption>Team/Coordinator.md</figcaption>
+<pre><code># Coördinator
+
+Je bent de coördinator van mijn agentteam. Je doet het werk niet zelf, je verdeelt het.
+
+Zo werk je:
+1. Lees Kennis/Huisregels.md.
+2. Lees de klus die ik je geef en maak een kort plan: welke rol doet wat.
+3. Laat het plan aan mij zien en wacht op mijn akkoord.
+4. Zet per rol een agent aan het werk met de beschrijving uit Team/Rol-1.md of Team/Rol-2.md.
+5. Controleer de resultaten tegen de klus en zet ze in een eigen map in Projecten.
+6. Leg de resultaten aan mij voor.
+7. Schrijf na afloop één regel in Kennis/Logboek.md: datum, klus, wat er is gedaan.
+
+Bestanden die ik in Inbox zet, mag je gebruiken voor de klus.</code></pre>
+          </figure>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat is een .md-bestand?</summary>
+        <div class="meer-inhoud">
+          <p>Een .md-bestand is gewoon een tekstbestand. De letters md staan voor Markdown: een paar tekens voor opmaak, zoals # voor een kop en - voor een opsommingsteken. AI-tools lezen dit soort bestanden makkelijk, daarom gebruiken we ze.</p>
+          <p>Je kunt het openen met elk teksteditorprogramma. Op een Mac: rechtsklik, Open met, Teksteditor. Op Windows: rechtsklik, Openen met, Kladblok. Dubbelklikken werkt soms niet, omdat je computer niet weet welk programma hij moet kiezen. Dat is geen probleem.</p>
+          <p>Je hoeft de bestanden in deze tutorial niet zelf te bewerken. Dat doet de AI in stap 4, en jij keurt het.</p>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: de download werkt niet. Hoe maak ik de map zelf?</summary>
+        <div class="meer-inhoud">
+          <ol>
+            <li>Maak in je map Documenten een map "Mijn agentteam" met daarin de mappen Team, Projecten, Inbox en Kennis.</li>
+            <li>Open Teksteditor (Mac) of Kladblok (Windows) en maak een nieuw document.</li>
+            <li>Op een Mac eerst: menu Opmaak, Maak platte tekst.</li>
+            <li>Plak de tekst van een bestand uit de blokken hieronder.</li>
+            <li>Kies Bewaar (Mac) of Opslaan als (Windows). Typ de naam, bijvoorbeeld Huisregels.md. Kies op Windows bij Opslaan als type: Alle bestanden. Sla op in de juiste map.</li>
+            <li>Vraagt je Mac of je .md of .txt wilt gebruiken, kies dan .md.</li>
+            <li>Herhaal dit voor de andere bestanden. LEESMIJ.md en CLAUDE.md mag je overslaan.</li>
+          </ol>
+
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Kennis/Huisregels.md</figcaption>
+<pre><code># Huisregels
+
+- Ik beslis. Leg elk resultaat eerst aan mij voor.
+- Werk alleen in deze map.
+- Ontbreekt er iets of twijfel je? Stop en vraag het mij.
+- Verzin geen feiten. Zeg waar je informatie vandaan komt.
+- Gebruik geen persoonsgegevens of vertrouwelijke informatie.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Team/Coordinator.md</figcaption>
+<pre><code># Coördinator
+
+Je bent de coördinator van mijn agentteam. Je doet het werk niet zelf, je verdeelt het.
+
+Zo werk je:
+1. Lees Kennis/Huisregels.md.
+2. Lees de klus die ik je geef en maak een kort plan: welke rol doet wat.
+3. Laat het plan aan mij zien en wacht op mijn akkoord.
+4. Zet per rol een agent aan het werk met de beschrijving uit Team/Rol-1.md of Team/Rol-2.md.
+5. Controleer de resultaten tegen de klus en zet ze in een eigen map in Projecten.
+6. Leg de resultaten aan mij voor.
+7. Schrijf na afloop één regel in Kennis/Logboek.md: datum, klus, wat er is gedaan.
+
+Bestanden die ik in Inbox zet, mag je gebruiken voor de klus.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Team/Rol-1.md (Rol-2.md is hetzelfde, met "Rol 2")</figcaption>
+<pre><code># Rol 1: [naam van de rol]
+
+Wat doe je: [één zin]
+Wat lever je op: [één zin]
+Waar let je op: [één zin]</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Kennis/Logboek.md</figcaption>
+<pre><code># Logboek
+
+Na elke klus één regel: datum, klus, wat er is gedaan.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, AGENTS.md (CLAUDE.md is precies hetzelfde)</figcaption>
+<pre><code># Mijn agentteam
+
+Jij bent de coördinator van dit team.
+- Lees eerst Team/Coordinator.md en Kennis/Huisregels.md.
+- Verdeel het werk over de rollen in Team/. Doe het niet zelf.
+- Vraag mijn goedkeuring voordat iets af is.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst voor LEESMIJ.md (zit in de zip)</figcaption>
+<pre><code># Mijn agentteam
+
+Team: wie er in je team zit. De coördinator en je rollen.
+Projecten: per klus een eigen map met het werk en de resultaten.
+Inbox: hier zet jij bestanden neer die het team mag gebruiken.
+Kennis: de huisregels en het logboek. Wat het team moet onthouden.</code></pre>
+          </figure>
+        </div>
+      </details>
+    </section>
+
+    <section class="scherm" id="chatgpt-stap-3" data-naam="stap-3" aria-labelledby="t-cg-3">
+      <p class="stapnummer">Stap 3 van 4</p>
+      <h2 id="t-cg-3" tabindex="-1">Maak een project en koppel je map</h2>
+      <p class="uitleg">Een project in ChatGPT Work is een werkplek met een map van je laptop eraan vast. ChatGPT kan dan de bestanden in die map lezen en aanpassen, en niets daarbuiten.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Klik onder het invoerveld op Project.</li>
+        <li>Klik onderaan de lijst op + Nieuw project.</li>
+        <li>Typ bij Projectnaam: Mijn agentteam.</li>
+        <li>Klik bij Bronmappen op "Voeg mappen toe die ChatGPT kan lezen en bewerken".</li>
+        <li>Kies de map "Mijn agentteam" in Documenten en klik op Open.</li>
+        <li>Klik op Project maken.</li>
+        <li>Plak de controlevraag hieronder in het invoerveld en druk op Enter.</li>
+        <li>Plak daarna de kennismakingsvraag en lees het antwoord.</li>
+      </ol>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, controlevraag</figcaption>
+<pre><code>Noem de naam van de map waar je toegang toe hebt en welke mappen en bestanden erin staan.
+Verzin niets. Kun je er niet bij, zeg dat dan.</code></pre>
+      </figure>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, kennismakingsvraag</figcaption>
+<pre><code>Wie ben je en hoe werk je? Antwoord in hooguit vijf zinnen.</code></pre>
+      </figure>
+
+      <div class="gelukt">
+        <h3>Zo ziet het eruit als het gelukt is</h3>
+        <p>ChatGPT noemt de map "Mijn agentteam" met de vier mappen, en stelt zich daarna voor als coördinator die het werk verdeelt en eerst jouw akkoord vraagt.</p>
+        <p class="gelukt-extra">ChatGPT leest de instructie in je map vanzelf. In een nieuw gesprek binnen dit project weet hij dus meteen dat hij de coördinator is.</p>
+      </div>
+
+      <div class="tip">
+        <p><strong>Tip:</strong> geef de coördinator en de andere agents zelfgekozen namen, bijvoorbeeld uit een thema zoals Star Wars, Disney of iets wat bij je bedrijf past.</p>
+        <figure class="kopieer">
+          <figcaption>Tekst om te kopiëren, namen</figcaption>
+<pre><code>Geef jezelf en de rollen namen uit [thema].</code></pre>
+        </figure>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: het lukt niet</summary>
+        <div class="meer-inhoud">
+          <ul>
+            <li>Staat de mapnaam niet onder het invoerveld? Dan is de map niet gekoppeld. Begin opnieuw bij punt 1.</li>
+            <li>Zegt ChatGPT dat hij niet bij de map kan? Soms heeft de beheerder van je werk- of schoolaccount de toegang tot mappen op je laptop uitgezet. Kijk mee bij je buurman of buurvrouw.</li>
+            <li>Vraagt ChatGPT om toestemming? Dat is goed. Onder het invoerveld staat de stand "Voor mij goedkeuren": ChatGPT vraagt het eerst voordat hij iets buiten de map doet. Laat die stand zo staan.</li>
+          </ul>
+          <p>Wat gebeurt er met je bestanden? ChatGPT leest de map via de app, maar de tekst gaat wel naar de servers van OpenAI. Daarom de spelregel: niets vertrouwelijks in deze map.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="scherm" id="chatgpt-stap-4" data-naam="stap-4" aria-labelledby="t-cg-4">
+      <p class="stapnummer">Stap 4 van 4</p>
+      <h2 id="t-cg-4" tabindex="-1">Kies je klus en laat ChatGPT de twee rollen invullen</h2>
+      <p class="uitleg">Kies één klus die je deze week echt zou kunnen gebruiken. Bedenk twee rollen die het werk verdelen. Eén zin per rol is genoeg; ChatGPT schrijft de rest uit en jij keurt het.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Kies je klus. Weet je niets? Neem een voorbeeld uit de tabel.</li>
+        <li>Kopieer de startopdracht hieronder naar het invoerveld.</li>
+        <li>Vul op de plekken met [haakjes] je klus en je twee rollen in.</li>
+        <li>Druk op Enter en lees het voorstel.</li>
+        <li>Klopt het? Typ "akkoord". Wil je iets anders? Zeg wat, in gewone woorden.</li>
+      </ol>
+
+      <table class="voorbeelden">
+        <caption>Voorbeelden van een klus met twee rollen</caption>
+        <thead><tr><th scope="col">Voor</th><th scope="col">Klus</th><th scope="col">Rol 1</th><th scope="col">Rol 2</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Student</th><td data-kop="Klus">Samenvatting en vijf oefenvragen bij een hoofdstuk uit je vak</td><td data-kop="Rol 1">samenvatter</td><td data-kop="Rol 2">vragenmaker</td></tr>
+          <tr><th scope="row">Medewerker</th><td data-kop="Klus">Uitnodiging en agenda voor een teamoverleg, met een checklist</td><td data-kop="Rol 1">planner</td><td data-kop="Rol 2">schrijver</td></tr>
+          <tr><th scope="row">Werkveld</th><td data-kop="Klus">Drie leveranciers vergelijken voor een aanschaf, op openbare informatie</td><td data-kop="Rol 1">zoeker</td><td data-kop="Rol 2">vergelijker</td></tr>
+        </tbody>
+      </table>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, startopdracht</figcaption>
+<pre><code>Mijn klus is: [beschrijf je klus in één of twee zinnen].
+Rol 1 heet [naam] en doet: [één zin].
+Rol 2 heet [naam] en doet: [één zin].
+Vul Team/Rol-1.md en Team/Rol-2.md in volgens het sjabloon dat erin staat.
+Laat mij eerst zien wat je wilt opschrijven en wacht op mijn akkoord.</code></pre>
+      </figure>
+
+      <div class="gelukt">
+        <h3>Zo ziet het eruit als het gelukt is</h3>
+        <p>ChatGPT laat je de twee rolbeschrijvingen zien, en zegt na je akkoord dat Team/Rol-1.md en Team/Rol-2.md zijn bijgewerkt. Open een van de twee bestanden om het te controleren.</p>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: hoe kies ik goede rollen?</summary>
+        <div class="meer-inhoud">
+          <ul>
+            <li>Een rol is één soort werk. "Zoeker" en "vergelijker" werkt, "doet alles" niet.</li>
+            <li>Denk aan hoe een mens de klus zou verdelen: wie zoekt iets uit, wie maakt er iets van?</li>
+            <li>Houd het klein. Een klus van een half uur werk is voor een eerste keer genoeg.</li>
+            <li>Twijfel je? Vraag het: "Welke twee rollen zou jij kiezen voor deze klus? Leg het uit, maar vul nog niets in."</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: waarom laat ik het ChatGPT invullen?</summary>
+        <div class="meer-inhoud">
+          <p>Zo hoef je zelf niet met .md-bestanden te werken. Jij geeft de richting, ChatGPT schrijft het uit, en jij keurt. Dat is precies hoe je straks met je hele team werkt. Wil je later zelf iets aanpassen, open het bestand dan in Teksteditor of Kladblok (zie Meer uitleg bij stap 2), pas de tekst aan en sla op.</p>
+        </div>
+      </details>
+
+      <p class="vervolg-regel"><strong>Volgende stap (volgt nog):</strong> geef je klus aan de coördinator en keur wat je team oplevert.</p>
+    </section>
+
+    <section class="scherm" id="chatgpt-verder" data-naam="verder" aria-labelledby="t-cg-5">
+      <p class="stapnummer">Na de vier stappen</p>
+      <h2 id="t-cg-5" tabindex="-1">Zo gebruik je het in je werk of studie</h2>
+      <p class="uitleg">Je team blijft staan. Je gebruikt dezelfde map voor elke nieuwe klus.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Maak voor elk nieuw project een eigen map in Projecten.</li>
+        <li>Zet de documenten die het team nodig heeft in Inbox.</li>
+        <li>Begin een nieuwe klus in een nieuw gesprek binnen je project Mijn agentteam.</li>
+        <li>Mist je team een vak? Laat de coördinator een nieuwe specialist maken in Team.</li>
+        <li>Keur alles wat het team oplevert. Jij blijft aan het roer.</li>
+      </ol>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, nieuwe specialist</figcaption>
+<pre><code>Ik wil een nieuwe specialist in Team: [wat moet hij kunnen, in één zin].
+Zoek eerst uit wat een echte professional in dat vak doet en weet.
+Maak daarna een bestand in Team volgens het sjabloon van Rol-1.md.
+Laat het mij zien voordat je het opslaat.</code></pre>
+      </figure>
+
+      <details class="meer">
+        <summary>Meer uitleg: houd het overzicht</summary>
+        <div class="meer-inhoud">
+          <ul>
+            <li>Oude of afgeronde klussen? Laat ze in Projecten staan; het logboek in Kennis laat zien wat er is gedaan.</li>
+            <li>Maakt het team een fout die je vaker ziet? Laat de coördinator er een regel voor toevoegen aan Kennis/Huisregels.md. Zo leert je team van fouten.</li>
+            <li>Zet nooit persoonsgegevens of vertrouwelijke stukken in de map.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+    </div>
+
+    <!-- ======================================================================
+         ROUTE 2: CLAUDE (desktopapp; de functie heette tot september Cowork)
+         ====================================================================== -->
+    <div class="route" id="route-claude" data-tool="claude">
+    <h2 class="route-kop">De route voor Claude</h2>
+
+    <section class="scherm" id="claude-stap-1" data-naam="stap-1" aria-labelledby="t-cl-1">
+      <p class="stapnummer">Stap 1 van 4</p>
+      <h2 id="t-cl-1" tabindex="-1">Open de Claude-app</h2>
+      <p class="uitleg">Je werkt in de app op je laptop, niet in de browser. Alleen via de app kan Claude bij een map op je laptop.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Open de Claude-app. Heb je die nog niet: download hem via <a href="https://claude.com/download" rel="noopener">claude.com/download</a> en log in.</li>
+        <li>Kijk links in de zijbalk. Daar staan onder meer Recents, Projects en Customize.</li>
+      </ol>
+
+      <div class="gelukt">
+        <h3>Gelukt als</h3>
+        <p>je links Projects ziet staan.</p>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: ik zie iets anders</summary>
+        <div class="meer-inhoud">
+          <p>Anthropic past de app op dit moment aan. Zie je linksonder in het invoervak een keuze tussen Chat en Cowork, kies dan Cowork. In de nieuwe versie is die keuze er niet meer en hoef je niets te kiezen.</p>
+          <p>Het tabblad Code heb je voor deze tutorial niet nodig.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="scherm" id="claude-stap-2" data-naam="stap-2" aria-labelledby="t-cl-2">
+      <p class="stapnummer">Stap 2 van 4</p>
+      <h2 id="t-cl-2" tabindex="-1">Download het sjabloon en pak het uit</h2>
+      <p class="uitleg">Het sjabloon is een map voor je agentteam. Belangrijkste bestand is de instructie voor de coördinator: die vertelt hem dat hij het werk verdeelt, eerst een plan aan jou voorlegt en niets doet zonder jouw akkoord. Er zitten ook twee lege rollen in, die je in stap 4 laat invullen, en een paar mappen om het overzicht te houden.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Klik op de knop "Download het sjabloon".
+          <p class="download"><a class="knop knop-primair" href="/downloads/Mijn%20agentteam.zip" download="Mijn agentteam.zip">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download het sjabloon</a>
+            <span class="download-info">Mijn agentteam.zip, 3 kB</span></p>
+        </li>
+        <li>Open je map Downloads en dubbelklik op "Mijn agentteam.zip".</li>
+        <li>Sleep de map "Mijn agentteam" die verschijnt naar je map Documenten.</li>
+        <li>Open de map en kijk wat erin staat.</li>
+      </ol>
+
+      <div class="gelukt">
+        <h3>Zo ziet het eruit als het gelukt is</h3>
+        <p>Je ziet vier mappen (Team, Projecten, Inbox, Kennis) en de bestanden AGENTS.md, CLAUDE.md en LEESMIJ.md.</p>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat zit er in de map?</summary>
+        <div class="meer-inhoud">
+<pre class="boom" aria-label="Mappenstructuur van Mijn agentteam">Mijn agentteam/
+├── AGENTS.md           de startinstructie: "jij bent de coördinator"
+├── CLAUDE.md           hetzelfde, voor wie Claude gebruikt
+├── LEESMIJ.md          uitleg van de mappen
+├── Team/               wie er in je team zit
+│   ├── Coordinator.md  de instructie voor de coördinator
+│   ├── Rol-1.md        eerste rol, nog leeg
+│   └── Rol-2.md        tweede rol, nog leeg
+├── Projecten/          per klus een eigen map met het werk en de resultaten
+├── Inbox/              hier zet jij bestanden neer die het team mag gebruiken
+└── Kennis/             wat het team moet onthouden
+    ├── Huisregels.md   de afspraken die altijd gelden
+    └── Logboek.md      na elke klus één regel: wat is er gedaan</pre>
+          <p>Waarom zo? Een agentteam maakt snel veel bestanden. Met een vaste plek voor alles raak je het overzicht niet kwijt: rollen in Team, werk per klus in Projecten, jouw input in Inbox, afspraken en geschiedenis in Kennis. Een AI onthoudt niets tussen twee gesprekken; wat in Kennis staat, leest hij de volgende keer opnieuw.</p>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat staat er in de instructie voor de coördinator?</summary>
+        <div class="meer-inhoud">
+          <p>In het kort: je doet het werk niet zelf maar verdeelt het. Lees eerst de huisregels. Maak bij elke klus een kort plan en wacht op akkoord. Zet per rol een agent aan het werk. Controleer de resultaten, zet ze in de map van de klus en leg ze voor. Schrijf daarna een regel in het logboek. De volledige tekst staat hieronder.</p>
+          <figure class="kopieer">
+            <figcaption>Team/Coordinator.md</figcaption>
+<pre><code># Coördinator
+
+Je bent de coördinator van mijn agentteam. Je doet het werk niet zelf, je verdeelt het.
+
+Zo werk je:
+1. Lees Kennis/Huisregels.md.
+2. Lees de klus die ik je geef en maak een kort plan: welke rol doet wat.
+3. Laat het plan aan mij zien en wacht op mijn akkoord.
+4. Zet per rol een agent aan het werk met de beschrijving uit Team/Rol-1.md of Team/Rol-2.md.
+5. Controleer de resultaten tegen de klus en zet ze in een eigen map in Projecten.
+6. Leg de resultaten aan mij voor.
+7. Schrijf na afloop één regel in Kennis/Logboek.md: datum, klus, wat er is gedaan.
+
+Bestanden die ik in Inbox zet, mag je gebruiken voor de klus.</code></pre>
+          </figure>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: wat is een .md-bestand?</summary>
+        <div class="meer-inhoud">
+          <p>Een .md-bestand is gewoon een tekstbestand. De letters md staan voor Markdown: een paar tekens voor opmaak, zoals # voor een kop en - voor een opsommingsteken. AI-tools lezen dit soort bestanden makkelijk, daarom gebruiken we ze.</p>
+          <p>Je kunt het openen met elk teksteditorprogramma. Op een Mac: rechtsklik, Open met, Teksteditor. Op Windows: rechtsklik, Openen met, Kladblok. Dubbelklikken werkt soms niet, omdat je computer niet weet welk programma hij moet kiezen. Dat is geen probleem.</p>
+          <p>Je hoeft de bestanden in deze tutorial niet zelf te bewerken. Dat doet de AI in stap 4, en jij keurt het.</p>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: de download werkt niet. Hoe maak ik de map zelf?</summary>
+        <div class="meer-inhoud">
+          <ol>
+            <li>Maak in je map Documenten een map "Mijn agentteam" met daarin de mappen Team, Projecten, Inbox en Kennis.</li>
+            <li>Open Teksteditor (Mac) of Kladblok (Windows) en maak een nieuw document.</li>
+            <li>Op een Mac eerst: menu Opmaak, Maak platte tekst.</li>
+            <li>Plak de tekst van een bestand uit de blokken hieronder.</li>
+            <li>Kies Bewaar (Mac) of Opslaan als (Windows). Typ de naam, bijvoorbeeld Huisregels.md. Kies op Windows bij Opslaan als type: Alle bestanden. Sla op in de juiste map.</li>
+            <li>Vraagt je Mac of je .md of .txt wilt gebruiken, kies dan .md.</li>
+            <li>Herhaal dit voor de andere bestanden. LEESMIJ.md en CLAUDE.md mag je overslaan.</li>
+          </ol>
+
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Kennis/Huisregels.md</figcaption>
+<pre><code># Huisregels
+
+- Ik beslis. Leg elk resultaat eerst aan mij voor.
+- Werk alleen in deze map.
+- Ontbreekt er iets of twijfel je? Stop en vraag het mij.
+- Verzin geen feiten. Zeg waar je informatie vandaan komt.
+- Gebruik geen persoonsgegevens of vertrouwelijke informatie.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Team/Coordinator.md</figcaption>
+<pre><code># Coördinator
+
+Je bent de coördinator van mijn agentteam. Je doet het werk niet zelf, je verdeelt het.
+
+Zo werk je:
+1. Lees Kennis/Huisregels.md.
+2. Lees de klus die ik je geef en maak een kort plan: welke rol doet wat.
+3. Laat het plan aan mij zien en wacht op mijn akkoord.
+4. Zet per rol een agent aan het werk met de beschrijving uit Team/Rol-1.md of Team/Rol-2.md.
+5. Controleer de resultaten tegen de klus en zet ze in een eigen map in Projecten.
+6. Leg de resultaten aan mij voor.
+7. Schrijf na afloop één regel in Kennis/Logboek.md: datum, klus, wat er is gedaan.
+
+Bestanden die ik in Inbox zet, mag je gebruiken voor de klus.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Team/Rol-1.md (Rol-2.md is hetzelfde, met "Rol 2")</figcaption>
+<pre><code># Rol 1: [naam van de rol]
+
+Wat doe je: [één zin]
+Wat lever je op: [één zin]
+Waar let je op: [één zin]</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, Kennis/Logboek.md</figcaption>
+<pre><code># Logboek
+
+Na elke klus één regel: datum, klus, wat er is gedaan.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst om te kopiëren, AGENTS.md (CLAUDE.md is precies hetzelfde)</figcaption>
+<pre><code># Mijn agentteam
+
+Jij bent de coördinator van dit team.
+- Lees eerst Team/Coordinator.md en Kennis/Huisregels.md.
+- Verdeel het werk over de rollen in Team/. Doe het niet zelf.
+- Vraag mijn goedkeuring voordat iets af is.</code></pre>
+          </figure>
+          <figure class="kopieer">
+            <figcaption>Tekst voor LEESMIJ.md (zit in de zip)</figcaption>
+<pre><code># Mijn agentteam
+
+Team: wie er in je team zit. De coördinator en je rollen.
+Projecten: per klus een eigen map met het werk en de resultaten.
+Inbox: hier zet jij bestanden neer die het team mag gebruiken.
+Kennis: de huisregels en het logboek. Wat het team moet onthouden.</code></pre>
+          </figure>
+        </div>
+      </details>
+    </section>
+
+    <section class="scherm" id="claude-stap-3" data-naam="stap-3" aria-labelledby="t-cl-3">
+      <p class="stapnummer">Stap 3 van 4</p>
+      <h2 id="t-cl-3" tabindex="-1">Maak een project en koppel je map</h2>
+      <p class="uitleg">Een project in Claude is een werkplek met een map van je laptop eraan vast. In het project zet je ook de vaste instructies voor de coördinator. Claude krijgt die bij elke taak in het project vanzelf mee.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Klik links in de zijbalk op Projects.</li>
+        <li>Klik op + en kies "Use an existing folder".</li>
+        <li>Kies de map "Mijn agentteam" in Documenten.</li>
+        <li>Zoek bij het project het veld Instructions en plak de tekst hieronder erin. Sla op.</li>
+        <li>Begin een nieuwe taak in het project. Kijk in het invoervak of de keuze voor goedkeuren op "Manually approve" staat. Zo niet, zet hem daarop.</li>
+        <li>Plak de controlevraag in het invoervak en druk op Enter.</li>
+        <li>Plak daarna de kennismakingsvraag en lees het antwoord.</li>
+      </ol>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, projectinstructies</figcaption>
+<pre><code>Jij bent de coördinator van mijn agentteam. Je doet het werk niet zelf, je verdeelt het.
+
+Zo werk je:
+1. Lees Kennis/Huisregels.md.
+2. Lees de klus die ik je geef en maak een kort plan: welke rol doet wat.
+3. Laat het plan aan mij zien en wacht op mijn akkoord.
+4. Werk per rol het deel van de klus uit volgens Team/Rol-1.md of Team/Rol-2.md.
+5. Controleer de resultaten tegen de klus en zet ze in een eigen map in Projecten.
+6. Leg de resultaten aan mij voor.
+7. Schrijf na afloop één regel in Kennis/Logboek.md: datum, klus, wat er is gedaan.
+
+Bestanden die ik in Inbox zet, mag je gebruiken voor de klus.</code></pre>
+      </figure>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, controlevraag</figcaption>
+<pre><code>Noem de naam van de map waar je toegang toe hebt en welke mappen en bestanden erin staan.
+Verzin niets. Kun je er niet bij, zeg dat dan.</code></pre>
+      </figure>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, kennismakingsvraag</figcaption>
+<pre><code>Wie ben je en hoe werk je? Antwoord in hooguit vijf zinnen.</code></pre>
+      </figure>
+
+      <div class="gelukt">
+        <h3>Gelukt als</h3>
+        <p>Claude de map "Mijn agentteam" met de vier mappen noemt, en zich daarna voorstelt als coördinator die het werk verdeelt en eerst jouw akkoord vraagt.</p>
+      </div>
+
+      <div class="tip">
+        <p><strong>Tip:</strong> geef de coördinator en de andere agents zelfgekozen namen, bijvoorbeeld uit een thema zoals Star Wars, Disney of iets wat bij je bedrijf past.</p>
+        <figure class="kopieer">
+          <figcaption>Tekst om te kopiëren, namen</figcaption>
+<pre><code>Geef jezelf en de rollen namen uit [thema].</code></pre>
+        </figure>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: waarom staan de instructies in het project?</summary>
+        <div class="meer-inhoud">
+          <p>Claude leest de instructies van een project bij elke taak die je in dat project begint. Je hoeft dus niet steeds te vragen om ze te lezen. Begin je een gesprek buiten het project, dan weet Claude niet dat hij de coördinator is.</p>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: waarom "Manually approve"?</summary>
+        <div class="meer-inhoud">
+          <p>In deze stand vraagt Claude eerst toestemming voordat hij iets in je map verandert. Zo blijf jij beslissen. De andere standen, "Automatically approve" en "Skip all approvals", werken zonder te vragen.</p>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: het lukt niet</summary>
+        <div class="meer-inhoud">
+          <ul>
+            <li>Zegt Claude dat hij de map niet kent? Dan is de map niet gekoppeld, of is de taak buiten het project begonnen. Begin opnieuw bij punt 1.</li>
+            <li>Kan Claude ineens niet meer bij je map? Kijk of de app nog openstaat. Is je laptop in slaap gevallen, maak hem dan wakker en probeer het opnieuw.</li>
+            <li>Wat gebeurt er met je bestanden? Claude leest de map via de app, maar de tekst gaat wel naar de servers van Anthropic. Daarom de spelregel: niets vertrouwelijks in deze map.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <section class="scherm" id="claude-stap-4" data-naam="stap-4" aria-labelledby="t-cl-4">
+      <p class="stapnummer">Stap 4 van 4</p>
+      <h2 id="t-cl-4" tabindex="-1">Kies je klus en laat Claude de twee rollen invullen</h2>
+      <p class="uitleg">Kies één klus die je deze week echt zou kunnen gebruiken. Bedenk twee rollen die het werk verdelen. Eén zin per rol is genoeg; Claude schrijft de rest uit en jij keurt het. Begin de startopdracht in een taak binnen het project.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Kies je klus. Weet je niets? Neem een voorbeeld uit de tabel.</li>
+        <li>Kopieer de startopdracht hieronder naar het invoerveld.</li>
+        <li>Vul op de plekken met [haakjes] je klus en je twee rollen in.</li>
+        <li>Druk op Enter en lees het voorstel.</li>
+        <li>Klopt het? Typ "akkoord". Wil je iets anders? Zeg wat, in gewone woorden.</li>
+        <li>Claude vraagt toestemming om de bestanden aan te passen. Keur dat goed.</li>
+      </ol>
+
+      <table class="voorbeelden">
+        <caption>Voorbeelden van een klus met twee rollen</caption>
+        <thead><tr><th scope="col">Voor</th><th scope="col">Klus</th><th scope="col">Rol 1</th><th scope="col">Rol 2</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Student</th><td data-kop="Klus">Samenvatting en vijf oefenvragen bij een hoofdstuk uit je vak</td><td data-kop="Rol 1">samenvatter</td><td data-kop="Rol 2">vragenmaker</td></tr>
+          <tr><th scope="row">Medewerker</th><td data-kop="Klus">Uitnodiging en agenda voor een teamoverleg, met een checklist</td><td data-kop="Rol 1">planner</td><td data-kop="Rol 2">schrijver</td></tr>
+          <tr><th scope="row">Werkveld</th><td data-kop="Klus">Drie leveranciers vergelijken voor een aanschaf, op openbare informatie</td><td data-kop="Rol 1">zoeker</td><td data-kop="Rol 2">vergelijker</td></tr>
+        </tbody>
+      </table>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, startopdracht</figcaption>
+<pre><code>Mijn klus is: [beschrijf je klus in één of twee zinnen].
+Rol 1 heet [naam] en doet: [één zin].
+Rol 2 heet [naam] en doet: [één zin].
+Vul Team/Rol-1.md en Team/Rol-2.md in volgens het sjabloon dat erin staat.
+Laat mij eerst zien wat je wilt opschrijven en wacht op mijn akkoord.</code></pre>
+      </figure>
+
+      <div class="gelukt">
+        <h3>Gelukt als</h3>
+        <p>Claude je de twee rolbeschrijvingen laat zien, om toestemming vraagt, en na je akkoord zegt dat Team/Rol-1.md en Team/Rol-2.md zijn bijgewerkt. Open een van de twee bestanden om het te controleren.</p>
+      </div>
+
+      <details class="meer">
+        <summary>Meer uitleg: hoe kies ik goede rollen?</summary>
+        <div class="meer-inhoud">
+          <ul>
+            <li>Een rol is één soort werk. "Zoeker" en "vergelijker" werkt, "doet alles" niet.</li>
+            <li>Denk aan hoe een mens de klus zou verdelen: wie zoekt iets uit, wie maakt er iets van?</li>
+            <li>Houd het klein. Een klus van een half uur werk is voor een eerste keer genoeg.</li>
+            <li>Twijfel je? Vraag het: "Welke twee rollen zou jij kiezen voor deze klus? Leg het uit, maar vul nog niets in."</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="meer">
+        <summary>Meer uitleg: kan Claude mijn rollen ook als skill bewaren?</summary>
+        <div class="meer-inhoud">
+          <p>Ja, dat is een volgende stap. Een skill is een rolbeschrijving die Claude in elke taak kan gebruiken, ook buiten dit project. Je vindt ze links onder Customize. Voor deze tutorial is een bestand in de map Team genoeg.</p>
+        </div>
+      </details>
+
+      <p class="vervolg-regel"><strong>Volgende stap (volgt nog):</strong> geef je klus aan de coördinator en keur wat je team oplevert.</p>
+    </section>
+
+    <section class="scherm" id="claude-verder" data-naam="verder" aria-labelledby="t-cl-5">
+      <p class="stapnummer">Na de vier stappen</p>
+      <h2 id="t-cl-5" tabindex="-1">Zo gebruik je het in je werk of studie</h2>
+      <p class="uitleg">Je team blijft staan. Je gebruikt dezelfde map voor elke nieuwe klus.</p>
+
+      <h3 class="sr">Wat je doet</h3>
+      <ol class="handelingen">
+        <li>Maak voor elk nieuw project een eigen map in Projecten.</li>
+        <li>Zet de documenten die het team nodig heeft in Inbox.</li>
+        <li>Begin een nieuwe klus in een nieuwe taak binnen je project Mijn agentteam. Claude weet dan meteen dat hij de coördinator is.</li>
+        <li>Mist je team een vak? Laat de coördinator een nieuwe specialist maken in Team.</li>
+        <li>Keur alles wat het team oplevert. Jij blijft aan het roer.</li>
+      </ol>
+
+      <figure class="kopieer">
+        <figcaption>Tekst om te kopiëren, nieuwe specialist</figcaption>
+<pre><code>Ik wil een nieuwe specialist in Team: [wat moet hij kunnen, in één zin].
+Zoek eerst uit wat een echte professional in dat vak doet en weet.
+Maak daarna een bestand in Team volgens het sjabloon van Rol-1.md.
+Laat het mij zien voordat je het opslaat.</code></pre>
+      </figure>
+
+      <details class="meer">
+        <summary>Meer uitleg: houd het overzicht</summary>
+        <div class="meer-inhoud">
+          <ul>
+            <li>Oude of afgeronde klussen? Laat ze in Projecten staan; het logboek in Kennis laat zien wat er is gedaan.</li>
+            <li>Maakt het team een fout die je vaker ziet? Laat de coördinator er een regel voor toevoegen aan Kennis/Huisregels.md. Zo leert je team van fouten.</li>
+            <li>Zet nooit persoonsgegevens of vertrouwelijke stukken in de map.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+    </div>
+
+    </div>
+    <nav class="stapknoppen" aria-label="Stappen">
+    <div class="stapknoppen-binnen">
+      <button type="button" class="knop knop-spook" id="vorige">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Vorige</button>
+      <button type="button" class="knop knop-primair" id="volgende">
+        <span id="volgende-tekst">Volgende</span>
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </nav>
+    <div class="sr" aria-live="polite" id="meldingen"></div>

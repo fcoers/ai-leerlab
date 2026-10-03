@@ -13,7 +13,7 @@ uitgelicht: categorie
 datum: 2026-10-01
 ---
 
-# Waarom ik mijn eigen productiviteitsapp bouwde, en wat jij nodig hebt
+# Waarom ik mijn eigen productiviteitsapp bouwde, en wat je hiervoor nodig hebt
 
 Frits Coers, docent bij Windesheim
 

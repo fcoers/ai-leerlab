@@ -6,7 +6,7 @@ soort: uitleg
 categorie: didactiek
 tags: verantwoording, toetsing
 voor: studenten, docenten
-avatar: mark-rust
+avatar: mark-controleren
 datum: 2026-09-30
 ---
 

@@ -6,7 +6,7 @@ soort: uitleg
 categorie: techniek
 tags: agents, privacy
 voor: studenten, docenten
-avatar: job-rust
+avatar: job-nadenken
 serie: bouw-je-eigen-productiviteitsapp
 deel: 1
 uitgelicht: categorie

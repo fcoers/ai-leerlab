@@ -128,6 +128,7 @@ Wat er dan komt:
 - De hele site: `https://ai-leerlab.nl/feed.xml` (03-10-2026). Alle gepubliceerde items, nieuwste bovenaan, met titel, link, beschrijving, publicatiedatum en categorie. Een seriedeel heet daarin "Deel 2: <titel>". Concepten (`/test/`) en geplande artikelen staan er niet in; een gepland artikel komt erin op de dag dat de ochtendbouw het publiceert.
 - Elke pagina heeft in de kop `<link rel="alternate" type="application/rss+xml" href="/feed.xml">`, zodat een feedlezer de feed vindt als je alleen ai-leerlab.nl invoert. Op een seriepagina staat de seriefeed er als tweede onder.
 - In de voet van elke pagina staat de link "RSS-feed".
+- Rechts daarnaast staan de profielen van Frits als icoon (03-10-2026): LinkedIn, en Instagram zodra dat adres er is. Ze komen uit `sameAs` in `site.json`; zet je daar een adres met instagram.com bij, dan verschijnt het icoon bij de volgende bouw vanzelf. Iconen in lijnstijl, klikvlak 44 px, openen in hetzelfde tabblad zoals de andere links.
 - Per serie blijft er een eigen feed: `/series/<naam>/feed.xml`.
 - Beide feeds maakt `bouw.py` (`bouw_site_feed` en `bouw_feed`). Controleren kan met https://validator.w3.org/feed/.
 

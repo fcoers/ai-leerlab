@@ -68,6 +68,9 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .voet nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 .voet a { color: #fff; }
 .voet nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.voet nav a.profiel { min-width: 44px; justify-content: center; }
+.voet .profiel svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.voet .profiel:hover svg, .voet .profiel:focus-visible svg { stroke: var(--mos); }
 
 /* ---------- labpapier en belletjes ---------- */
 .labpapier { background-color: var(--papier); background-image: radial-gradient(var(--lijn) 1.5px, transparent 1.6px); background-size: 24px 24px; background-position: 12px 12px; }

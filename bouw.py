@@ -64,6 +64,9 @@ def icoon(naam, klasse=""):
         "download": '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
         "verhaal": '<path d="M5 5h14v10h-8l-4 4v-4H5z"/>',
         "serie": '<path d="M8 3h12v14M5 6h12v15H5z"/>',
+        # Profielen in de voet: lijntekeningen in dezelfde stijl als de andere iconen, geen gevulde merklogo's.
+        "linkedin": '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/>',
+        "instagram": '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/>',
         "pijl-terug": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
         # Nieuw: een kiemplantje, twee blaadjes in mos met een lijn in inkt.
         "nieuw": '<path d="M12 21v-8"/><path class="blad" d="M12 14C7.6 14 5 11.4 5 7c4.4 0 7 2.6 7 7z"/>'
@@ -754,6 +757,19 @@ def deelbeeld(slug):
     return f"/assets/img/deel/{slug}.png" if os.path.exists(p) else "/assets/img/deel/ai-leerlab.png"
 
 
+# Profielen van Frits als icoon in de voet. Bron: sameAs in site.json; een nieuw adres daar verschijnt vanzelf.
+PROFIELEN = (("linkedin.com", "linkedin", "LinkedIn"), ("instagram.com", "instagram", "Instagram"))
+
+
+def voet_profielen():
+    links = []
+    for domein, naam, label in PROFIELEN:
+        url = next((u for u in SITE.get("sameAs", []) if domein in u), "")
+        if url:
+            links.append(f'<a class="profiel" href="{esc(url)}" aria-label="Frits Coers op {label}">{icoon(naam)}</a>')
+    return ("\n        " + "".join(links)) if links else ""
+
+
 def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", deel="/assets/img/deel/ai-leerlab.png",
            schema="", noindex=False, extra_kop="", extra_voet="", hoofd_titel=None):
     volle_titel = hoofd_titel or f"{titel} · {SITE['naam']}"
@@ -778,6 +794,7 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "menu_leren": ' aria-current="page"' if menu == "leren" else "",
         "menu_series": menu_series,
         "voet_series": voet_series,
+        "voet_profielen": voet_profielen(),
         "menu_over": ' aria-current="page"' if menu == "over" else "",
         "jaar": str(datetime.date.today().year),
         "versie": VERSIE,

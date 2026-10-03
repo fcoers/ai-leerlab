@@ -6,7 +6,14 @@
   <atom:link href="https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.</description>
   <language>nl</language>
-  <lastBuildDate>Thu, 01 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Sat, 03 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Deel 2: Zo installeer je de basis van je app op Mac en Windows</title>
+    <link>https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</link>
+    <guid>https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</guid>
+    <pubDate>Sat, 03 Oct 2026 07:00:00 +0000</pubDate>
+    <description>Zo zet je de basis voor je eigen productiviteitsapp neer: Python, Flask, htmx en SQLite op Mac en Windows, met prompts voor je AI-assistent.</description>
+  </item>
   <item>
     <title>Deel 1: Waarom ik mijn eigen productiviteitsapp bouwde, en wat jij nodig hebt</title>
     <link>https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/</link>

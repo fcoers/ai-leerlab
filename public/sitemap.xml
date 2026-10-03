@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ai-leerlab.nl/</loc><lastmod>2026-10-01</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/leren/</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/leren/</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/praktijk/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/didactiek/</loc><lastmod>2026-09-30</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/leren/techniek/</loc><lastmod>2026-10-01</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/</loc><lastmod>2026-10-01</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/series/</loc><lastmod>2026-10-01</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/onderwerp/agents/</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/leren/techniek/</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/series/</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/onderwerp/agents/</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://ai-leerlab.nl/over/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/bouw-je-eigen-ai-team/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/een-les-ontwerpen-met-ai/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/human-ai-labels/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/je-eigen-agentteam/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</loc><lastmod>2026-10-03</lastmod></url>
 </urlset>

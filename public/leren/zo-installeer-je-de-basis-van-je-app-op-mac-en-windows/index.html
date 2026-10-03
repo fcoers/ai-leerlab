@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="nl" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zo installeer je de basis van je app op Mac en Windows · AI-leerlab</title>
+  <meta name="description" content="Zo zet je de basis voor je eigen productiviteitsapp neer: Python, Flask, htmx en SQLite op Mac en Windows, met prompts voor je AI-assistent.">
+  
+  <link rel="canonical" href="https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="nl_NL">
+  <meta property="og:site_name" content="AI-leerlab">
+  <meta property="og:title" content="Zo installeer je de basis van je app op Mac en Windows">
+  <meta property="og:description" content="Zo zet je de basis voor je eigen productiviteitsapp neer: Python, Flask, htmx en SQLite op Mac en Windows, met prompts voor je AI-assistent.">
+  <meta property="og:url" content="https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/">
+  <meta property="og:image" content="https://ai-leerlab.nl/assets/img/deel/ai-leerlab.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Zo installeer je de basis van je app op Mac en Windows">
+  <meta name="twitter:description" content="Zo zet je de basis voor je eigen productiviteitsapp neer: Python, Flask, htmx en SQLite op Mac en Windows, met prompts voor je AI-assistent.">
+  <meta name="twitter:image" content="https://ai-leerlab.nl/assets/img/deel/ai-leerlab.png">
+  <meta property="article:published_time" content="2026-10-03">
+  <meta property="article:modified_time" content="2026-10-03">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#17211C">
+  <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css?v=202610031042">
+  <script>document.documentElement.className = 'js';</script>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Article",
+   "headline": "Zo installeer je de basis van je app op Mac en Windows",
+   "description": "Zo zet je de basis voor je eigen productiviteitsapp neer: Python, Flask, htmx en SQLite op Mac en Windows, met prompts voor je AI-assistent.",
+   "inLanguage": "nl",
+   "datePublished": "2026-10-03",
+   "dateModified": "2026-10-03",
+   "author": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "image": "https://ai-leerlab.nl/assets/img/deel/ai-leerlab.png",
+   "mainEntityOfPage": "https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/",
+   "articleSection": "Techniek",
+   "keywords": "agents",
+   "position": 2,
+   "isPartOf": [
+    {
+     "@id": "https://ai-leerlab.nl/#site"
+    },
+    {
+     "@type": "CreativeWorkSeries",
+     "@id": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/#serie",
+     "name": "Bouw je eigen productiviteitsapp",
+     "url": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/"
+    }
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://ai-leerlab.nl/#frits",
+   "name": "Frits Coers",
+   "url": "https://ai-leerlab.nl/over/",
+   "jobTitle": "Docent bij Hogeschool Windesheim",
+   "sameAs": [
+    "https://www.linkedin.com/in/fritscoers/"
+   ],
+   "worksFor": {
+    "@type": "CollegeOrUniversity",
+    "name": "Hogeschool Windesheim",
+    "url": "https://www.windesheim.nl/"
+   }
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://ai-leerlab.nl/#site",
+   "name": "AI-leerlab",
+   "url": "https://ai-leerlab.nl/",
+   "inLanguage": "nl",
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "AI-leerlab",
+     "item": "https://ai-leerlab.nl/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Series",
+     "item": "https://ai-leerlab.nl/series/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "Bouw je eigen productiviteitsapp",
+     "item": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "name": "Zo installeer je de basis van je app op Mac en Windows"
+    }
+   ]
+  }
+ ]
+}
+</script>
+  <script src="/assets/toestemming.js?v=202610031042" data-meet-id="G-EYCDGPX6LG" defer></script>
+</head>
+<body>
+  <a class="skiplink" href="#inhoud">Naar de inhoud</a>
+
+  <header class="kop">
+    <div class="wrap">
+      <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+        <img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt="">
+      </a>
+      <nav class="nav" aria-label="Hoofdmenu">
+        <a href="/leren/">Leren</a>
+        <a href="/series/" aria-current="page">Series</a>
+        <a href="/over/">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud" tabindex="-1">
+<section class="item-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      <nav aria-label="Kruimelpad"><p class="kruimel"><a href="/series/">Series</a><span class="sep" aria-hidden="true">/</span><a href="/series/bouw-je-eigen-productiviteitsapp/"><span class="lang">Bouw je eigen productiviteitsapp</span><span class="kort">Productiviteitsapp</span></a></p></nav>
+      <p class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg><span class="serie-deel">Deel 2</span></p>
+      <h1 id="titel">Zo installeer je de basis van je app op Mac en Windows</h1>
+      
+      <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>Voor studenten en docenten</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>6 minuten lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><time datetime="2026-10-03">3 oktober 2026</time></li></ul>
+    </div>
+    <div class="kop-avatar"></div>
+  </div>
+</section>
+<div class="wrap">
+  <article class="artikel">
+    <p>In augustus wilde ik mijn app opstarten en lukte dat ineens niet meer. Toen mijn team uitzocht waarom, bleek dat de onderdelen waar de app op draait verspreid stonden over drie plekken op mijn laptop. In de ene stond Flask niet, in de andere ontbrak iets anders, en een nieuwe installatie werd geweigerd. Ik had in een paar maanden steeds iets laten bijinstalleren, zonder dat iemand bijhield waar het terechtkwam. Dat voelde als een la waar je jarenlang losse kabels in hebt gegooid.</p>
+<p>In dit deel zet je de basis zo neer dat jou dat niet overkomt. Aan het eind draait er een lege app in je browser en weet je hoe je hem volgende week weer start. Zelf installeer je maar weinig; de rest vraag je aan je AI-assistent.</p>
+<h2 id="waarom-flask-htmx-en-sqlite">Waarom Flask, htmx en SQLite</h2>
+<p>Mijn app draait op drie gratis bouwstenen, en die raad ik jou ook aan.</p>
+<p>Flask is een klein raamwerk in de programmeertaal Python. Met een paar regels code maak je er een website mee die op je eigen laptop draait. Klein is hier een voordeel: er zit weinig in wat je niet gebruikt, en Flask bestaat al zo lang dat Claude Code en Codex het heel goed kennen. Vraag je iets, dan krijg je vaak in één keer werkende code.</p>
+<p>htmx zorgt dat een pagina een stukje vernieuwt zonder dat het hele scherm opnieuw laadt. Zet je een taak op klaar, dan verandert alleen die taak. Daardoor voelt een eenvoudige website al snel als een echte app. htmx is één bestand dat je naast je app zet, dus je hebt geen groot JavaScript-framework zoals React nodig, met alle bouwstappen die daarbij horen.</p>
+<p>SQLite is een database die gewoon één bestand op je laptop is. Er draait geen aparte server en je hebt geen account nodig. Een backup maken is dat bestand kopiëren. SQLite zit bovendien al in Python, dus er valt niets extra&#x27;s te installeren.</p>
+<p>Toen het team in mei de kennisbank naast het taakbord ging bouwen, hebben we bewust gekozen voor één app, één database en één opmaakbestand, in plaats van losse apps per onderdeel. Alles wat ik in deel 1 beschreef, zoals een aantekening die aan een project hangt, werkt alleen als alles in hetzelfde huis woont. Voor je AI-assistent is dat ook prettig: alles staat in één map, dus hij overziet het geheel als hij iets verandert.</p>
+<p>En het draait allemaal lokaal. De app staat alleen open op je eigen laptop, op een adres dat begint met 127.0.0.1. Iemand anders in hetzelfde netwerk kan er niet bij.</p>
+<h2 id="wat-je-zelf-doet-en-wat-je-vraagt">Wat je zelf doet en wat je vraagt</h2>
+<p>Je installeert zelf twee dingen: Python en je AI-assistent, zoals Claude Code of Codex. Hoe je die assistent installeert, staat op hun eigen site. Python doe je zo.</p>
+<div class="os-paar">
+<details class="os os-mac">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 9V6.5A2.5 2.5 0 1 0 6.5 9H9zm0 0h6m-6 0v6m6-6V6.5A2.5 2.5 0 1 1 17.5 9H15zm0 0v6m0 0H9m6 0v2.5a2.5 2.5 0 1 0 2.5-2.5H15zm-6 0v2.5A2.5 2.5 0 1 1 6.5 15H9z"/></svg></span><span class="os-naam">Mac<span class="sr">: </span></span><span class="os-titel">Python installeren met Homebrew</span></summary>
+  <div class="os-inhoud">
+<ol><li>Open Terminal (Cmd en de spatiebalk, typ Terminal).</li><li>Heb je Homebrew nog niet, installeer het dan met de opdracht van <a href="https://brew.sh">brew.sh</a>:</li></ol>
+<pre><code>/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</code></pre>
+<ol start="3"><li>Volg de aanwijzingen aan het eind; Homebrew vraagt soms om twee regels te kopiëren en te plakken.</li><li>Installeer Python met <code>brew install python</code>.</li><li>Controleer met <code>python3 --version</code>. Zie je een versienummer, dan ben je klaar.</li></ol>
+  </div>
+</details>
+<details class="os os-windows">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M12 4v16M4 12h16"/></svg></span><span class="os-naam">Windows<span class="sr">: </span></span><span class="os-titel">Python installeren met de Python install manager</span></summary>
+  <div class="os-inhoud">
+<ol><li>Open PowerShell (Start, typ PowerShell).</li><li>Installeer de Python install manager met winget:</li></ol>
+<pre><code>winget install 9NQ7512CXL7T -e --accept-package-agreements --disable-interactivity</code></pre>
+<ol start="3"><li>Sluit PowerShell en open hem opnieuw.</li><li>Installeer Python met <code>py install 3.14</code>.</li><li>Controleer met <code>py --version</code>. Zie je een versienummer, dan ben je klaar.</li></ol>
+<p>Werkt winget niet, download de install manager dan van <a href="https://www.python.org/downloads/">python.org/downloads</a> en volg de installer.</p>
+  </div>
+</details>
+</div>
+<p>Daarna maak je een lege map voor je app, bijvoorbeeld Mijn app in je Documenten, en start je je assistent in die map. Vanaf hier praat je met hem in gewone taal.</p>
+<h2 id="een-eigen-omgeving-voor-je-app">Een eigen omgeving voor je app</h2>
+<p>De oplossing voor mijn la met kabels was een eigen omgeving voor de app, een venv. Zie het als een gereedschapskist die in de map van je app staat. Alles wat de app nodig heeft, gaat in die kist en nergens anders. Daarbij hoort een lijst, <code>requirements.txt</code>, met precies welke onderdelen erin zitten en in welke versie. Raakt de kist ooit kwijt, dan bouw je hem met die lijst zo opnieuw op.</p>
+<p>Dat de nieuwe installatie in augustus werd geweigerd, was achteraf een waarschuwing. Python beschermt zichzelf tegen pakketten die je overal tussendoor installeert, en terecht. Met een venv heb je daar geen last van.</p>
+<p>Dit is de eerste opdracht die je aan je assistent geeft:</p>
+<blockquote><p>Ik wil in deze map een eenvoudige webapp bouwen met Flask, htmx en SQLite. Ik programmeer zelf niet. Maak een venv in deze map, een requirements.txt met vaste versies en installeer daaruit. Leg in twee zinnen uit wat je hebt gedaan.</p></blockquote>
+<p>Kort daarna leerde ik nog iets. De app startte weer gewoon, maar nakijken en het uitschrijven van opnames deden niets. De server draaide in een andere kist dan die waarin alles was geïnstalleerd. Een app die opstart, werkt dus nog niet helemaal. Daarom vraag ik na elke grote wijziging om elk onderdeel even uit te proberen, en niet alleen de voorpagina.</p>
+<h2 id="je-eerste-lege-app">Je eerste lege app</h2>
+<p>Nu de kist klaarstaat, vraag je om de app zelf:</p>
+<blockquote><p>Maak een Flask-app met één pagina met de titel Mijn app. Zet htmx als bestand in de map, zodat de app zonder internet werkt. Maak een SQLite-database met één tabel voor taken, nog zonder taken. De app mag alleen bereikbaar zijn op 127.0.0.1. Maak ook een startscript, zodat ik de app met één opdracht kan starten, en zeg welk adres ik in de browser open.</p></blockquote>
+<p>Je assistent maakt een handvol bestanden aan en noemt een adres. Open dat in je browser en je ziet je eigen app. Er staat nog bijna niets op, maar hij is van jou.</p>
+<p><img src="/assets/img/productiviteitsapp-lege-app.webp" alt="Een lege app in de browser met het terminalvenster ernaast, waarin de server draait" loading="lazy"></p>
+<p>Het startscript is het stuk dat je volgende week nodig hebt. Zonder script moet je onthouden in welke map je stond, welke kist je opende en welk commando je typte. Met het script is het één regel.</p>
+<div class="os-paar">
+<details class="os os-mac">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 9V6.5A2.5 2.5 0 1 0 6.5 9H9zm0 0h6m-6 0v6m6-6V6.5A2.5 2.5 0 1 1 17.5 9H15zm0 0v6m0 0H9m6 0v2.5a2.5 2.5 0 1 0 2.5-2.5H15zm-6 0v2.5A2.5 2.5 0 1 1 6.5 15H9z"/></svg></span><span class="os-naam">Mac<span class="sr">: </span></span><span class="os-titel">Je app starten en stoppen</span></summary>
+  <div class="os-inhoud">
+<ol><li>Open Terminal en ga naar de map van je app, bijvoorbeeld met <code>cd ~/Documents/&quot;Mijn app&quot;</code>.</li><li>Start de app met <code>./start.sh</code>.</li><li>Open het adres dat in de terminal verschijnt.</li><li>Stoppen doe je met Ctrl+C in de terminal.</li></ol>
+<p>Meldt de terminal dat poort 5000 bezet is, vraag je assistent dan om een andere poort. Op de Mac gebruikt AirPlay die poort.</p>
+  </div>
+</details>
+<details class="os os-windows">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M12 4v16M4 12h16"/></svg></span><span class="os-naam">Windows<span class="sr">: </span></span><span class="os-titel">Je app starten en stoppen</span></summary>
+  <div class="os-inhoud">
+<ol><li>Open PowerShell en ga naar de map van je app, bijvoorbeeld met <code>cd &quot;$HOME\Documents\Mijn app&quot;</code>.</li><li>Start de app met <code>.\start.ps1</code>.</li><li>Open het adres dat in PowerShell verschijnt.</li><li>Stoppen doe je met Ctrl+C.</li></ol>
+<p>Weigert PowerShell het script, sta dan eenmalig scripts toe voor je eigen gebruiker met <code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code> en probeer het opnieuw.</p>
+  </div>
+</details>
+</div>
+<h2 id="drie-gewoontes-vanaf-de-eerste-dag">Drie gewoontes vanaf de eerste dag</h2>
+<p>Er zijn drie dingen die ik had willen weten toen ik begon. Om te beginnen: laat niets meer los installeren. Heeft je app iets nieuws nodig, dan gaat het in de lijst en in de kist, en vraag je je assistent dat ook zo te doen. Daarnaast is een backup van je database niets meer dan een kopie van één bestand. Vraag je assistent om die kopie te maken voordat hij iets aan de database verandert, en maak er een vaste afspraak van. En tot slot: start je app na elke grote wijziging opnieuw en klik alles even aan.</p>
+<p>Werk je in een map die met OneDrive of iCloud synchroniseert, zoals ik, vraag dan of de kist buiten die map kan staan. Zo&#x27;n kist bestaat uit duizenden kleine bestanden die je niet wilt laten synchroniseren. Mijn eigen omgeving staat inmiddels ook buiten OneDrive.</p>
+<h2 id="zo-ga-je-verder">Zo ga je verder</h2>
+<p>Mijn voorstel voor deze week: start je lege app, stop hem, sluit de terminal en start hem de volgende dag opnieuw met je startscript. Lukt dat zonder na te denken, dan staat je basis. In deel 3 maken we van die ene lege pagina een taakbord, met het lijstje dat je na deel 1 hebt bijgehouden.</p>
+    <p class="onderwerpen"><span class="label">Onderwerpen</span><span>agents</span></p>
+    <nav class="serie-nav" aria-label="Andere delen van deze serie">
+        <p class="label">Serie · <a href="/series/bouw-je-eigen-productiviteitsapp/">Bouw je eigen productiviteitsapp</a></p>
+        <div class="paar">
+          <a class="stap vorige" href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/">
+            <span class="richting"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Deel 1</span>
+            <span class="titel">Waarom ik mijn eigen productiviteitsapp bouwde, en wat jij nodig hebt</span>
+          </a>
+          <span></span>
+        </div>
+        <a class="tekstlink alle" href="/series/bouw-je-eigen-productiviteitsapp/">Alle delen van deze serie</a>
+      </nav>
+    <div class="gemaakt">
+  <p class="gemaakt-zin">Geschreven met hulp van AI · label: <a href="/leren/human-ai-labels/">Creative Director</a></p>
+  <details class="gemaakt-meer">
+    <summary>Hoe AI is gebruikt</summary>
+    <p>Een AI-teamlid in Claude Code schreef de eerste versie van dit artikel in mijn schrijfstijl, op basis van mijn eigen teksten, mijn feedback, het werklogboek van mijn team en de changelog van mijn app. De stappen voor Windows zijn opgezocht, niet getest. Ik bepaalde onderwerp, opbouw en voorbeelden en heb de tekst gecontroleerd voordat hij online ging.</p><p>Labels-bron: Boetje, J., &amp; Baake, G. (2026). <em>Nine prototypical human-AI agency patterns</em> [Figuur]. figshare. <a href="https://doi.org/10.6084/m9.figshare.31706884">https://doi.org/10.6084/m9.figshare.31706884</a> (CC BY 4.0).</p>
+  </details>
+</div>
+  </article>
+  
+</div>
+  </main>
+
+  <footer class="voet">
+    <div class="wrap">
+      <div>
+        <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+          <img class="logo" src="/assets/img/logo-op-donker.svg" width="211" height="52" alt="">
+        </a>
+        <p>Een persoonlijke site van Frits Coers, docent bij Windesheim. Geen uitgave van Windesheim.</p>
+        <p>Met je toestemming telt Google Analytics hoeveel bezoekers er komen. Zonder toestemming geen cookies. © 2026 Frits Coers.</p>
+      </div>
+      <nav aria-label="Onderaan">
+        <a href="/leren/">Leren</a>
+        <a href="/series/">Series</a>
+        <a href="/over/">Over</a>
+        <a href="/over/#colofon">Privacy en colofon</a>
+        <a href="/over/#colofon" data-cookie-instellingen>Cookie-instellingen</a>
+      </nav>
+    </div>
+  </footer>
+  
+</body>
+</html>

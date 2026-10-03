@@ -649,3 +649,57 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .toestemming .knop { min-height: 48px; min-width: 140px; }
 @media (max-width: 480px) { .toestemming .knop { flex: 1 1 0; min-width: 0; } }
 @keyframes toestemming-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* ---------- zelftest Human-AI-label (03-10-2026) ----------
+   Eén vraag per scherm: op mobiel past een vraag met zijn antwoorden op één scherm, je raakt je plek niet kwijt
+   en de knop Volgende staat steeds op dezelfde plek. De vragen zijn gewone fieldsets; zelftest.js toont er één. */
+.zelftest { max-width: var(--tekst); padding: 32px 0 0; }
+.zelftest .uitleg { font-size: 20px; line-height: 1.55; margin: 0 0 32px; }
+.zelftest-melding { margin: 0 0 32px; padding: 16px 20px; background: var(--munt); border-radius: 8px; }
+.zelftest-voortgang { display: flex; align-items: center; gap: 16px; margin: 0 0 24px; padding: 0 0 16px; border-bottom: 1px solid var(--lijn); font: 500 15px/1.2 var(--mono); letter-spacing: .04em; color: var(--inkt-zacht); }
+.zt-balk { flex: 1; max-width: 240px; height: 8px; border-radius: 4px; background: var(--lijn); overflow: hidden; }
+.zt-balk span { display: block; height: 100%; background: var(--inkt); transform-origin: left; transform: scaleX(.1); }
+@media (prefers-reduced-motion: no-preference) { .zt-balk span { transition: transform .25s var(--uit); } }
+.zt-taak { margin: 0 0 32px; }
+.zt-taak label { display: block; font-weight: 600; font-size: 18px; margin: 0 0 4px; }
+.zt-optioneel { font-weight: 400; color: var(--inkt-zacht); font-size: 16px; }
+.zt-hulp { margin: 0 0 8px; font-size: 16px; color: var(--inkt-zacht); }
+.zt-taak input { width: 100%; min-height: 48px; padding: 10px 14px; font: 18px/1.3 var(--sans); color: var(--inkt); background: var(--vlak); border: 1px solid var(--inkt-zacht); border-radius: 8px; }
+.zt-vraag { border: 0; margin: 0; padding: 0; min-width: 0; }
+.zt-vraag[hidden] { display: none; }
+.zt-vraag legend { padding: 0; margin: 0 0 20px; font: 700 clamp(22px, 3.2vw, 26px)/1.25 var(--sans); }
+.zt-optie { display: flex; align-items: flex-start; gap: 14px; min-height: 44px; margin: 0 0 10px; padding: 14px 16px; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 10px; font-size: 18px; line-height: 1.4; cursor: pointer; }
+.zt-optie:hover { border-color: var(--inkt-zacht); }
+.zt-optie input { flex: none; width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--labgroen); }
+.zt-optie:has(input:checked) { border-color: var(--inkt); box-shadow: inset 0 0 0 1px var(--inkt); background: var(--munt); }
+.zt-optie:has(input:focus-visible) { outline: 3px solid var(--labgroen); outline-offset: 2px; }
+.zt-fout { min-height: 1.4em; margin: 8px 0 0; font-weight: 600; color: var(--inkt); }
+.zt-fout:empty { min-height: 0; margin: 0; }
+.zt-knoppen { justify-content: space-between; margin-top: 16px; }
+.zt-knoppen #zt-volgende { margin-left: auto; }
+.zelftest-uitslag h2 { font: 800 clamp(28px, 4vw, 36px)/1.15 var(--sans); letter-spacing: -.01em; margin: 0 0 16px; }
+.zelftest-uitslag h2:focus { outline: none; }
+.zelftest-uitslag h2:focus-visible { outline: 3px solid var(--labgroen); outline-offset: 4px; }
+#zt-label { color: var(--labgroen-donker); }
+.zt-taak-terug { margin: 0 0 8px; color: var(--inkt-zacht); font-size: 17px; overflow-wrap: anywhere; }
+.zt-tweede, .zt-gelijk { font-size: 19px; margin: 0 0 24px; }
+.zt-labeltekst { margin: 24px 0 32px; padding: 24px; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 14px; }
+.zt-labeltekst h3 { font: 700 22px/1.3 var(--sans); margin: 0 0 16px; }
+.zt-labeltekst p { margin: 0 0 16px; font-size: 18px; }
+.zt-labeltekst p:last-child { margin-bottom: 0; }
+.zt-labeltekst .label { font-size: 15px; margin: 0 0 4px; }
+.zt-verder { margin: 0 0 8px; }
+.zelftest-uitslag .deelrij { margin-top: 8px; }
+.zelftest-uitslag .knoppen { margin: 24px 0 0; }
+.zt-labels { margin: 64px 0 0; padding-top: 40px; border-top: 1px solid var(--lijn); }
+.zelftest h2 { font: 700 28px/1.2 var(--sans); margin: 0 0 16px; }
+.zt-labels ol { padding-left: 1.4em; margin: 0; }
+.zt-labels li { margin: 0 0 12px; scroll-margin-top: 24px; }
+.zt-labels li:target { background: var(--munt); border-radius: 6px; box-shadow: 0 0 0 6px var(--munt); }
+.zt-disclaimer { margin: 40px 0; padding: 20px 24px; border-left: 3px solid var(--inkt-zacht); background: var(--vlak); font-size: 17px; color: var(--inkt-zacht); }
+.zt-bronnen { font-size: 16px; padding-left: 1.2em; overflow-wrap: anywhere; }
+.zt-bronnen li { margin: 0 0 8px; }
+@media (max-width: 640px) {
+  .zt-optie { padding: 12px 14px; font-size: 17px; }
+  .zt-labeltekst { padding: 20px; }
+}

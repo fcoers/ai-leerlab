@@ -891,14 +891,23 @@ def onderwerpen_html(item):
 DELEN_JS = "/assets/delen.js"
 
 
-def delen_html(item):
+DEELKNOPPEN = "<!--deelknoppen-->"   # markering in een tool: daar komt de deelrij (bij de uitslag)
+
+
+def live_url(item):
+    """Het adres dat het item heeft zodra het live staat, ook als het nu nog een concept is."""
+    return f"/{item.map}/{item.slug}/"
+
+
+def delen_html(item, altijd=False):
     """Delen onder een artikel, tutorial of seriedeel: LinkedIn, mail en link kopiëren (03-10-2026).
     LinkedIn en mail zijn gewone links: geen scripts of knoppen van derden, geen trackers.
     Link kopiëren staat er alleen met JavaScript: de knop is hidden tot delen.js hem toont.
-    Niet op een concept: een adres onder /test/ deel je niet."""
-    if item.concept:
+    Niet op een concept: een adres onder /test/ deel je niet. Uitzondering (altijd=True): een tool met de
+    markering DEELKNOPPEN, zodat Frits de knoppen bij de uitslag al in de testversie ziet; die delen het live adres."""
+    if item.concept and not altijd:
         return ""
-    url = ADRES + item.url
+    url = ADRES + live_url(item)
     q = urllib.parse.quote
     linkedin = "https://www.linkedin.com/sharing/share-offsite/?url=" + q(url, safe="")
     mail = f"mailto:?subject={q(item.titel)}&body={q(item.titel + chr(10) + chr(10) + url)}"
@@ -911,8 +920,8 @@ def delen_html(item):
     </div>"""
 
 
-def delen_script(item):
-    return "" if item.concept else f'<script src="{DELEN_JS}?v={VERSIE}" defer></script>'
+def delen_script(item, altijd=False):
+    return "" if item.concept and not altijd else f'<script src="{DELEN_JS}?v={VERSIE}" defer></script>'
 
 
 def dag_nl(d):
@@ -1031,13 +1040,19 @@ def bouw_html_item(item, alle):
     """Een item met eigen HTML (tutorial, later een tool). De tekst komt uit het bestand zelf."""
     lede = f'<p class="lede">{esc(item.lede)}</p>' if item.lede else ""
     feiten = [tuple(x.split("=", 1)) for x in item.meta.get("feiten", "").split("|") if "=" in x]
+    # Een tool met de markering DEELKNOPPEN krijgt de deelrij op die plek (bij de uitslag) en niet onderaan.
+    eigen_delen = DEELKNOPPEN in item.tekst
+    tekst = item.tekst.replace(DEELKNOPPEN, delen_html(item, altijd=True)) if eigen_delen else item.tekst
+    # GenAI-vermelding: niet bij tutorials (Frits, 30-09-2026), wel bij een tool met een veld transparantie.
+    gemaakt = transparantie_html(item) if item.soort == "tool" and item.transparantie else ""
     inhoud = f"""{item_kop(item, lede, [(a.strip(), b.strip()) for a, b in feiten])}
 <div class="wrap">
   <div class="{esc(item.meta.get('klasse', 'eigen'))}">
-{item.tekst}
+{tekst}
   </div>
   {onderwerpen_html(item)}
-  {delen_html(item)}
+  {"" if eigen_delen else delen_html(item)}
+  {gemaakt}
   {verder(item, alle)}
 </div>"""
     stappen = [s.strip() for s in item.meta.get("stappen", "").split("|") if s.strip()]
@@ -1065,7 +1080,7 @@ def bouw_html_item(item, alle):
            menu="leren", deel=deelbeeld(item.slug), schema=schema, noindex=item.concept,
            extra_voet="\n  ".join(x for x in (
                f'<script src="{esc(script)}?v={VERSIE}" defer></script>' if script else "",
-               delen_script(item)) if x))
+               delen_script(item, altijd=eigen_delen)) if x))
 
 
 def kaart_figuur(slug):

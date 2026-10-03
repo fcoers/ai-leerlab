@@ -142,6 +142,23 @@ Onder elk artikel, elke tutorial en elk seriedeel staat een rij "Delen" met drie
 
 Alle drie gebruiken het canonieke adres op https://ai-leerlab.nl. Geen knoppen of scripts van LinkedIn of andere diensten, dus geen trackers en geen extra cookies. Een concept onder `/test/` krijgt geen deelrij. Iconen in dezelfde lijnstijl als de profielen in de voet, klikvlak 44 px, icoon 24 px. Code: `delen_html` in `bouw.py`, opmaak onder `.deelrij` in `site.css`.
 
+## Tools
+
+Een tool is een `.html`-bestand in `inhoud/tools/` met een kopje, net als de tutorial (`soort: tool`), plus een eigen script in `statisch/assets/` via `script:` in het kopje. Live komt hij op `/tools/<naam>/`; met `status: concept` op `/test/<naam>/`.
+
+- Zet `transparantie: **Transparantie GenAI.** … Human-AI Agency Label: <label>.` in het kopje, dan krijgt de tool dezelfde GenAI-vermelding als een artikel. Tutorials krijgen hem niet.
+- Zet `<!--deelknoppen-->` in de tekst en de deelrij komt op die plek in plaats van onderaan, bijvoorbeeld bij een uitslag. Die rij staat er ook in de testversie en deelt dan al het live adres.
+
+### Zelftest: welk Human-AI-label past bij jou?
+
+`inhoud/tools/zelftest-human-ai-label.html` met `statisch/assets/zelftest.js` (03-10-2026). Staat nog als testversie op `/test/zelftest-human-ai-label/` (noindex, niet in sitemap, feed of menu). Tekst en scoring van Dide (`Leveringen/_bron/Zelftest Human-AI-label.md`; deel A staat er letterlijk in).
+
+- Eén vraag per scherm. Op mobiel past een vraag met zijn antwoorden op één scherm, je raakt je plek niet kwijt en Volgende staat steeds op dezelfde plek. De vragen zijn gewone fieldsets met keuzerondjes; het script toont er één tegelijk en zet de focus op het antwoord, zodat een schermlezer de vraag voorleest.
+- Alles gebeurt in de browser: niets wordt verstuurd of opgeslagen, ook de taak niet. Zonder JavaScript blijft het formulier weg en staat er een melding; de negen labels, de disclaimer en de bronnen blijven leesbaar.
+- Uitslag: alleen het label, eventueel een tweede (som hooguit 2 lager) of bij een niet te beslissen gelijke stand twee labels. Geen punten of percentages. De puntentabel staat bovenin `zelftest.js` (`PUNTEN`), de uitslagregel in `uitslag()`.
+- Na een wijziging in de scoring: draai Dides twaalf testgevallen. `uitslag()` laadt ook in Node (`require('./statisch/assets/zelftest.js').uitslag(['A', …])`).
+- Live zetten: haal `status: concept` weg en zet een menulink Tools in `sjablonen/basis.html`.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.

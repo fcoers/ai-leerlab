@@ -1261,14 +1261,7 @@ def bouw_home(items):
         blokken.append(categorie_blok(slug, groot, lijst, totaal))
         getoond += [groot] + lijst
     blokken_html = "\n  ".join(blokken)
-    inhoud = f"""<section class="held labpapier" aria-labelledby="titel">
-  <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
-  {avatar_img(h["avatar"], "held-avatar")}
-  <div class="wrap">
-    <h1 id="titel">{esc(h["kop"])}</h1>
-    <p class="lede">{esc(h["lede"])}</p>
-  </div>
-</section>
+    inhoud = f"""{held_html(h)}
 <div class="wrap" id="items">
   {uitgelicht}
   {blokken_html}
@@ -1286,8 +1279,52 @@ def bouw_home(items):
     # Het schema volgt wat er op de pagina staat: het uitgelichte item en de blokken, in die volgorde.
     lijst = {"@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": n + 1, "url": ADRES + x.url, "name": x.titel} for n, x in enumerate(getoond)]}
+    # Zonder defer: onderaan de body draait het vóór de eerste weergave, zodat de ballon niet eerst even stil staat
+    # en dan pas wegvalt om binnen te komen.
+    spreker_js = f'<script src="/assets/spreker.js?v={VERSIE}"></script>' if h.get("spreker") else ""
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",
-           schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"])
+           schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"], extra_voet=spreker_js)
+
+
+def held_html(h):
+    """De kop van de beginpagina. Met een zin in home.spreker (site.json) stelt de avatar zich voor in een
+    tekstballon: component Spreker, ontwerp Bram 05-10-2026 (Styleguides/AI-leerlab/DESIGN.md). De zin staat
+    als gewone HTML in de pagina, dus ook zonder JavaScript en voor Google. Alleen de beginpagina krijgt een
+    ballon en er staat er hooguit één (Frits, 05-10-2026); andere pagina's roepen deze functie niet aan.
+    Zonder zin: de oude kop met de avatar rechtsonder."""
+    zin = (h.get("spreker") or "").strip()
+    if not zin:
+        return f"""<section class="held labpapier" aria-labelledby="titel">
+  <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
+  {avatar_img(h["avatar"], "held-avatar")}
+  <div class="wrap">
+    <h1 id="titel">{esc(h["kop"])}</h1>
+    <p class="lede">{esc(h["lede"])}</p>
+  </div>
+</section>"""
+    if len(zin) > 70 or zin.count(".") > 1:
+        let_op("home.spreker in site.json: hooguit één korte zin in de ballon")
+    wie = h["avatar"].split("-")[0]
+    return f"""<section class="held labpapier met-spreker" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="held-raster">
+      <div class="held-tekst">
+        <h1 id="titel">{esc(h["kop"])}</h1>
+        <p class="lede">{esc(h["lede"])}</p>
+      </div>
+      <figure class="spreker" data-spreker="{esc(wie)}" data-beweegt>
+        <div class="ballon">
+          <figcaption class="spreker-wie"><span class="ai">AI-teamlid</span></figcaption>
+          <blockquote><p><span class="zin">{esc(zin)}</span></p></blockquote>
+        </div>
+        <div class="spreker-beeld">
+          <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
+          {avatar_img(h["avatar"], "")}
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>"""
 
 
 def leren_items(items):

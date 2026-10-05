@@ -15,7 +15,8 @@
     "beschrijving": "Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.",
     "kop": "Leren werken met AI, door het te doen.",
     "lede": "Tutorials, tools en uitleg voor studenten en docenten. Ik werk met AI in mijn eigen onderwijs en deel hier mijn ervaringen, zodat jij ze ook kunt gebruiken.",
-    "avatar": "james-rust"
+    "avatar": "james-rust",
+    "spreker": "Hallo, ik ben James, de assistent van Frits."
   },
   "tools": {"seotitel": "Tools om bewust met AI te werken", "beschrijving": "Kleine hulpmiddelen van AI-leerlab om je eigen AI-gebruik te bekijken, voor studenten en docenten. Alles werkt in je browser.", "lede": "Kleine hulpmiddelen om je eigen AI-gebruik te bekijken. Alles werkt in je browser en er wordt niets opgeslagen."},
   "leren": {

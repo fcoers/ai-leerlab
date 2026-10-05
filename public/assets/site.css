@@ -703,3 +703,88 @@ main:focus, h1:focus, h2:focus { outline: none; }
   .zt-optie { padding: 12px 14px; font-size: 17px; }
   .zt-labeltekst { padding: 20px; }
 }
+
+/* ---------- spreker: een teamlid stelt zich voor (ontwerp Bram 05-10-2026, component Spreker in DESIGN.md) ----------
+   Alleen in de kop van de beginpagina, hooguit één per pagina. Een ovale ballon, wit, rand 1,5px inkt, geen schaduw.
+   De staart is een gebogen punt in dezelfde lijn; zijn bovenkant valt over de rand, zodat ballon en staart één omtrek zijn.
+   Beweging alleen bij het eerste bezoek en nooit bij "minder beweging" (spreker.js zet .speelt). */
+.ballon {
+  position: relative; background: var(--vlak); color: var(--inkt);
+  border: 1.5px solid var(--inkt); border-radius: 50%;
+  aspect-ratio: 9 / 5; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  padding: 22px 15%; margin: 0; text-align: center;
+}
+.ballon::after { content: ""; position: absolute; background: no-repeat center / 100% 100%; pointer-events: none; }
+.spreker-wie { display: block; margin: 0; }
+.spreker-wie .ai {
+  display: inline-block; font: 500 15px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+  color: var(--inkt); background: var(--munt); border-radius: 6px; padding: 5px 8px 4px;
+}
+.ballon blockquote { margin: 0; padding: 0; border: 0; background: none; font-style: normal; }
+.ballon blockquote p { margin: 0; font: 400 19px/1.4 var(--sans); text-wrap: balance; }
+
+.held.met-spreker .wrap { padding-top: 64px; padding-bottom: 0; }
+.held-raster { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: end; }
+.held-tekst { padding-bottom: 80px; align-self: center; }
+.held.met-spreker h1 { max-width: 12em; }
+
+.spreker { display: flex; flex-direction: column; align-items: flex-end; margin: 0; }
+.spreker .ballon { width: 330px; max-width: 100%; margin-right: 24px; transform-origin: 66% 100%; }
+/* Breed scherm: staart naar beneden, naar James. */
+.spreker .ballon::after {
+  width: 36px; height: 40px; left: 60%; top: calc(100% - 10px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 40'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Crect y='9' width='36' height='31'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M0 0C6 16 16 30 34 38C24 26 20 14 20 0Z' fill='%23fff'/%3E%3Cpath d='M0 0C6 16 16 30 34 38C24 26 20 14 20 0' fill='none' stroke='%2317211C' stroke-width='1.5' stroke-linejoin='round' clip-path='url(%23c)'/%3E%3C/svg%3E");
+}
+.spreker-beeld { position: relative; align-self: flex-end; margin: 26px 40px 0 0; flex: none; }
+.spreker-beeld img { display: block; height: calc(220px * var(--schaal, 1)); width: auto; position: relative; z-index: 1; margin-bottom: -1px; transform-origin: 50% 100%; }
+.held .spreker-beeld .bel.groot { width: 260px; height: 260px; right: auto; left: 50%; margin-left: -110px; bottom: -110px; }
+.held .spreker-beeld .bel.klein { width: 64px; height: 64px; right: auto; top: auto; left: -96px; bottom: 120px; }
+
+/* Smaller dan 1000px: de ballon links naast James, onder de tekst, staart naar rechts. Nooit erboven. */
+@media (max-width: 1000px) {
+  .held.met-spreker .wrap { padding-right: 32px; }
+  .held-raster { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .held-tekst { padding-bottom: 0; }
+  .spreker { flex-direction: row; align-items: flex-end; justify-content: flex-start; gap: 34px; margin-top: 28px; }
+  /* min-width: 0, anders duwt het ovaal met aspect-ratio James op de telefoon uit beeld. */
+  .spreker .ballon { width: auto; flex: 1 1 0; min-width: 0; max-width: 400px; margin: 0 0 40px; transform-origin: 100% 60%; }
+  .spreker .ballon::after {
+    width: 40px; height: 36px; left: calc(100% - 10px); top: 52%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 36'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Crect x='9' width='31' height='36'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M0 0C16 6 30 16 38 34C26 24 14 20 0 20Z' fill='%23fff'/%3E%3Cpath d='M0 0C16 6 30 16 38 34C26 24 14 20 0 20' fill='none' stroke='%2317211C' stroke-width='1.5' stroke-linejoin='round' clip-path='url(%23c)'/%3E%3C/svg%3E");
+  }
+  .spreker-beeld { margin: 0 8px 0 0; }
+  .spreker-beeld img { height: calc(180px * var(--schaal, 1)); }
+  .held .spreker-beeld .bel.groot { width: 180px; height: 180px; margin-left: -80px; bottom: -80px; }
+  .held .spreker-beeld .bel.klein { display: none; }
+}
+/* Telefoon: James 120px, de zin 16px. */
+@media (max-width: 640px) {
+  .held.met-spreker .wrap { padding: 36px 20px 0; }
+  .held.met-spreker h1 { margin-bottom: 14px; }
+  .spreker { gap: 28px; margin-top: 20px; }
+  .spreker .ballon { margin-bottom: 26px; padding: 16px 13%; gap: 6px; }
+  .ballon blockquote p { font-size: 16px; line-height: 1.35; }
+  .spreker-beeld { margin: 0 2px 0 0; }
+  .spreker-beeld img { height: calc(120px * var(--schaal, 1)); }
+  .held .spreker-beeld .bel.groot { width: 130px; height: 130px; margin-left: -60px; bottom: -66px; }
+}
+
+/* Choreografie, alleen bij het eerste bezoek: bels 0 ms (900 ms, bestaand) · opmaat James 350 ms ·
+   ballon 520 ms (groeit uit zijn staart) · de zin 800 ms · knik 1400 ms. Klaar na ongeveer twee seconden.
+   James' bewegingsprofiel: anticipatie, veer met lichte doorschiet, een kleine knik. Alleen transform en opacity.
+   Opmaat en knik houden de plaats warm voor het begroetingsgebaar van Anouk. */
+@media (prefers-reduced-motion: no-preference) {
+  .spreker.speelt .spreker-beeld img { animation: sp-opmaat 650ms cubic-bezier(.3, 1.25, .5, 1) 350ms both, sp-knik 420ms ease-in-out 1400ms both; }
+  .spreker.speelt .ballon { animation: sp-ballon 300ms var(--uit) 520ms both; }
+  .spreker.speelt .zin { animation: sp-zin 360ms var(--uit) 800ms both; }
+}
+@keyframes sp-opmaat {
+  0% { transform: translateY(0); }
+  26% { transform: translateY(3px) scaleY(.985); }
+  62% { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+@keyframes sp-knik { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(-2.5deg); } }
+@keyframes sp-ballon { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes sp-zin { from { opacity: 0; } to { opacity: 1; } }

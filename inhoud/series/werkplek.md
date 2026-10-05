@@ -16,4 +16,4 @@ status: lopend
 
 Ik werk elke dag met een team van AI-agents in Claude Code. Dat gaat goed, tot er een paar tegelijk aan het werk zijn. Dan zie ik een vraag over het hoofd of zoek ik naar een bestand dat net is opgeleverd. Daarom bouw ik in mijn eigen productiviteitsapp een werkplek: één scherm waarop ik zie wat op mij wacht, wat loopt en wat klaar is.
 
-In deze serie vertel ik hoe dat gaat, terwijl het nog niet af is: wat onderzoek zegt over toezicht houden op agents, hoe Claude Code mijn app laat meekijken, wat er misging en waar Claude Code zelf nee zei. Je hoeft geen eigen app te bouwen om er iets aan te hebben. Wil je dat wel, begin dan bij de serie [Bouw je eigen productiviteitsapp](/series/bouw-je-eigen-productiviteitsapp/).
+In deze serie vertel ik hoe dat gaat, terwijl het nog niet af is: wat onderzoek zegt over toezicht houden op agents, hoe Claude Code mijn app laat meekijken, wat er is misgegaan en waar Claude Code zelf nee heeft gezegd. Je hoeft geen eigen app te bouwen om er iets aan te hebben. Wil je dat wel, begin dan bij de serie [Bouw je eigen productiviteitsapp](/series/bouw-je-eigen-productiviteitsapp/).

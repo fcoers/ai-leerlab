@@ -80,5 +80,5 @@ Mijn voorstel voor deze week: bouw je bord, zet je taken erin en laat het elke o
 
 ---
 
-**Transparantie GenAI.** Een AI-teamlid in Claude Code schreef de eerste versie van dit artikel in mijn schrijfstijl, op basis van mijn eigen teksten, mijn feedback, het werklogboek van mijn team en de changelog van mijn app. De stappen voor Windows zijn opgezocht, niet getest. Ik bepaalde onderwerp, opbouw en voorbeelden en heb de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
+**Transparantie GenAI.** Een AI-teamlid in Claude Code heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn eigen teksten, mijn feedback, het werklogboek van mijn team en de changelog van mijn app. De stappen voor Windows zijn opgezocht, niet getest. Ik heb onderwerp, opbouw en voorbeelden bepaald en de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
 Labels-bron: Boetje, J., & Baake, G. (2026). *Nine prototypical human-AI agency patterns* [Figuur]. figshare. https://doi.org/10.6084/m9.figshare.31706884 (CC BY 4.0).

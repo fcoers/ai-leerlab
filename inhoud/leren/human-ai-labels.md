@@ -1,7 +1,7 @@
 ---
-seotitel: Human-AI labels: zo werkte je samen met AI
+seotitel: Human-AI labels: hoe heb jij met AI samengewerkt?
 beschrijving: Negen labels van Boetje en Baake maken zichtbaar hoe je de regie tussen jezelf en AI verdeelt. Zo gebruik je ze als docent en als student.
-kaarttekst: Negen labels die laten zien wie het denkwerk deed, jij of de AI. Met tips voor je les en je GenAI-verklaring.
+kaarttekst: Negen labels die laten zien wie het denkwerk heeft gedaan, jij of de AI. Met tips voor je les en je GenAI-verklaring.
 soort: uitleg
 categorie: didactiek
 tags: verantwoording, toetsing
@@ -10,11 +10,11 @@ avatar: mark-controleren
 datum: 2026-09-30
 ---
 
-# Hoe werkte jij samen met AI? Negen labels die het zichtbaar maken
+# Hoe heb jij met AI samengewerkt? Negen labels die het zichtbaar maken
 
 Frits Coers, docent bij Windesheim
 
-Onder elk product dat ik voor mijn master inlever, staat een verklaring over GenAI. Een vinkje bij ja of nee, en daaronder een paar zinnen over welke tool ik waarvoor heb gebruikt. Bij mij staat er bijvoorbeeld dat ik Gemini heb gebruikt om teksten in te korten. Dat klopt, maar het zegt weinig over wie het denkwerk heeft gedaan. Twee studenten kunnen allebei "ChatGPT gebruikt" invullen, terwijl de een het hele verslag liet schrijven en de ander alleen zijn spelling liet nakijken.
+Onder elk product dat ik voor mijn master inlever, staat een verklaring over GenAI. Een vinkje bij ja of nee, en daaronder een paar zinnen over welke tool ik waarvoor heb gebruikt. Bij mij staat er bijvoorbeeld dat ik Gemini heb gebruikt om teksten in te korten. Dat klopt, maar het zegt weinig over wie het denkwerk heeft gedaan. Twee studenten kunnen allebei "ChatGPT gebruikt" invullen, terwijl de een het hele verslag heeft laten schrijven en de ander alleen zijn spelling heeft laten nakijken.
 
 Daarom werk ik sinds dit voorjaar met de Human-AI Agency Labels van Josien Boetje en Gerard Baake (Boetje & Baake, 2026). Ze geven woorden aan iets wat je anders lastig kunt uitleggen: hoe je de regie tussen jezelf en AI hebt verdeeld.
 
@@ -26,7 +26,7 @@ De labels horen bij een groter instrument, de Human-AI Agency Rubric, met 55 ged
 
 ## Patronen, geen types
 
-Het belangrijkste om te weten: een label zegt iets over wat je bij één taak deed, niet over wie je bent. Je bent dus geen Offloader of Critical Verifier. Je kunt de zoekfase van een opdracht helemaal aan AI overlaten en daarna heel kritisch kijken naar wat eruit komt. Dan wissel je binnen één taak van patroon.
+Het belangrijkste om te weten: een label zegt iets over wat je bij één taak hebt gedaan, niet over wie je bent. Je bent dus geen Offloader of Critical Verifier. Je kunt de zoekfase van een opdracht helemaal aan AI overlaten en daarna heel kritisch kijken naar wat eruit komt. Dan wissel je binnen één taak van patroon.
 
 Dat vind ik een prettig uitgangspunt. Het voorkomt dat we studenten in hokjes stoppen, en het maakt het gesprek eerlijker. Niemand hoeft zich te verdedigen voor een type, je kijkt samen naar een keuze.
 
@@ -46,7 +46,7 @@ Geen van deze labels is goed of fout. Offloaden kan prima zijn bij een klus die 
 
 ## Zo gebruik je ze als docent
 
-Het eenvoudigste begin is de GenAI-verklaring bij een opdracht. Vraag studenten niet alleen welke tool ze gebruikten, maar ook welk label het beste past en waarom, in één zin. Dan lees je in een paar seconden wie het denkwerk deed.
+Het eenvoudigste begin is de GenAI-verklaring bij een opdracht. Vraag studenten niet alleen welke tool ze hebben gebruikt, maar ook welk label het beste past en waarom, in één zin. Dan lees je in een paar seconden wie het denkwerk heeft gedaan.
 
 Een stap verder is de labels vooraf bespreken. Welk patroon past bij het leerdoel van deze opdracht? Gaat een opdracht over bronnen beoordelen, dan ligt Critical Verifier voor de hand. Gaat het om een foutloze tekst, dan is AI-Assisted Editor misschien genoeg. Zo maak je van de regels rond AI een gesprek over leren, en niet alleen een lijst met wat wel en niet mag.
 
@@ -78,4 +78,4 @@ Wil je het uitproberen? Neem de lijst mee naar je volgende opdracht of les en la
 
 ---
 
-**Transparantie GenAI.** Een AI-teamlid schreef de eerste versie van dit artikel in mijn schrijfstijl, op basis van mijn eigen teksten en de bronnen hierboven. Ik bepaalde onderwerp, opbouw en voorbeelden en heb de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
+**Transparantie GenAI.** Een AI-teamlid heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn eigen teksten en de bronnen hierboven. Ik heb onderwerp, opbouw en voorbeelden bepaald en de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.

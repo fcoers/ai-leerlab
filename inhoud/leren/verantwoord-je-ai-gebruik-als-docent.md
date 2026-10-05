@@ -22,28 +22,28 @@ Papier is geduldig. Een regel over AI in de studiehandleiding is zo opgeschreven
 
 Daarnaast leren studenten veel meer van een voorbeeld dan van een instructie. Als ik vraag om "een korte verklaring over je AI-gebruik", weet een student vaak niet goed wat ik bedoel. Staat er onder mijn eigen opdrachtbeschrijving of lesmateriaal een verklaring, dan ziet hij meteen hoe het eruitziet en hoe kort het mag zijn.
 
-En het maakt het gesprek eerlijker. Met de Human-AI-labels van Boetje en Baake (2026) verschuift de vraag van "mocht dit wel?" naar "hoe heb je het aangepakt, en paste dat bij wat je wilde leren?" Die vraag kan ik alleen met goed fatsoen stellen als ik hem over mijn eigen werk ook beantwoord. Dat voelt misschien kwetsbaar, want je laat zien dat een AI de eerste versie van je lesmateriaal maakte. Maar dat is precies wat we van studenten vragen.
+En het maakt het gesprek eerlijker. Met de Human-AI-labels van Boetje en Baake (2026) verschuift de vraag van "mocht dit wel?" naar "hoe heb je het aangepakt, en paste dat bij wat je wilde leren?" Die vraag kan ik alleen met goed fatsoen stellen als ik hem over mijn eigen werk ook beantwoord. Dat voelt misschien kwetsbaar, want je laat zien dat een AI de eerste versie van je lesmateriaal heeft gemaakt. Maar dat is precies wat we van studenten vragen.
 
 ## Zo ziet mijn eigen AI-verklaring eruit
 
-De verklaring heeft een vaste vorm. Eén zin over wat er met AI is gemaakt en wat ik zelf deed, daarna een van de negen labels met een korte reden.
+De verklaring heeft een vaste vorm. Eén zin over wat er met AI is gemaakt en wat ik zelf heb gedaan, daarna een van de negen labels met een korte reden.
 
-Onder een onderzoeksnotitie die mijn team voor een artikel samenstelde, staat bijvoorbeeld dat een AI-onderzoeker de bronnen heeft gezocht, gelezen en samengevat, en dat de opdracht en de afbakening van mij kwamen. Het label is daar Critical Verifier: elke bewering is terug te voeren op een bron die je zelf kunt nalezen. Onder de stijlgids die mijn team uit mijn eigen teksten haalde, staat Creative Director: ik bepaalde de opdracht en de bronnen, de AI deed de analyse. Twee documenten van hetzelfde team, met twee verschillende labels. Dat is precies de bedoeling, want een label zegt iets over één klus en niet over wie je bent.
+Onder een onderzoeksnotitie die mijn team voor een artikel heeft samengesteld, staat bijvoorbeeld dat een AI-onderzoeker de bronnen heeft gezocht, gelezen en samengevat, en dat de opdracht en de afbakening van mij kwamen. Het label is daar Critical Verifier: elke bewering is terug te voeren op een bron die je zelf kunt nalezen. Onder de stijlgids die mijn team uit mijn eigen teksten heeft gehaald, staat Creative Director: ik heb de opdracht en de bronnen bepaald, de AI heeft de analyse gedaan. Twee documenten van hetzelfde team, met twee verschillende labels. Dat is precies de bedoeling, want een label zegt iets over één klus en niet over wie je bent.
 
 > [!lees-ook]
-> **Hoe werkte jij samen met AI? Negen labels die het zichtbaar maken**
+> **Hoe heb jij met AI samengewerkt? Negen labels die het zichtbaar maken**
 > Wat de negen labels betekenen en hoe je ze gebruikt in je les of je GenAI-verklaring.
 > [Naar het artikel](/leren/human-ai-labels/)
 
 ## Een huisregel, geen goed voornemen
 
-Als ik het zelf moest onthouden, stond de verklaring er lang niet altijd onder. Daarom is het een vaste regel in de afspraken van [mijn agentteam](/leren/je-eigen-agentteam/): elke levering waarin AI is gebruikt, krijgt onderaan de verklaring met een label. Het teamlid dat het werk deed, schrijft hem. James, de agent die het werk verdeelt, kijkt bij de oplevering of hij erop staat. En als ik het resultaat keur, lees ik het label mee.
+Als ik het zelf moest onthouden, stond de verklaring er lang niet altijd onder. Daarom is het een vaste regel in de afspraken van [mijn agentteam](/leren/je-eigen-agentteam/): elke levering waarin AI is gebruikt, krijgt onderaan de verklaring met een label. Het teamlid dat het werk heeft gedaan, schrijft hem. James, de agent die het werk verdeelt, kijkt bij de oplevering of hij erop staat. En als ik het resultaat keur, lees ik het label mee.
 
 Dat meelezen is het belangrijkste deel. Meestal past Creative Director of Co-Creator, omdat ik bepaal wat er moet komen en het resultaat beoordeel. Heb ik iets vooral laten maken en maar globaal gelezen, dan hoort er een ander label te staan. Het eerlijk opschrijven houdt me scherp: heb ik dit echt gecontroleerd, of alleen doorgelezen? Dat is dezelfde vraag die ik een student zou stellen.
 
 Werk je zonder agentteam, dan kan het net zo goed. Zet de vaste vorm in de instructies van je project in ChatGPT of Claude, of maak er een sjabloon van onderaan je documenten. Het gaat er niet om wie de zin schrijft, maar dat hij er altijd staat.
 
-Vraag je je studenten om een AI-verklaring? Kies dan één document dat je deze week met ze deelt, en zet er onderaan één zin onder over wat AI deed en wat jij deed, met het label dat past. Dan zien ze meteen hoe het eruitziet, en weten ze dat de regel ook voor jou geldt.
+Vraag je je studenten om een AI-verklaring? Kies dan één document dat je deze week met ze deelt, en zet er onderaan één zin onder over wat AI heeft gedaan en wat je zelf hebt gedaan, met het label dat past. Dan zien ze meteen hoe het eruitziet, en weten ze dat de regel ook voor jou geldt.
 
 ## Bronnen
 
@@ -51,4 +51,4 @@ Vraag je je studenten om een AI-verklaring? Kies dan één document dat je deze 
 
 ---
 
-**Transparantie GenAI.** Een AI-teamlid schreef de eerste versie van dit artikel in mijn schrijfstijl, op basis van mijn eigen idee en insteek en de afspraken van mijn team. Ik bepaalde onderwerp en lijn en heb de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
+**Transparantie GenAI.** Een AI-teamlid heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn eigen idee en insteek en de afspraken van mijn team. Ik heb onderwerp en lijn bepaald en de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.

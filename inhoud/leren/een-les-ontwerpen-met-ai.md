@@ -1,7 +1,7 @@
 ---
 seotitel: Een les ontwerpen met AI: wat je zelf houdt
-beschrijving: Hoe ik met AI een oefenset voor Power BI maakte: welke stappen ik uitbesteedde, wat ik zelf bleef doen en waar het misging.
-kaarttekst: Van leerdoel tot rubric: welke stappen ik aan AI gaf bij een oefenset voor Power BI, en wat ik zelf bleef doen.
+beschrijving: Hoe ik met AI een oefenset voor Power BI heb gemaakt: welke stappen ik heb uitbesteed, wat ik zelf ben blijven doen en waar het misging.
+kaarttekst: Van leerdoel tot rubric: welke stappen ik aan AI heb gegeven bij een oefenset voor Power BI, en wat ik zelf ben blijven doen.
 soort: uitleg
 categorie: didactiek
 tags: lesontwerp, toetsing, data-analyse
@@ -16,7 +16,7 @@ Frits Coers, docent bij Windesheim
 
 Deze week heb ik met mijn AI-team een oefenset voor Power BI gemaakt: drie lessen voor het vak Informatiemanagement bij Technische Bedrijfskunde. Er hoort een eigen dataset bij, een dashboard met ingebouwde fouten, een opdracht met antwoordmodel en een rubric. De eerste versie stond er binnen twee dagen.
 
-Het ging snel omdat ik vooraf wist wat ik wilde, en het ging mis op de plekken waar ik dat nog niet wist. In dit artikel laat ik zien welke stappen ik samen met AI zette en wat ik bewust zelf bleef doen.
+Het ging snel omdat ik vooraf wist wat ik wilde, en het ging mis op de plekken waar ik dat nog niet wist. In dit artikel laat ik zien welke stappen ik samen met AI heb gezet en wat ik bewust zelf ben blijven doen.
 
 ## Stap 1: het leerdoel blijft van jou
 
@@ -48,9 +48,9 @@ Welke fouten erin kwamen, stelde de AI voor, met een uitleg waarom. Die uitleg l
 
 ## Stap 5: controle, want het klinkt altijd goed
 
-Het wisselen van kantoorgebouw naar fabriek had gevolgen die ik niet direct zag. De dataset en het dashboard waren netjes omgezet, maar het document met de ingebouwde fouten noemde nog het oude gebouw en de oude controlewaarden. Een student had dan een antwoord gezocht dat niet meer bestond. De AI die de dataset maakte, meldde het zelf in het logboek, en daarna is het hersteld. Maar het laat zien hoe makkelijk één wijziging ergens anders iets laat staan.
+Het wisselen van kantoorgebouw naar fabriek had gevolgen die ik niet direct zag. De dataset en het dashboard waren netjes omgezet, maar het document met de ingebouwde fouten noemde nog het oude gebouw en de oude controlewaarden. Een student had dan een antwoord gezocht dat niet meer bestond. De AI die de dataset had gemaakt, meldde het zelf in het logboek, en daarna is het hersteld. Maar het laat zien hoe makkelijk één wijziging ergens anders iets laat staan.
 
-Wat wel goed ging: elke controlewaarde in het antwoordmodel is opnieuw uitgerekend op de dataset zelf, los van het programma dat de data maakte. En de AI was eerlijk over wat hij niet kon controleren. Het dashboard is op een Mac gebouwd, en Power BI Desktop draait alleen op Windows. Het openen en nalopen in Power BI doe ik dus zelf. Ook de streefwaarden kwamen met een eerlijke opmerking: voor een deel is er een norm, voor een deel was het een eigen keuze.
+Wat wel goed ging: elke controlewaarde in het antwoordmodel is opnieuw uitgerekend op de dataset zelf, los van het programma dat de data heeft gemaakt. En de AI was eerlijk over wat hij niet kon controleren. Het dashboard is op een Mac gebouwd, en Power BI Desktop draait alleen op Windows. Het openen en nalopen in Power BI doe ik dus zelf. Ook de streefwaarden kwamen met een eerlijke opmerking: voor een deel is er een norm, voor een deel was het een eigen keuze.
 
 Mijn les hieruit: laat de AI altijd opschrijven wat hij heeft aangenomen en wat hij niet heeft getest. Dat lijstje is het belangrijkste deel van de oplevering.
 
@@ -67,8 +67,8 @@ Maak je zelf een samenvatting of oefenvragen met AI, dan gelden dezelfde stappen
 Als ik de oefenset opnieuw zou maken, begin ik met het gebouw. De rest ging sneller dan ik had verwacht, juist omdat het doel vanaf het begin duidelijk was.
 
 > [!lees-ook]
-> **Je eigen agentteam: zo begin je, en hier ging het bij mij mis**
-> Hoe ik met een team van AI-agents werk, welke afspraken daarbij horen en waar het misging.
+> **Je eigen agentteam: zo begin je, en hier is het bij mij misgegaan**
+> Hoe ik met een team van AI-agents werk, welke afspraken daarbij horen en waar het is misgegaan.
 > [Lees het artikel](/leren/je-eigen-agentteam/)
 
 > [!tutorial]
@@ -83,5 +83,5 @@ Als ik de oefenset opnieuw zou maken, begin ik met het gebouw. De rest ging snel
 
 ---
 
-**Transparantie GenAI.** Een AI-teamlid schreef de eerste versie van dit artikel in mijn schrijfstijl, op basis van mijn eigen teksten, het logboek van de oefenset en de bronnen hierboven. De oefenset zelf is gemaakt met mijn AI-team. Ik bepaalde onderwerp, opbouw en voorbeelden en heb de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
+**Transparantie GenAI.** Een AI-teamlid heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn eigen teksten, het logboek van de oefenset en de bronnen hierboven. De oefenset zelf is gemaakt met mijn AI-team. Ik heb onderwerp, opbouw en voorbeelden bepaald en de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
 Labels-bron: Boetje, J., & Baake, G. (2026). *Nine prototypical human-AI agency patterns* [Figuur]. figshare. https://doi.org/10.6084/m9.figshare.31706884 (CC BY 4.0).

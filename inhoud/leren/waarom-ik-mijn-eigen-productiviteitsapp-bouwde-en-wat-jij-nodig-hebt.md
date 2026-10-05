@@ -1,7 +1,7 @@
 ---
 seotitel: Eigen productiviteitsapp bouwen: waarom en wat je nodig hebt
-beschrijving: Waarom ik mijn eigen productiviteitsapp bouwde met AI-agents, en wat je nodig hebt om zelf te beginnen: kosten, voordelen en valkuilen, op Mac of Windows.
-kaarttekst: Waarom ik een eigen app bouwde voor mijn taken en kennis, wat het kost en wat je nodig hebt om zelf te beginnen.
+beschrijving: Waarom ik mijn eigen productiviteitsapp met AI-agents heb gebouwd, en wat je nodig hebt om te beginnen: kosten, voordelen en valkuilen, op Mac of Windows.
+kaarttekst: Waarom ik een eigen app heb gebouwd voor mijn taken en kennis, wat het kost en wat je nodig hebt om zelf te beginnen.
 soort: uitleg
 categorie: techniek
 tags: agents, privacy
@@ -13,13 +13,13 @@ uitgelicht: categorie
 datum: 2026-10-01
 ---
 
-# Waarom ik mijn eigen productiviteitsapp bouwde, en wat je hiervoor nodig hebt
+# Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt
 
 Frits Coers, docent bij Windesheim
 
 Tot dit voorjaar stonden mijn taken op een bord in Notion en mijn aantekeningen in een Notion-wiki. Dat werkte prima, maar het voelde nooit echt van mij. Ik paste mijn werk aan het programma aan, in plaats van andersom. Op een dag in mei heb ik het bord geëxporteerd en mijn AI-team gevraagd er een eigen app van te maken. Aan het eind van die dag stonden mijn taken in een app die ik zelf had bedacht. Dat was een heel leuk moment! Kort daarna kwam de kennisbank erbij en heb ik Notion helemaal losgelaten.
 
-Vijf maanden later open ik die app elke werkdag. In deze serie vertel ik hoe hij is ontstaan, welke keuzes ik maakte en wat er misging, zodat je zelf kunt beginnen, op een Mac of op Windows. Dit eerste deel gaat over de vraag of een eigen app iets voor jou is.
+Vijf maanden later open ik die app elke werkdag. In deze serie vertel ik hoe hij is ontstaan, welke keuzes ik heb gemaakt en wat er is misgegaan, zodat je zelf kunt beginnen, op een Mac of op Windows. Dit eerste deel gaat over de vraag of een eigen app iets voor jou is.
 
 ## Wat de app nu is
 
@@ -27,11 +27,11 @@ Het is een website die alleen op mijn eigen laptop draait en die ik in de browse
 
 ![Mijn productiviteitsapp in de browser: het menu en het taakbord, met voorbeeldgegevens](/assets/img/productiviteitsapp-overzicht.webp)
 
-Wat ik er het meest aan heb, is dat alles aan elkaar vastzit. Na een overleg schrijf ik mijn aantekeningen in de journal en hang ik ze aan het project waar ze over gaan. Een artikel uit de kennisbank koppel ik aan de taak waarvoor ik het nodig heb. Zoek ik iets terug, dan is er één zoekveld voor alles. In Notion kon dat voor een deel ook, maar nu bepaal ik zelf wat bij elkaar hoort. Ook dit artikel begon als concept in de app.
+Wat ik er het meest aan heb, is dat alles aan elkaar vastzit. Na een overleg schrijf ik mijn aantekeningen in de journal en hang ik ze aan het project waar ze over gaan. Een artikel uit de kennisbank koppel ik aan de taak waarvoor ik het nodig heb. Zoek ik iets terug, dan is er één zoekveld voor alles. In Notion kon dat voor een deel ook, maar nu bepaal ik zelf wat bij elkaar hoort. Ook dit artikel is als concept in de app begonnen.
 
 ## Ik heb hem niet zelf geprogrammeerd
 
-Ik ben docent, geen programmeur. De app is gebouwd door het team van AI-agents waarover ik schreef in [Je eigen agentteam](/leren/je-eigen-agentteam/). Dat team werkt in Claude Code. Ik vertel wat ik wil, een agent bouwt het en ik probeer het uit. Werkt iets niet zoals ik bedoelde, dan zeg ik dat en gaat het nog een ronde.
+Ik ben docent, geen programmeur. De app is gebouwd door het team van AI-agents waarover ik heb geschreven in [Je eigen agentteam](/leren/je-eigen-agentteam/). Dat team werkt in Claude Code. Ik vertel wat ik wil, een agent bouwt het en ik probeer het uit. Werkt iets niet zoals ik bedoelde, dan zeg ik dat en gaat het nog een ronde.
 
 Dat was in het begin best wennen. Ik hoef niet te begrijpen hoe de code werkt, maar ik moet wel heel goed kijken. Een agent meldt dat iets af is, en dan blijkt het op het ene scherm te werken en op het andere niet. De keuzes blijven van mij: wat erin komt, hoe het eruitziet en wat er bewaard wordt. In deze serie leer je dus geen programmeertaal, maar wel hoe je een AI-assistent zo'n app laat bouwen en waar je zelf op let.
 
@@ -85,5 +85,5 @@ Mijn voorstel voor deze week: let eens op welk programma je elke dag opent en wa
 
 ---
 
-**Transparantie GenAI.** Een AI-teamlid in Claude Code schreef de eerste versie van dit artikel in mijn schrijfstijl, op basis van mijn eigen teksten, mijn feedback, het werklogboek van mijn team en de changelog van mijn app. De stappen voor Windows zijn opgezocht, niet getest. Ik bepaalde onderwerp, opbouw en voorbeelden en heb de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
+**Transparantie GenAI.** Een AI-teamlid in Claude Code heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn eigen teksten, mijn feedback, het werklogboek van mijn team en de changelog van mijn app. De stappen voor Windows zijn opgezocht, niet getest. Ik heb onderwerp, opbouw en voorbeelden bepaald en de tekst gecontroleerd voordat hij online ging. Human-AI Agency Label: Creative Director.
 Labels-bron: Boetje, J., & Baake, G. (2026). *Nine prototypical human-AI agency patterns* [Figuur]. figshare. https://doi.org/10.6084/m9.figshare.31706884 (CC BY 4.0).

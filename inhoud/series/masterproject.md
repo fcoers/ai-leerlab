@@ -4,8 +4,8 @@
 # een artikel met 'serie: masterproject' en 'deel: 1' in het kopje en een datum van vandaag of eerder.
 titel: Logboek masterproject
 seotitel: Logboek masterproject: elke week een verslag
-beschrijving: Elke week een kort verslag van mijn masterproject over AI in het hoger onderwijs: wat ik deed, wat tegenviel en wat ik ervan leer.
-lede: Elke week een kort verslag van mijn masterproject: wat ik deed, wat tegenviel en wat ik ervan leer.
+beschrijving: Elke week een kort verslag van mijn masterproject over AI in het hoger onderwijs: wat ik heb gedaan, wat tegenviel en wat ik ervan leer.
+lede: Elke week een kort verslag van mijn masterproject: wat ik heb gedaan, wat tegenviel en wat ik ervan leer.
 categorie: onderzoek
 avatar: mark-rust
 ritme: elke week

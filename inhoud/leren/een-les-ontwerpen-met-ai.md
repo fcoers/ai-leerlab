@@ -72,7 +72,7 @@ Als ik de oefenset opnieuw zou maken, begin ik met het gebouw. De rest ging snel
 > [Lees het artikel](/leren/je-eigen-agentteam/)
 
 > [!tutorial]
-> **Bouw je eigen AI-team**
+> **Bouw je eigen AI-team in ChatGPT**
 > Zet in een paar stappen een klein team op: één coördinator en twee rollen die je zelf bedenkt. Jij beslist en keurt alles.
 > [Naar de tutorial](/leren/bouw-je-eigen-ai-team/)
 

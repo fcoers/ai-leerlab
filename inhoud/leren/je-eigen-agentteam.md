@@ -19,7 +19,7 @@ Als ik nu een onderzoek, een les of een presentatie voorbereid, geef ik de opdra
 In de tutorial op deze site zet je in een paar stappen een klein team op: één coördinator en twee rollen die je zelf bedenkt. Dit artikel gaat een stap verder. Hoe gebruik je zo'n team in je dagelijkse werk of studie, en waar gaat het mis?
 
 > [!tutorial]
-> **Bouw je eigen AI-team**
+> **Bouw je eigen AI-team in ChatGPT**
 > Zet in een paar stappen een klein team op: één coördinator en twee rollen die je zelf bedenkt. Jij beslist en keurt alles.
 > [Naar de tutorial](/leren/bouw-je-eigen-ai-team/)
 

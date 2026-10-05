@@ -6,7 +6,14 @@
   <atom:link href="https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.</description>
   <language>nl</language>
-  <lastBuildDate>Sat, 03 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Mon, 05 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Deel 3: Je eerste onderdeel: een taakbord dat je elke dag gebruikt</title>
+    <link>https://ai-leerlab.nl/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/</link>
+    <guid>https://ai-leerlab.nl/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/</guid>
+    <pubDate>Mon, 05 Oct 2026 07:00:00 +0000</pubDate>
+    <description>Bouw met je AI-assistent een taakbord met je eigen kolommen dat elke ochtend vanzelf start, op Mac en Windows. Met prompts en wat bij mij misging.</description>
+  </item>
   <item>
     <title>Deel 2: Zo installeer je de basis van je app op Mac en Windows</title>
     <link>https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</link>

@@ -1044,6 +1044,26 @@ def bouw_artikel(item, alle):
                      f'  <meta property="article:modified_time" content="{item.bijgewerkt.isoformat()}">')
 
 
+EXTERNE_LINK = re.compile(r'<a\b([^>]*\bhref="https?://(?!(?:www\.)?ai-leerlab\.nl[/"])[^"]*"[^>]*)>(.*?)</a>', re.S)
+
+
+def extern_nieuw_tabblad(tekst):
+    """Externe links in een tutorial of tool openen in een nieuw tabblad, zodat je de tool niet uit gaat
+    en je voortgang blijft staan (Frits, 05-10-2026). Een link met een eigen target blijft zoals hij is.
+    Schermlezers horen dat er een nieuw tabblad opengaat."""
+    def vervang(m):
+        attr, binnen = m.group(1), m.group(2)
+        if re.search(r'\btarget=', attr):
+            return m.group(0)
+        if re.search(r'\brel="', attr):
+            attr = re.sub(r'\brel="([^"]*)"', lambda r: r.group(0) if "noopener" in r.group(1).split()
+                          else f'rel="{r.group(1)} noopener"', attr)
+        else:
+            attr += ' rel="noopener"'
+        return f'<a{attr} target="_blank">{binnen}<span class="sr"> (opent in een nieuw tabblad)</span></a>'
+    return EXTERNE_LINK.sub(vervang, tekst)
+
+
 def bouw_html_item(item, alle):
     """Een item met eigen HTML (tutorial, later een tool). De tekst komt uit het bestand zelf."""
     lede = f'<p class="lede">{esc(item.lede)}</p>' if item.lede else ""
@@ -1051,6 +1071,7 @@ def bouw_html_item(item, alle):
     # Een tool met de markering DEELKNOPPEN krijgt de deelrij op die plek (bij de uitslag) en niet onderaan.
     eigen_delen = DEELKNOPPEN in item.tekst
     tekst = item.tekst.replace(DEELKNOPPEN, delen_html(item, altijd=True)) if eigen_delen else item.tekst
+    tekst = extern_nieuw_tabblad(tekst)
     # GenAI-vermelding: niet bij tutorials (Frits, 30-09-2026), wel bij een tool met een veld transparantie.
     gemaakt = transparantie_html(item) if item.soort == "tool" and item.transparantie else ""
     inhoud = f"""{item_kop(item, lede, [(a.strip(), b.strip()) for a, b in feiten])}

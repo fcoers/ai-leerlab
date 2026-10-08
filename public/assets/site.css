@@ -571,7 +571,8 @@ main:focus, h1:focus, h2:focus { outline: none; }
 
 /* ================= Beginpagina: een blok per categorie (Roel, 02-10-2026, naar Brams mockup.css) ================= */
 /* Onder het uitgelichte item een blok per categorie, in de vaste volgorde van site.json. Een dikke lijn in inkt
-   opent het blok. Links de grote kaart (keuze van Frits), rechts de lijst "Laatst verschenen" (volgorde).
+   opent het blok. Sinds 08-10-2026 alleen de keuze van Frits als brede kaart; de lijst "Laatst verschenen" is
+   vervallen, wat nieuw is staat op de plank.
    De link "Alles in ..." staat in de broncode als laatste, zodat de tab-toets eerst de artikelen langsgaat. */
 .cat-blok { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "kop alles" "lede lede" "lijf lijf"; column-gap: 32px; border-top: 2px solid var(--inkt); padding-top: 24px; margin-top: 72px; }
 .uitgelicht + .cat-blok { margin-top: 56px; }
@@ -579,25 +580,12 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .cat-lede { grid-area: lede; margin: 6px 0 0; font-size: 17px; line-height: 1.5; color: var(--inkt-zacht); max-width: 48em; }
 .cat-alles { grid-area: alles; align-self: center; justify-self: end; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; white-space: nowrap; }
 .cat-alles svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.cat-alles .aantal { font: 500 14px/1 var(--mono); color: var(--inkt-zacht); }
+.cat-alles .aantal { font: 500 15px/1 var(--mono); color: var(--inkt-zacht); }
 .cat-lijf { grid-area: lijf; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px 40px; margin-top: 24px; align-items: start; }
 
 /* de grote kaart: dezelfde kaart als op Leren, ruimer en met een grotere titel */
 .kaart-groot { padding: 28px 28px 24px; gap: 14px; }
 .kaart-groot h3 { font-size: 26px; line-height: 1.2; letter-spacing: -.01em; }
-
-/* de lijst: geen kaarten, alleen haarlijnen. Het verschil in gewicht is de hiërarchie */
-.cat-nieuwste > .label { margin: 4px 0 12px; }
-.cat-nieuwste ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--lijn); }
-.cat-nieuwste li { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 16px 0; border-bottom: 1px solid var(--lijn); }
-.cat-nieuwste h3 { font: 600 19px/1.3 var(--sans); margin: 0; }
-.cat-nieuwste h3 a { color: var(--inkt); text-decoration: none; }
-.cat-nieuwste h3 a::after { content: ""; position: absolute; inset: 0; }
-.cat-nieuwste li:hover h3 a { text-decoration: underline; text-decoration-thickness: 2px; }
-.cat-nieuwste h3 .nr { font: 500 .9em/1 var(--mono); color: var(--inkt-zacht); margin-right: .35em; }
-.cat-nieuwste li:hover h3 .nr { text-decoration: none; display: inline-block; }
-.cat-nieuwste .meta { margin: 0; font-size: 15px; line-height: 1.4; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; }
-.cat-nieuwste .meta .serie-naam { color: var(--inkt); font-weight: 500; }
 
 /* één artikel in de categorie: geen lege kolom, de kaart neemt de volle breedte (titel links, uitleg rechts) */
 .cat-blok.enkel .cat-lijf { grid-template-columns: minmax(0, 1fr); }
@@ -788,3 +776,122 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @keyframes sp-knik { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(-2.5deg); } }
 @keyframes sp-ballon { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
 @keyframes sp-zin { from { opacity: 0; } to { opacity: 1; } }
+
+/* ================= Beginpagina: de plank en de serie (Roel, 08-10-2026, naar Brams Patronen beginpagina) =================
+   Drie lagen onder het uitgelichte item, elk met één vraag: wat is er bijgekomen (plank Nieuw), wat lees ik op
+   volgorde (lopende series), wat is er per vak (categorieblokken). Elke laag opent met dezelfde dikke lijn in inkt.
+   Alleen bestaande kleurrollen. Tekst minstens 15px, klikbaar minstens 44px. */
+
+html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat mag nooit horizontale scroll van de pagina geven */
+
+.sectie { margin-top: 72px; border-top: 2px solid var(--inkt); padding-top: 24px; }
+.uitgelicht + .sectie { margin-top: 56px; }
+.sectie-kop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px 32px; }
+.sectie-kop h2 { font: 700 28px/1.2 var(--sans); letter-spacing: -.01em; margin: 0; }
+.sectie-kop .lede-klein { margin: 6px 0 0; font-size: 17px; line-height: 1.5; color: var(--inkt-zacht); max-width: 40em; }
+.sectie-acties { display: flex; align-items: center; gap: 8px 20px; flex: none; }
+
+/* ---------- patroon 1: de plank ----------
+   Begint op de linkerkant van de tekstkolom en loopt door tot de rand van het scherm. De afgesneden laatste kaart
+   is het teken dat er meer is. Elke kaart klikt vast op de linkerkant (scroll-snap). Tab schuift de kaart met focus
+   vanzelf in beeld; scroll-padding houdt hem op de tekstkolom. */
+.plank { position: relative; margin-top: 24px; }
+.plank-baan {
+  --rand: max(32px, calc((100vw - var(--pagina)) / 2 + 32px));
+  display: flex; gap: 20px; list-style: none; margin: 0; padding: 4px var(--rand) 8px;   /* 4px: ruimte voor de focusring */
+  width: 100vw; margin-left: calc(50% - 50vw);
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory; scroll-padding-inline: var(--rand);
+  scrollbar-width: none;
+}
+.plank-baan::-webkit-scrollbar { display: none; }
+@media (prefers-reduced-motion: no-preference) { .plank-baan { scroll-behavior: smooth; } }
+.plank-baan > li { flex: 0 0 300px; scroll-snap-align: start; display: flex; }
+.plank-baan > li > .kaart { flex: 1; min-width: 0; }
+.plank-baan .kaart:focus-within { border-color: var(--inkt); }
+
+/* het einde van de plank: waar de rest staat */
+.plank-baan > li.eind { flex-basis: 220px; }
+.plank-eind { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 24px; border: 1px solid var(--lijn); border-radius: 8px; color: var(--labgroen); text-decoration: none; font: 600 19px/1.3 var(--sans); transition: border-color .15s var(--uit); }
+.plank-eind:hover { border-color: var(--inkt); text-decoration: underline; text-decoration-thickness: 2px; }
+.plank-eind .aantal { font: 500 15px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--inkt-zacht); }
+.plank-eind svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* de pijlknoppen: alleen met JavaScript, met een muis en als er iets te scrollen is (plank.js) */
+.pijlen { display: none; gap: 8px; }
+.js .pijlen { display: flex; }
+.js .pijlen.overbodig { display: none; }
+.pijl { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--inkt); background: var(--vlak); color: var(--inkt); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: border-color .15s var(--uit), background-color .15s var(--uit); }
+.pijl:hover { background: var(--papier); }
+.pijl svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pijl[aria-disabled="true"] { border-color: var(--lijn); color: var(--inkt-zacht); cursor: default; background: transparent; }
+@media (hover: none), (max-width: 640px) { .js .pijlen { display: none; } }
+
+/* drie items of minder: geen plank, gewoon een rij */
+.plank.weinig .plank-baan { width: auto; margin-left: 0; padding-inline: 0; overflow: visible; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .plank.weinig .plank-baan { grid-template-columns: minmax(0, 1fr); } }
+
+/* "Alles op Leren" staat op de telefoon onder de plank, daarboven in de kop */
+.sectie-onder { display: none; }
+@media (max-width: 640px) {
+  .sectie { margin-top: 56px; }
+  .uitgelicht + .sectie { margin-top: 40px; }
+  .sectie-kop { flex-direction: column; }
+  .sectie-kop h2 { font-size: 26px; }
+  .plank-baan { --rand: 20px; gap: 16px; }
+  .plank-baan > li { flex-basis: min(300px, 78vw); }
+  .plank-baan > li.eind { flex-basis: 200px; }
+  .sectie-onder { display: inline-flex; margin-top: 12px; }
+  .sectie:has(.sectie-onder) .sectie-acties .cat-alles { display: none; }
+}
+
+/* ---------- patroon 2: de serie, in leesvolgorde ----------
+   Een lijn met genummerde haltes; de lijn zegt "volgorde", het nummer zegt "waar". Het laatst verschenen deel
+   heeft een volle halte. Nieuw staat op het deel zelf (kiemplantje), zodat de volgorde nooit schuift.
+   Een deel dat nog moet komen: gestippelde halte en kaart, met een datum en zonder titel of link. */
+.serie-blok > .label { margin-bottom: 10px; }
+.serie-begin { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; white-space: nowrap; }
+.serie-begin svg, .serie-alle svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.serie-alle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; white-space: nowrap; margin-top: 4px; }
+.serie-stand { font-size: 16px; color: var(--inkt-zacht); margin: 8px 0 0; }
+
+.lees-delen > li { flex-basis: 250px; flex-direction: column; position: relative; }
+.lees-delen > li::before { content: ""; position: absolute; top: 19px; left: 0; right: -20px; border-top: 2px solid var(--inkt); }
+.lees-delen > li:last-child::before { right: auto; width: 40px; }
+.lees-delen > li.naar-gepland::before, .lees-delen > li.gepland::before { border-top-style: dashed; border-top-color: var(--inkt-zacht); }
+.halte { position: relative; width: 40px; height: 40px; border-radius: 8px; background: var(--papier); color: var(--inkt); border: 1.5px solid var(--inkt); font: 700 17px/1 var(--mono); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; flex: none; }
+.laatst-uit .halte { background: var(--inkt); color: var(--mos); }
+.gepland .halte { color: var(--inkt-zacht); border: 1.5px dashed var(--inkt-zacht); font-weight: 500; }
+.deel-kaart { position: relative; flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 20px; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; transition: border-color .15s var(--uit); }
+.deel-kaart:hover, .deel-kaart:focus-within { border-color: var(--inkt); }
+.deel-kaart h3 { font: 700 19px/1.3 var(--sans); margin: 0; }
+.deel-kaart h3 a { color: var(--inkt); text-decoration: none; }
+.deel-kaart h3 a::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
+.deel-kaart:hover h3 a { text-decoration: underline; text-decoration-thickness: 2px; }
+.deel-kaart .meta { margin: auto 0 0; padding-top: 10px; border-top: 1px solid var(--lijn); font-size: 16px; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; min-height: 24px; }
+.gepland .deel-kaart { background: transparent; border-style: dashed; border-color: var(--inkt-zacht); color: var(--inkt-zacht); justify-content: center; }
+.gepland .deel-kaart:hover { border-color: var(--inkt-zacht); }
+.gepland .deel-kaart p { margin: 0; font-size: 17px; line-height: 1.4; }
+.gepland .deel-kaart b { color: var(--inkt); font-weight: 600; }
+@media (max-width: 640px) {
+  .lees-delen > li { flex-basis: min(260px, 72vw); }
+  .serie-kop-acties { flex-direction: column; align-items: flex-start; }
+}
+
+/* ---------- seriedeel: plek in de serie, in de kop onder de feiten ----------
+   Voor wie halverwege binnenkomt, bijvoorbeeld via Google op deel 3. Dezelfde balk als de voortgang in een tutorial:
+   verschenen delen zijn links, dit deel is hoger en in inkt, een deel dat nog moet komen is een stippellijn. */
+.serie-plek { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 4px 0 0; padding: 10px 0 0; border-top: 1px solid var(--lijn); font-size: 16px; color: var(--inkt-zacht); }
+.serie-plek .voortgang-balk a, .serie-plek .voortgang-balk .nog { width: 36px; height: 44px; display: flex; align-items: center; }
+.serie-plek .voortgang-balk a::before { background: var(--inkt-zacht); }
+.serie-plek .voortgang-balk a:hover::before { background: var(--inkt); }
+.serie-plek .voortgang-balk a[aria-current="step"]::before { background: var(--inkt); }
+.serie-plek .voortgang-balk .nog::before { content: ""; display: block; width: 100%; height: 8px; border: 1.5px dashed var(--inkt-zacht); border-radius: 4px; }   /* een lege, gestippelde balk: elk deel blijft een eigen stuk */
+.serie-plek p { margin: 0; }
+.serie-plek a.begin { font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (prefers-reduced-motion: reduce) { .pijl, .plank-eind, .deel-kaart { transition: none; } }
+@media print {
+  .plank-baan { width: auto; margin-left: 0; padding: 0; overflow: visible; flex-wrap: wrap; }
+  .pijlen { display: none !important; }
+}

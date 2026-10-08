@@ -42,7 +42,9 @@ WEEKDAGEN = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag
 CATEGORIEEN = {c["slug"]: c for c in SITE.get("categorieen", [])}
 ONDERWERPEN = list(SITE.get("onderwerpen", []))
 MAX_TAGS = 3
-CAT_LIJST_MAX = 3          # per categorieblok op de beginpagina: naast de grote kaart hooguit zoveel in de lijst
+NIEUW_MAX = int(SITE.get("home", {}).get("nieuw_max", 8))   # hooguit zoveel kaarten op de plank Nieuw (Bram, 08-10-2026)
+PLANK_DREMPEL = 3          # bij zoveel items of minder geen plank: dan staan ze gewoon naast elkaar
+SERIES_HOME_MAX = 3        # hooguit zoveel lopende series op de beginpagina
 NIEUW_DAGEN = 7            # "Nieuw" staat er zeven dagen: op de publicatiedag en de zes dagen daarna (Frits, 01-10-2026)
 ONDERWERP_DREMPEL = 3      # een eigen pagina /onderwerp/<tag>/ pas vanaf zoveel artikelen
 WAARSCHUWINGEN = []
@@ -463,6 +465,13 @@ class Serie:
         self.ritme = m.get("ritme", "").strip()          # "elke week"
         self.dag = m.get("dag", "").strip()              # "donderdag", optioneel
         self.lopend = m.get("status", "lopend").strip().lower() != "afgerond"
+        # Optioneel het geplande aantal delen: alleen dan staat er "deel 3 van 7" (Bram, 08-10-2026).
+        self.aantal = None
+        if m.get("delen", "").strip():
+            try:
+                self.aantal = int(m["delen"])
+            except ValueError:
+                let_op(f"series/{self.slug}.md: delen '{m['delen']}' is geen getal")
         self.over = tekst.strip()
         self.delen = []      # gepubliceerd, op volgorde
         self.gepland = []    # datum in de toekomst, op volgorde
@@ -477,12 +486,25 @@ class Serie:
             return "Serie · afgerond"
         return f"Serie · {self.ritme}" if self.ritme else "Serie"
 
+    @property
+    def eerstvolgende(self):
+        """Het eerstvolgende geplande deel (vroegste datum), alleen bij een lopende serie. Daarvan tonen we
+        alleen nummer en datum, nooit de titel: werktitels veranderen (Bram, 08-10-2026)."""
+        if not self.lopend or not self.gepland:
+            return None
+        return min(self.gepland, key=lambda x: (x.datum, x.deel))
+
+    @property
+    def nieuwste(self):
+        """Het deel dat het laatst verscheen (datum), niet per se het hoogste nummer."""
+        return max(self.delen, key=lambda x: (x.datum, x.deel))
+
     def buren(self, item):
         """(vorige, volgende, gepland) rond een deel; gepland alleen als er geen volgende uit is."""
         i = self.delen.index(item)
         vorige = self.delen[i - 1] if i > 0 else None
         volgende = self.delen[i + 1] if i + 1 < len(self.delen) else None
-        gepland = self.gepland[0] if not volgende and self.gepland and self.lopend else None
+        gepland = self.eerstvolgende if not volgende else None
         return vorige, volgende, gepland
 
 
@@ -571,20 +593,20 @@ def titel_html(item):
     return esc(item.titel)
 
 
-def kaart(item, nieuw=False):
+def kaart(item, nieuw=False, tag="li"):
     """Een kaart: labelregel met de datum als pill rechts, titel, uitleg, en onderaan de serienaam of voor
-    wie, met rechts het Nieuw-icoon (Frits, 01-10-2026)."""
+    wie, met rechts het Nieuw-icoon (Frits, 01-10-2026). Op de plank is de kaart een article in een li."""
     if item.is_deel:
         s = STAAT["series"][item.serie]
         voet, klasse = voet_html(item, s.titel, s.kaartnaam, vet=True, nieuw=nieuw)
     else:
         voet, klasse = voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw)
-    return f"""<li class="kaart{klasse}">
+    return f"""<{tag} class="kaart{klasse}">
   <p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>
   <h3><a href="{item.url}">{titel_html(item)}</a></h3>
   <p class="uitleg">{esc(item.kaarttekst)}</p>
   {voet}
-</li>"""
+</{tag}>"""
 
 
 def raster(items, nieuw=False, kop=""):
@@ -875,6 +897,7 @@ def item_kop(item, lede_html="", feiten_extra=()):
       <h1 id="titel">{esc(item.titel)}</h1>
       {lede_html}
       <ul class="feiten">{"".join(feiten)}</ul>
+      {serie_plek_html(item)}
     </div>
     <div class="kop-avatar">{a}</div>
   </div>
@@ -948,6 +971,50 @@ def dag_nl(d):
     return t if d.year == datetime.date.today().year else f"{t} {d.year}"
 
 
+def datum_dag(d):
+    """'12 oktober', met het jaar erbij als dat niet dit jaar is. Voor een deel dat nog moet verschijnen."""
+    t = f"{d.day} {MAANDEN[d.month - 1]}"
+    return t if d.year == datetime.date.today().year else f"{t} {d.year}"
+
+
+def serie_plek_html(item):
+    """Plek in de serie, in de kop van een deel onder de feiten (Bram, 08-10-2026): een korte balk met de
+    delen (dezelfde vorm als de voortgang in een tutorial) en voor wie halverwege binnenkomt één zin met
+    een link naar het begin. Deel 1 krijgt die zin niet. Een deel dat nog niet uit is, heeft geen link
+    en geen titel; alleen het eerstvolgende noemt zijn datum. Geen balk als er maar één deel is."""
+    if not item.is_deel or item.concept:
+        return ""
+    s = STAAT["series"][item.serie]
+    uit = {x.deel: x for x in s.delen}
+    volgt = s.eerstvolgende
+    hoogste = max([x.deel for x in s.delen] + ([volgt.deel] if volgt else []) + [s.aantal or 0])
+    if hoogste < 2:
+        return ""
+    stukken = []
+    for n in range(1, hoogste + 1):
+        x = uit.get(n)
+        if x is item:
+            stukken.append(f'<li><a href="{x.url}" aria-current="step"><span class="sr">Deel {n}, dit deel</span></a></li>')
+        elif x:
+            stukken.append(f'<li><a href="{x.url}"><span class="sr">Deel {n}: {esc(x.titel)}</span></a></li>')
+        elif volgt and n == volgt.deel:
+            stukken.append(f'<li><span class="nog"><span class="sr">Deel {n} volgt op {datum_dag(volgt.datum)}</span></span></li>')
+        else:
+            stukken.append(f'<li><span class="nog"><span class="sr">Deel {n} is nog niet verschenen</span></span></li>')
+    plek = f"Deel {item.deel} van {s.aantal}." if s.aantal else f"Deel {item.deel} van de serie."
+    eerste = s.delen[0]
+    zin = ""
+    if item is not eerste:
+        zin = f'<p>{plek} Begin je hier? <a class="begin" href="{eerste.url}">Lees eerst deel {eerste.deel}</a></p>'
+    elif s.aantal:
+        zin = f"<p>{plek}</p>"
+    # Een div met de rol navigation, geen nav: de css van de kop op mobiel plaatst '.tekst > nav' als kruimelpad.
+    return f"""<div class="serie-plek" role="navigation" aria-label="Plek in de serie">
+        <ol class="voortgang-balk">{"".join(stukken)}</ol>
+        {zin}
+      </div>"""
+
+
 def serie_nav_html(item):
     """Serienavigatie onder een deel: vorige en volgende naast elkaar, en een link naar alle delen.
     Is het volgende deel gepland, dan de datum in een kaart met stippelrand, zonder link."""
@@ -969,7 +1036,7 @@ def serie_nav_html(item):
     elif gepland:
         rechts = f"""<div class="stap volgende nog-niet">
             <span class="richting">Deel {gepland.deel}</span>
-            <span class="titel">Verschijnt op {dag_nl(gepland.datum)}</span>
+            <span class="titel">Volgt op {datum_dag(gepland.datum)}</span>
           </div>"""
     return f"""<nav class="serie-nav" aria-label="Andere delen van deze serie">
         <p class="label">Serie · <a href="{s.url}">{esc(s.titel)}</a></p>
@@ -1137,25 +1204,22 @@ def kaart_figuur(slug):
 
 
 def categorie_keuze(slug, live, uit):
-    """(grote kaart, lijst, totaal) voor het blok van een categorie op de beginpagina.
+    """(grote kaart, totaal) voor het blok van een categorie op de beginpagina.
 
-    Het uitgelichte item van de beginpagina komt niet terug. Een seriedeel telt als gewoon artikel: deel 1
-    groot en deel 2 in de lijst kan (Frits, 03-10-2026; eerder nam een serie één plek in).
+    Het uitgelichte item van de beginpagina komt niet terug. Een seriedeel telt als gewoon artikel.
     De grote kaart is het artikel met 'uitgelicht: categorie' (Frits kiest, 02-10-2026), anders het nieuwste.
-    De lijst: de nieuwste andere, hooguit CAT_LIJST_MAX."""
+    De lijst "Laatst verschenen" is vervallen: wat nieuw is, staat op de plank Nieuw (Frits, 08-10-2026)."""
     alle = [x for x in live if x.categorie == slug]
     totaal = len(alle)
     rest = [x for x in alle if x is not uit]
     if not rest:
-        return None, [], totaal
+        return None, totaal
     gemarkeerd = [x for x in rest if x.uitgelicht_categorie]
     if len(gemarkeerd) > 1:
         let_op(f"categorie '{slug}': meer dan één artikel met 'uitgelicht: categorie' ("
                + ", ".join(os.path.basename(x.pad) for x in gemarkeerd)
                + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
-    groot = gemarkeerd[0] if gemarkeerd else rest[0]
-    lijst = [x for x in rest if x is not groot]
-    return groot, lijst[:CAT_LIJST_MAX], totaal
+    return (gemarkeerd[0] if gemarkeerd else rest[0]), totaal
 
 
 def voet_van(item, nieuw):
@@ -1195,38 +1259,108 @@ def groot_kaart(item, slug, breed):
       </article>"""
 
 
-def lijst_regel(item):
-    """Eén regel in de lijst "Laatst verschenen" van een categorieblok: titel, en eronder soort en datum."""
-    if item.is_deel:
-        soort = f'Serie · <span class="serie-naam">{esc(STAAT["series"][item.serie].titel)}</span>'
-    else:
-        soort = esc(item.soortlabel)
-    tijd = f'<time datetime="{item.datum.isoformat()}">{datum_kort(item.datum)}</time>'
-    return f"""<li>
-            <h3><a href="{item.url}">{titel_html(item)}</a></h3>
-            <p class="meta">{soort} · {tijd}{NIEUW_ICOON if is_nieuw(item) else ""}</p>
-          </li>"""
-
-
-def categorie_blok(slug, groot, lijst, totaal):
+def categorie_blok(slug, groot, totaal):
+    """Een blok per categorie: alleen de keuze van Frits als brede kaart en de link naar de categorie.
+    De lijst "Laatst verschenen" staat er niet meer in; dat doet de plank Nieuw (Frits, 08-10-2026)."""
     c = CATEGORIEEN[slug]
-    enkel = not lijst
-    rechts = ""
-    if lijst:
-        rechts = f"""
-      <div class="cat-nieuwste">
-        <p class="label" id="n-{slug}">Laatst verschenen</p>
-        <ul aria-labelledby="n-{slug}">
-          {"".join(lijst_regel(x) for x in lijst)}
-        </ul>
-      </div>"""
-    return f"""<section class="cat-blok{' enkel' if enkel else ''}" aria-labelledby="c-{slug}">
+    return f"""<section class="cat-blok enkel" aria-labelledby="c-{slug}">
     <h2 id="c-{slug}">{esc(c["naam"])}</h2>
     <p class="cat-lede">{esc(c["lede"])}</p>
     <div class="cat-lijf">
-      {groot_kaart(groot, slug, enkel)}{rechts}
+      {groot_kaart(groot, slug, True)}
     </div>
     <a class="cat-alles" href="/leren/{slug}/">Alles in {esc(c["naam"])} <span class="aantal">{totaal}</span>{icoon("pijl")}</a>
+  </section>"""
+
+
+def pijlen_html(id_, wat):
+    """Twee ronde pijlknoppen voor een plank. Ze staan in de HTML, maar de css toont ze alleen met
+    JavaScript, met een muis en als er iets te scrollen is (plank.js). De plank werkt zonder."""
+    return (f'<div class="pijlen">'
+            f'<button class="pijl terug" type="button" aria-label="Vorige {wat}" aria-controls="{id_}">{icoon("pijl-terug")}</button>'
+            f'<button class="pijl verder" type="button" aria-label="Volgende {wat}" aria-controls="{id_}">{icoon("pijl")}</button>'
+            f'</div>')
+
+
+def plank_nieuw(items, alle_leren):
+    """De plank "Nieuw in het lab" (Bram, 08-10-2026): een rij gewone kaarten die op de tekstkolom begint en
+    doorloopt tot de rand van het scherm. Scrollen met trackpad, touch of Tab; pijlen alleen met een muis.
+    Alle kaarten zijn gewone links in een lijst, er wordt niets later ingeladen. Bij drie items of minder geen
+    plank maar een gewone rij, zonder slotkaart. Geen items: geen sectie."""
+    if not items:
+        return ""
+    aantal = len(alle_leren)
+    wat = "artikelen en tools" if STAAT["tools"] else "artikelen"
+    alles = f'<a class="cat-alles" href="/leren/">Alles op Leren <span class="aantal">{aantal}</span>{icoon("pijl")}</a>'
+    kaarten = "\n".join(f"<li>{kaart(x, is_nieuw(x), tag='article')}</li>" for x in items)
+    weinig = len(items) <= PLANK_DREMPEL
+    if weinig:
+        pijlen = eind = onder = ""
+    else:
+        pijlen = pijlen_html("nieuw-baan", "artikelen")
+        eind = (f'\n<li class="eind"><a class="plank-eind" href="/leren/"><span class="aantal">{aantal} {wat}</span>'
+                f'Alles op Leren{icoon("pijl")}</a></li>')
+        onder = alles.replace('class="cat-alles"', 'class="cat-alles sectie-onder"')
+    return f"""<section class="sectie" aria-labelledby="nieuw">
+    <div class="sectie-kop">
+      <div><h2 id="nieuw">Nieuw in het lab</h2></div>
+      <div class="sectie-acties">{pijlen}{alles}</div>
+    </div>
+    <div class="plank{' weinig' if weinig else ''}">
+      <ul class="plank-baan" id="nieuw-baan" aria-labelledby="nieuw">
+{kaarten}{eind}
+      </ul>
+    </div>{onder}
+  </section>"""
+
+
+def serie_blok(s):
+    """Een lopende serie op de beginpagina (Bram, 08-10-2026): een lijn met genummerde haltes in leesvolgorde,
+    onder elke halte het deel. Het laatst verschenen deel heeft een volle halte; nieuw zie je aan het kiemplantje
+    op het deel zelf, zodat de volgorde nooit schuift. Daarna alleen het eerstvolgende geplande deel, gestippeld,
+    met een datum en zonder titel of link."""
+    eerste, laatste = s.delen[0], s.nieuwste
+    volgt = s.eerstvolgende
+    n = len(s.delen)
+    if s.aantal:
+        stand = f"{n} van de {s.aantal} delen verschenen. Lees ze op volgorde."
+    elif n == 1:
+        stand = f"Deel {eerste.deel} is verschenen."
+    else:
+        stand = f"{n} delen verschenen. Lees ze op volgorde."
+    begin = f"Begin bij deel {eerste.deel}" if n > 1 else f"Lees deel {eerste.deel}"
+    rijen = [(x.deel, x) for x in s.delen] + ([(volgt.deel, None)] if volgt else [])
+    rijen.sort(key=lambda r: r[0])
+    li = []
+    for i, (nr, x) in enumerate(rijen):
+        klassen = []
+        if x is None:
+            klassen.append("gepland")
+        elif x is laatste and n > 1:
+            klassen.append("laatst-uit")
+        if i + 1 < len(rijen) and rijen[i + 1][1] is None:
+            klassen.append("naar-gepland")      # de lijn naar een deel dat nog moet komen, is gestippeld
+        k = f' class="{" ".join(klassen)}"' if klassen else ""
+        if x is None:
+            kaart_ = f'<div class="deel-kaart"><p><span class="sr">Deel {nr}: </span><b>Volgt</b> op {datum_dag(volgt.datum)}</p></div>'
+        else:
+            nieuw = NIEUW_ICOON if is_nieuw(x) else ""
+            kaart_ = (f'<div class="deel-kaart"><h3><a href="{x.url}"><span class="sr">Deel {nr}: </span>{esc(x.titel)}</a></h3>'
+                      f'<p class="meta"><time datetime="{x.datum.isoformat()}">{datum_kort(x.datum)}</time>{nieuw}</p></div>')
+        li.append(f'<li{k}><span class="halte" aria-hidden="true">{nr}</span>\n          {kaart_}</li>')
+    id_ = f"s-{s.slug}"
+    return f"""<section class="sectie serie-blok" aria-labelledby="{id_}">
+    <p class="label">{icoon("serie")}Serie · lopend</p>
+    <div class="sectie-kop">
+      <div><h2 id="{id_}">{esc(s.titel)}</h2><p class="lede-klein">{esc(s.lede)}</p><p class="serie-stand">{esc(stand)}</p></div>
+      <div class="sectie-acties serie-kop-acties">{pijlen_html(id_ + "-baan", "delen")}<a class="serie-begin" href="{eerste.url}">{begin}{icoon("pijl")}</a></div>
+    </div>
+    <div class="plank">
+      <ol class="plank-baan lees-delen" id="{id_}-baan" aria-label="Delen van {esc(s.titel)}, in leesvolgorde">
+        {chr(10).join("        " + x for x in li).strip()}
+      </ol>
+    </div>
+    <a class="serie-alle" href="{s.url}">Over deze serie{icoon("pijl")}</a>
   </section>"""
 
 
@@ -1259,23 +1393,33 @@ def bouw_home(items):
   </div>
   <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
 </article>"""
-    # Per categorie een blok, in de vaste volgorde van site.json (praktijk, didactiek, onderzoek, techniek;
-    # Frits, 02-10-2026). Een categorie zonder artikelen, of met alleen het uitgelichte item, krijgt geen blok.
-    # Het raster "Laatst verschenen" en de categorieregel zijn vervallen (Frits, 02-10-2026).
-    blokken, getoond = [], ([uit] if uit else [])
+    # Drie lagen onder het uitgelichte item, elk met één vraag (Bram, 08-10-2026): wat is er bijgekomen (de plank
+    # Nieuw), wat lees ik op volgorde (de lopende series), wat is er per vak (de categorieblokken). Elke laag opent
+    # met dezelfde dikke lijn in inkt.
+    # Categorieblokken in de vaste volgorde van site.json (Frits, 02-10-2026). Een categorie zonder artikelen, of
+    # met alleen het uitgelichte item, krijgt geen blok.
+    blokken, groot_getoond = [], []
     for slug in CATEGORIEEN:
         if slug not in STAAT["categorieen"]:
             continue
-        groot, lijst, totaal = categorie_keuze(slug, live, uit)
+        groot, totaal = categorie_keuze(slug, live, uit)
         if not groot:
             continue
-        blokken.append(categorie_blok(slug, groot, lijst, totaal))
-        getoond += [groot] + lijst
-    blokken_html = "\n  ".join(blokken)
+        blokken.append(categorie_blok(slug, groot, totaal))
+        groot_getoond.append(groot)
+    # De plank: het nieuwste eerst, zonder wat al groot op de pagina staat (het uitgelichte item en de grote
+    # kaarten van de categorieën).
+    groot_ids = {id(x) for x in groot_getoond + ([uit] if uit else [])}
+    op_plank = [x for x in leren_items(items) if id(x) not in groot_ids][:NIEUW_MAX]
+    # Lopende series, hooguit drie, de serie met het nieuwste deel bovenaan. Een afgeronde serie staat op Series.
+    lopend = sorted((s for s in STAAT["series"].values() if s.lopend), key=lambda s: s.nieuwste.datum, reverse=True)
+    series = lopend[:SERIES_HOME_MAX]
+    lagen = "\n  ".join(x for x in [plank_nieuw(op_plank, leren_items(items))]
+                        + [serie_blok(s) for s in series] + blokken if x)
     inhoud = f"""{held_html(h)}
 <div class="wrap" id="items">
   {uitgelicht}
-  {blokken_html}
+  {lagen}
 </div>
 <section class="wrap" aria-labelledby="over-titel">
   <div class="van-frits">
@@ -1287,15 +1431,22 @@ def bouw_home(items):
     </div>
   </div>
 </section>"""
-    # Het schema volgt wat er op de pagina staat: het uitgelichte item en de blokken, in die volgorde.
+    # Het schema volgt wat er op de pagina staat, in die volgorde en elk item één keer. Geplande delen staan
+    # er niet in: die hebben nog geen adres.
+    getoond = []
+    for x in ([uit] if uit else []) + op_plank + [d for s in series for d in s.delen] + groot_getoond:
+        if x not in getoond:
+            getoond.append(x)
     lijst = {"@type": "ItemList", "itemListElement": [
         {"@type": "ListItem", "position": n + 1, "url": ADRES + x.url, "name": x.titel} for n, x in enumerate(getoond)]}
     # Zonder defer: onderaan de body draait het vóór de eerste weergave, zodat de ballon niet eerst even stil staat
     # en dan pas wegvalt om binnen te komen.
     spreker_js = f'<script src="/assets/spreker.js?v={VERSIE}"></script>' if h.get("spreker") else ""
+    # plank.js bedient de pijlknoppen van de plank en de series; zonder script werkt alles ook.
+    plank_js = f'<script src="/assets/plank.js?v={VERSIE}" defer></script>' if (op_plank or series) else ""
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",
            schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"], extra_kop=beweging_html()[0],
-           extra_voet="\n  ".join(x for x in (spreker_js, beweging_html()[1]) if x))
+           extra_voet="\n  ".join(x for x in (spreker_js, plank_js, beweging_html()[1]) if x))
 
 
 def held_html(h):

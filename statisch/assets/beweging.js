@@ -7,7 +7,7 @@
   var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   if ((mq && mq.matches) || !('IntersectionObserver' in window)) return;
 
-  var BLOKKEN = '.uitgelicht, .cat-blok, .van-frits, .artikel .verwijs';
+  var BLOKKEN = '.uitgelicht, .sectie, .cat-blok, .van-frits, .artikel .verwijs';
   var wachtend = [];
   var vouw = window.innerHeight * 0.92;
   document.querySelectorAll(BLOKKEN).forEach(function (el) {

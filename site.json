@@ -17,7 +17,8 @@
     "kop": "Leren werken met AI, door het te doen.",
     "lede": "Tutorials, tools en uitleg voor studenten en docenten. Ik werk met AI in mijn eigen onderwijs en deel hier mijn ervaringen, zodat jij ze ook kunt gebruiken.",
     "avatar": "james-rust",
-    "spreker": ""
+    "spreker": "",
+    "nieuw_max": 8
   },
   "tools": {"seotitel": "Tools om bewust met AI te werken", "beschrijving": "Kleine hulpmiddelen van AI-leerlab om je eigen AI-gebruik te bekijken, voor studenten en docenten. Alles werkt in je browser.", "lede": "Kleine hulpmiddelen om je eigen AI-gebruik te bekijken. Alles werkt in je browser en er wordt niets opgeslagen."},
   "leren": {

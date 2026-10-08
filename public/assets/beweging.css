@@ -3,7 +3,7 @@
    beweging"; bij minder beweging, zonder JavaScript of in een browser zonder scroll-tijdlijnen staat alles stil
    en compleet. Geladen door bouw.py als "beweging_bij_scrollen" aan staat in site.json.
 
-   1. Opkomen   blokken op de beginpagina en verwijsblokken in een artikel komen één keer op (beweging.js).
+   1. Opkomen   blokken op de beginpagina (ook de plank en de series) en verwijsblokken in een artikel komen één keer op (beweging.js).
                 Nooit lopende tekst: een alinea, kop of lijst in een artikel beweegt niet.
    2. Diepte    in de kop blijven figuur en bels iets achter bij het scrollen; de tekst niet.
    3. Opstaan   het figuur in een uitgelichte of grote kaart staat op zijn vloer als de kaart in beeld komt. */

@@ -7,7 +7,7 @@
    - De beweging is van ons, niet de harde smooth-scroll van de browser: slow in, slow out (Disney). Een kubische
      Hermite-curve: zonder lopende beweging is dat precies smoothstep (3t² − 2t³); klik je tijdens een beweging,
      dan begint de nieuwe met de snelheid van de oude, zodat er geen hapering in zit. Duur naar afstand:
-     360 ms + 0,45 ms per pixel, tussen 450 en 900 ms (één kaart van 320 px: ruim 500 ms).
+     360 ms + 0,45 ms per pixel, tussen 450 en 900 ms (één kaart van 372 px: ruim 525 ms).
    - Tijdens de beweging staan scroll-snap en scroll-behavior uit (anders schiet hij terug of wordt elke stap
      opnieuw gladgestreken); daarna gaan ze terug. Trackpad, wiel of touch tijdens de beweging: die wint meteen.
    - Bij "minder beweging" springt de plank zonder animatie naar de volgende kaart. */

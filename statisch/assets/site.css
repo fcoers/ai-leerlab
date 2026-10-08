@@ -809,18 +809,32 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
    is het teken dat er meer is. Elke kaart klikt vast op de linkerkant (scroll-snap). Tab schuift de kaart met focus
    vanzelf in beeld; scroll-padding houdt hem op de tekstkolom. */
 .plank { position: relative; margin-top: 24px; }
+/* Maat (Frits, 08-10-2026: "drie cards binnen de breedte van het scherm zoals bij didactiek, van de vierde zie je
+   net een stukje"): een kaart is zo breed als een kaart in een rij van drie in de tekstkolom (--n per rij), dus
+   dezelfde kaart als bij Didactiek. Van de volgende kaart is --stukje zichtbaar (15%); daar houdt de plank op,
+   ook als het scherm breder is, zodat het nooit vier of vijf kaarten worden. Is er naast de kolom te weinig ruimte
+   voor dat stukje, dan worden de kaarten iets smaller. Links loopt de plank even ver buiten de kolom als rechts. */
 .plank-baan {
-  --rand: max(32px, calc((100vw - var(--pagina)) / 2 + 32px));
+  --n: 3;
   --tussen: 20px;
-  display: flex; gap: var(--tussen); list-style: none; margin: 0; padding: 4px var(--rand) 8px;   /* 4px: ruimte voor de focusring */
-  width: 100vw; margin-left: calc(50% - 50vw);
+  --stukje: .15;
+  --kolom: calc(min(100vw, var(--pagina)) - 64px);
+  --rand: max(32px, calc((100vw - var(--pagina)) / 2 + 32px));
+  --kaart: min(calc((var(--kolom) - (var(--n) - 1) * var(--tussen)) / var(--n)),
+               calc((var(--kolom) + var(--rand) - var(--n) * var(--tussen)) / (var(--n) + var(--stukje))));
+  --kijk: calc(var(--kaart) * var(--stukje));
+  --buiten: min(var(--rand), calc(var(--tussen) + var(--kijk)));
+  display: flex; gap: var(--tussen); list-style: none; margin: 0; padding: 4px var(--buiten) 8px;   /* 4px: ruimte voor de focusring */
+  width: calc(var(--buiten) + var(--n) * (var(--kaart) + var(--tussen)) + var(--kijk));
+  margin-left: calc(-1 * var(--buiten));
   overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory; scroll-padding-inline: var(--rand);
+  scroll-snap-type: x mandatory; scroll-padding-inline: var(--buiten);
   scrollbar-width: none;
 }
+@media (max-width: 1079px) { .plank-baan { --n: 2; } }   /* zelfde breekpunt als het raster: twee en een stukje */
 .plank-baan::-webkit-scrollbar { display: none; }
 @media (prefers-reduced-motion: no-preference) { .plank-baan { scroll-behavior: smooth; } }   /* voor Tab; de pijlen bewegen zelf (plank.js) */
-.plank-baan > li { flex: 0 0 300px; scroll-snap-align: start; display: flex; }
+.plank-baan > li { flex: 0 0 var(--kaart); scroll-snap-align: start; display: flex; }
 .plank-baan > li > .kaart { flex: 1; min-width: 0; }
 .plank-baan .kaart:focus-within { border-color: var(--inkt); }
 
@@ -870,7 +884,8 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
   /* Telefoon (Frits, 08-10-2026): de kaart staat midden in beeld, links en rechts een stukje van de buren.
      De rand is de helft van wat naast de kaart overblijft, zodat ook de eerste kaart en de slotkaart in het
      midden kunnen staan. */
-  .plank-baan { --kaart: 80vw; --tussen: 12px; --rand: calc((100vw - var(--kaart)) / 2); scroll-padding-inline: 0; }
+  .plank-baan { --kaart: 80vw; --tussen: 12px; --rand: calc((100vw - var(--kaart)) / 2); scroll-padding-inline: 0;
+                width: 100vw; margin-left: calc(50% - 50vw); padding-inline: var(--rand); }
   .plank-baan > li { flex-basis: var(--kaart); scroll-snap-align: center; }
   .plank-baan > li.eind { flex-basis: var(--kaart); }
   .sectie-onder { display: inline-flex; margin-top: 12px; }

@@ -63,8 +63,18 @@
 
   function sluit() {
     if (!melding) return;
-    melding.remove();
+    // Weggaan is ook een beweging: kort vervagen en zakken (site.css, .gaat), dan pas uit de pagina.
+    // Bij minder beweging of zonder animaties meteen weg.
+    var weg = melding;
     melding = null;
+    var rustig = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (rustig || !('onanimationend' in weg)) { weg.remove(); }
+    else {
+      weg.classList.add('gaat');
+      weg.setAttribute('aria-hidden', 'true');
+      weg.addEventListener('animationend', function () { weg.remove(); });
+      setTimeout(function () { weg.remove(); }, 400);   // vangnet als de animatie niet afloopt
+    }
     if (terugFocus) { terugFocus.focus(); terugFocus = null; }
   }
 

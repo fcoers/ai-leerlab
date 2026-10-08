@@ -27,7 +27,11 @@
   --sans: "Roboto Flex", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
   --pagina: 1160px; --tekst: 680px;
+  /* Beweging (Roel, 08-10-2026, Disney: slow in, slow out). Binnenkomen remt af (uit), weggaan zet aan (in),
+     verplaatsen of heen en terug doet allebei (in-uit). Nooit lineair, behalve wat aan de scroll vastzit. */
   --uit: cubic-bezier(0.22, 1, 0.36, 1);
+  --in: cubic-bezier(0.55, 0, 0.85, 0.35);
+  --in-uit: cubic-bezier(0.45, 0, 0.25, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -260,7 +264,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .gemaakt-meer summary:hover { color: var(--inkt); }
 .gemaakt-meer summary { list-style: none; gap: 10px; }
 .gemaakt-meer summary::-webkit-details-marker { display: none; }
-.gemaakt-meer summary::after, .os summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--uit); }
+.gemaakt-meer summary::after, .os summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .25s var(--in-uit); }
 .gemaakt-meer[open] summary::after, .os[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
 @media (prefers-reduced-motion: reduce) { .gemaakt-meer summary::after, .os summary::after { transition: none; } }
 .gemaakt-meer[open] summary { margin-bottom: 4px; }
@@ -284,9 +288,9 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .verwijs h3 a::after { content: ""; position: absolute; inset: 0; border-radius: 14px; }
 .artikel .verwijs p { margin: 0; }
 .verwijs .actie { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font: 600 18px/1 var(--sans); color: var(--labgroen); }
-.verwijs .actie svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s var(--uit); }
+.verwijs .actie svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s var(--in-uit); }
 .verwijs:hover .actie { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
-.verwijs:hover .actie svg { transform: translateX(3px); }
+.verwijs:hover .actie svg { transform: translateX(3px); transition-timing-function: var(--uit); }
 @media (max-width: 640px) { .verwijs { grid-template-columns: 44px 1fr; gap: 14px; padding: 20px; } .verwijs .teken { width: 44px; height: 44px; } .verwijs .teken svg { width: 24px; height: 24px; } }
 
 /* ---------- lees ook: naar een ander artikel ---------- */
@@ -358,7 +362,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .meer:last-of-type { border-bottom: 1px solid var(--lijn); }
 .meer summary { list-style: none; cursor: pointer; min-height: 56px; padding: 14px 44px 14px 0; position: relative; font-weight: 600; font-size: 18px; }
 .meer summary::-webkit-details-marker { display: none; }
-.meer summary::after { content: ""; position: absolute; right: 8px; top: 50%; width: 12px; height: 12px; margin-top: -9px; border-right: 2.5px solid var(--inkt); border-bottom: 2.5px solid var(--inkt); transform: rotate(45deg); transition: transform .2s var(--uit); }
+.meer summary::after { content: ""; position: absolute; right: 8px; top: 50%; width: 12px; height: 12px; margin-top: -9px; border-right: 2.5px solid var(--inkt); border-bottom: 2.5px solid var(--inkt); transform: rotate(45deg); transition: transform .25s var(--in-uit); }
 .meer[open] summary::after { transform: rotate(-135deg); margin-top: -3px; }
 .meer summary:hover { text-decoration: underline; text-underline-offset: 3px; }
 .meer-inhoud { padding: 0 0 24px; }
@@ -608,8 +612,8 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .bel-kaart.klein { width: 28px; height: 28px; right: 150px; bottom: 150px; }
 .kaart-figuur { position: absolute; z-index: -1; right: 36px; bottom: 0; height: calc(150px * var(--schaal, 1)); width: auto; }
 @media (prefers-reduced-motion: no-preference) {
-  .bel-kaart { transition: transform .4s var(--uit); }
-  .kaart-groot:hover .bel-kaart { transform: translateY(-6px); }
+  .bel-kaart { transition: transform .45s var(--in-uit); }   /* terugzakken: rustig aanzetten en landen */
+  .kaart-groot:hover .bel-kaart { transform: translateY(-6px); transition-timing-function: var(--uit); }
 }
 
 @media (max-width: 1000px) {
@@ -642,6 +646,10 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .toestemming .knop { min-height: 48px; min-width: 140px; }
 @media (max-width: 480px) { .toestemming .knop { flex: 1 1 0; min-width: 0; } }
 @keyframes toestemming-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+/* weggaan: zakt en vervaagt, zet aan (in), korter dan binnenkomen; daarna haalt toestemming.js hem weg */
+.toestemming.gaat { animation: toestemming-uit .24s var(--in) both; }
+.toestemming.gaat .toestemming-binnen { pointer-events: none; }
+@keyframes toestemming-uit { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(12px); } }
 
 /* ---------- zelftest Human-AI-label (03-10-2026) ----------
    Eén vraag per scherm: op mobiel past een vraag met zijn antwoorden op één scherm, je raakt je plek niet kwijt
@@ -652,7 +660,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .zelftest-voortgang { display: flex; align-items: center; gap: 16px; margin: 0 0 24px; padding: 0 0 16px; border-bottom: 1px solid var(--lijn); font: 500 15px/1.2 var(--mono); letter-spacing: .04em; color: var(--inkt-zacht); }
 .zt-balk { flex: 1; max-width: 240px; height: 8px; border-radius: 4px; background: var(--lijn); overflow: hidden; }
 .zt-balk span { display: block; height: 100%; background: var(--inkt); transform-origin: left; transform: scaleX(.1); }
-@media (prefers-reduced-motion: no-preference) { .zt-balk span { transition: transform .25s var(--uit); } }
+@media (prefers-reduced-motion: no-preference) { .zt-balk span { transition: transform .35s var(--in-uit); } }
 .zt-taak { margin: 0 0 32px; }
 .zt-taak label { display: block; font-weight: 600; font-size: 18px; margin: 0 0 4px; }
 .zt-optioneel { font-weight: 400; color: var(--inkt-zacht); font-size: 16px; }
@@ -811,7 +819,7 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
   scrollbar-width: none;
 }
 .plank-baan::-webkit-scrollbar { display: none; }
-@media (prefers-reduced-motion: no-preference) { .plank-baan { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: no-preference) { .plank-baan { scroll-behavior: smooth; } }   /* voor Tab; de pijlen bewegen zelf (plank.js) */
 .plank-baan > li { flex: 0 0 300px; scroll-snap-align: start; display: flex; }
 .plank-baan > li > .kaart { flex: 1; min-width: 0; }
 .plank-baan .kaart:focus-within { border-color: var(--inkt); }
@@ -826,8 +834,12 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 /* de pijlknoppen: alleen met JavaScript, met een muis en als er iets te scrollen is (plank.js) */
 .pijlen { display: none; gap: 8px; }
 .js .pijlen { display: flex; }
-.js .pijlen.overbodig { display: none; }
-.pijl { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--inkt); background: var(--vlak); color: var(--inkt); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: border-color .15s var(--uit), background-color .15s var(--uit); }
+.js .pijlen.overbodig { opacity: 0; visibility: hidden; }
+/* vervagen, niet knippen: erin remt af (uit), eruit zet aan (in); visibility pas na het vervagen (plank.js zet .gezet
+   na de eerste stand, zodat de pijlen bij het laden niet zichtbaar wegfaden) */
+.js .pijlen.gezet { transition: opacity .28s var(--uit), visibility 0s linear 0s; }
+.js .pijlen.gezet.overbodig { transition: opacity .2s var(--in), visibility 0s linear .2s; }
+.pijl { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--inkt); background: var(--vlak); color: var(--inkt); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: border-color .2s var(--in-uit), background-color .2s var(--in-uit), color .2s var(--in-uit); }
 .pijl:hover { background: var(--papier); }
 .pijl svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .pijl[aria-disabled="true"] { border-color: var(--lijn); color: var(--inkt-zacht); cursor: default; background: transparent; }
@@ -910,7 +922,7 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 .serie-plek p { margin: 0; }
 .serie-plek a.begin { font-weight: 600; display: inline-flex; align-items: center; min-height: 44px; }
 
-@media (prefers-reduced-motion: reduce) { .pijl, .plank-eind, .deel-kaart { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .pijl, .plank-eind, .deel-kaart, .js .pijlen.gezet { transition: none; } }
 @media print {
   .plank-baan { width: auto; margin-left: 0; padding: 0; overflow: visible; flex-wrap: wrap; }
   .pijlen { display: none !important; }

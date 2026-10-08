@@ -587,9 +587,12 @@ def kaart_label(item):
 
 
 def titel_html(item):
-    """De titel, bij een seriedeel met het nummer ervoor. Een schermlezer leest "Deel 3: titel"."""
+    """De titel, bij een seriedeel met het nummer ervoor. Een schermlezer leest "Deel 3: titel".
+    Het nummer staat in een vierkantje zoals de haltes in de serierij (Frits, 08-10-2026); de titel
+    in een eigen span, zodat de onderstreping bij hover niet door het vierkantje loopt."""
     if item.is_deel:
-        return f'<span class="nr"><span class="sr">Deel </span>{item.deel}<span class="sr">:</span></span> {esc(item.titel)}'
+        return (f'<span class="nr"><span class="sr">Deel </span>{item.deel}<span class="sr">: </span></span>'
+                f'<span class="nr-titel">{esc(item.titel)}</span>')
     return esc(item.titel)
 
 

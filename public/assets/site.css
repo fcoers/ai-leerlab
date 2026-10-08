@@ -467,9 +467,12 @@ main:focus, h1:focus, h2:focus { outline: none; }
 
 /* ---------- kaart van een seriedeel ---------- */
 .label .serie-deel { color: var(--inkt); }
-/* label "Serie", het deelnummer klein en grijs vóór de titel, de serienaam onderaan */
-.kaart h3 .nr, .uitgelicht h2 .nr { font: 500 .9em/1 var(--mono); color: var(--inkt-zacht); margin-right: .35em; }
-.kaart:hover h3 .nr, .uitgelicht:hover h2 .nr { text-decoration: none; display: inline-block; }
+/* label "Serie", het deelnummer vóór de titel en de serienaam onderaan. Het nummer staat in hetzelfde
+   vierkantje als een halte in de serierij (Frits, 08-10-2026); de titel hangt ernaast, ook als hij afbreekt. */
+.kaart h3 a:has(.nr), .uitgelicht h2 a:has(.nr) { display: flex; align-items: first baseline; gap: 14px; }
+.kaart h3 .nr, .uitgelicht h2 .nr { width: 40px; height: 40px; flex: none; border-radius: 8px; background: var(--papier); color: var(--inkt); border: 1.5px solid var(--inkt); font: 700 17px/1 var(--mono); letter-spacing: 0; display: inline-flex; align-items: center; justify-content: center; }
+.kaart:hover h3 a:has(.nr), .uitgelicht:hover h2 a:has(.nr) { text-decoration: none; }
+.kaart:hover h3 .nr-titel, .uitgelicht:hover h2 .nr-titel { text-decoration: underline; text-decoration-thickness: 2px; }
 .kaart .serie-voet { color: var(--inkt); font-weight: 500; }
 /* voetregel van een kaart: eerst de publicatiedatum ("1 okt 2026"), dan voor wie of de serie */
 .voor time { white-space: nowrap; }

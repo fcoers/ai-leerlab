@@ -803,7 +803,8 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 .plank { position: relative; margin-top: 24px; }
 .plank-baan {
   --rand: max(32px, calc((100vw - var(--pagina)) / 2 + 32px));
-  display: flex; gap: 20px; list-style: none; margin: 0; padding: 4px var(--rand) 8px;   /* 4px: ruimte voor de focusring */
+  --tussen: 20px;
+  display: flex; gap: var(--tussen); list-style: none; margin: 0; padding: 4px var(--rand) 8px;   /* 4px: ruimte voor de focusring */
   width: 100vw; margin-left: calc(50% - 50vw);
   overflow-x: auto; overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory; scroll-padding-inline: var(--rand);
@@ -836,6 +837,17 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 .plank.weinig .plank-baan { width: auto; margin-left: 0; padding-inline: 0; overflow: visible; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 1000px) { .plank.weinig .plank-baan { grid-template-columns: minmax(0, 1fr); } }
 
+/* plank in een categorieblok (Frits, 08-10-2026; aan per categorie met "plank": true in site.json): onder de
+   grote kaart, de pijlen naast "Alles in ..." rechtsboven; op de telefoon staat "Alles in ..." onder de plank */
+.cat-blok.met-plank { grid-template-areas: "kop alles" "lede lede" "lijf lijf" "plank plank"; }
+.cat-plank { grid-area: plank; margin-top: 20px; }
+.cat-acties { grid-area: alles; align-self: center; justify-self: end; }
+.cat-acties .cat-alles { grid-area: auto; }
+@media (max-width: 640px) {
+  .cat-blok.met-plank { grid-template-areas: "kop" "lede" "lijf" "plank" "alles"; }
+  .cat-acties { justify-self: start; }
+}
+
 /* "Alles op Leren" staat op de telefoon onder de plank, daarboven in de kop */
 .sectie-onder { display: none; }
 @media (max-width: 640px) {
@@ -843,9 +855,12 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
   .uitgelicht + .sectie { margin-top: 40px; }
   .sectie-kop { flex-direction: column; }
   .sectie-kop h2 { font-size: 26px; }
-  .plank-baan { --rand: 20px; gap: 16px; }
-  .plank-baan > li { flex-basis: min(300px, 78vw); }
-  .plank-baan > li.eind { flex-basis: 200px; }
+  /* Telefoon (Frits, 08-10-2026): de kaart staat midden in beeld, links en rechts een stukje van de buren.
+     De rand is de helft van wat naast de kaart overblijft, zodat ook de eerste kaart en de slotkaart in het
+     midden kunnen staan. */
+  .plank-baan { --kaart: 80vw; --tussen: 12px; --rand: calc((100vw - var(--kaart)) / 2); scroll-padding-inline: 0; }
+  .plank-baan > li { flex-basis: var(--kaart); scroll-snap-align: center; }
+  .plank-baan > li.eind { flex-basis: var(--kaart); }
   .sectie-onder { display: inline-flex; margin-top: 12px; }
   .sectie:has(.sectie-onder) .sectie-acties .cat-alles { display: none; }
 }
@@ -861,7 +876,7 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 .serie-stand { font-size: 16px; color: var(--inkt-zacht); margin: 8px 0 0; }
 
 .lees-delen > li { flex-basis: 250px; flex-direction: column; position: relative; }
-.lees-delen > li::before { content: ""; position: absolute; top: 19px; left: 0; right: -20px; border-top: 2px solid var(--inkt); }
+.lees-delen > li::before { content: ""; position: absolute; top: 19px; left: 0; right: calc(-1 * var(--tussen, 20px)); border-top: 2px solid var(--inkt); }
 .lees-delen > li:last-child::before { right: auto; width: 40px; }
 .lees-delen > li.naar-gepland::before, .lees-delen > li.gepland::before { border-top-style: dashed; border-top-color: var(--inkt-zacht); }
 .halte { position: relative; width: 40px; height: 40px; border-radius: 8px; background: var(--papier); color: var(--inkt); border: 1.5px solid var(--inkt); font: 700 17px/1 var(--mono); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; flex: none; }
@@ -879,7 +894,7 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 .gepland .deel-kaart p { margin: 0; font-size: 17px; line-height: 1.4; }
 .gepland .deel-kaart b { color: var(--inkt); font-weight: 600; }
 @media (max-width: 640px) {
-  .lees-delen > li { flex-basis: min(260px, 72vw); }
+  .lees-delen > li { flex-basis: var(--kaart); }
   .serie-kop-acties { flex-direction: column; align-items: flex-start; }
 }
 

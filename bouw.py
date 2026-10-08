@@ -1237,13 +1237,15 @@ def categorie_keuze(slug, live, uit):
     totaal = len(alle)
     rest = [x for x in alle if x is not uit]
     if not rest:
-        return None, totaal
+        return None, totaal, []
     gemarkeerd = [x for x in rest if x.uitgelicht_categorie]
     if len(gemarkeerd) > 1:
         let_op(f"categorie '{slug}': meer dan één artikel met 'uitgelicht: categorie' ("
                + ", ".join(os.path.basename(x.pad) for x in gemarkeerd)
                + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
-    return (gemarkeerd[0] if gemarkeerd else rest[0]), totaal
+    groot = gemarkeerd[0] if gemarkeerd else rest[0]
+    # De rest van de categorie, nieuwste eerst, voor de plank onder de grote kaart (alleen bij "plank": true).
+    return groot, totaal, [x for x in rest if x is not groot]
 
 
 def voet_van(item, nieuw):
@@ -1283,17 +1285,38 @@ def groot_kaart(item, slug, breed):
       </article>"""
 
 
-def categorie_blok(slug, groot, totaal):
-    """Een blok per categorie: alleen de keuze van Frits als brede kaart en de link naar de categorie.
-    De lijst "Laatst verschenen" staat er niet meer in; dat doet de plank Nieuw (Frits, 08-10-2026)."""
+def categorie_blok(slug, groot, totaal, rest=()):
+    """Een blok per categorie: de keuze van Frits als brede kaart en de link naar de categorie.
+    De lijst "Laatst verschenen" staat er niet meer in; dat doet de plank Nieuw (Frits, 08-10-2026).
+    Met "plank": true bij de categorie in site.json komt onder de grote kaart een plank met de rest van de
+    categorie, nieuwste eerst, met dezelfde bediening als de plank Nieuw (Frits, 08-10-2026: eerst Didactiek,
+    "daar komen veel artikelen"). De grote kaart en het uitgelichte item van de pagina staan er niet nog eens op."""
     c = CATEGORIEEN[slug]
-    return f"""<section class="cat-blok enkel" aria-labelledby="c-{slug}">
+    alles = f'<a class="cat-alles" href="/leren/{slug}/">Alles in {esc(c["naam"])} <span class="aantal">{totaal}</span>{icoon("pijl")}</a>'
+    plank, pijlen = "", ""
+    if c.get("plank") and rest:
+        weinig = len(rest) <= PLANK_DREMPEL
+        id_ = f"{slug}-baan"
+        kaarten = "\n".join(f"<li>{kaart(x, is_nieuw(x), tag='article')}</li>" for x in rest)
+        eind = ""
+        if not weinig:
+            pijlen = pijlen_html(id_, "artikelen")
+            eind = (f'\n<li class="eind"><a class="plank-eind" href="/leren/{slug}/"><span class="aantal">{totaal} in totaal</span>'
+                    f'Alles in {esc(c["naam"])}{icoon("pijl")}</a></li>')
+        plank = f"""
+    <div class="plank cat-plank{' weinig' if weinig else ''}">
+      <ul class="plank-baan" id="{id_}" aria-label="Meer in {esc(c["naam"])}">
+{kaarten}{eind}
+      </ul>
+    </div>"""
+    acties = f'<div class="sectie-acties cat-acties">{pijlen}{alles}</div>' if pijlen else alles
+    return f"""<section class="cat-blok enkel{' met-plank' if plank else ''}" aria-labelledby="c-{slug}">
     <h2 id="c-{slug}">{esc(c["naam"])}</h2>
     <p class="cat-lede">{esc(c["lede"])}</p>
     <div class="cat-lijf">
       {groot_kaart(groot, slug, True)}
-    </div>
-    <a class="cat-alles" href="/leren/{slug}/">Alles in {esc(c["naam"])} <span class="aantal">{totaal}</span>{icoon("pijl")}</a>
+    </div>{plank}
+    {acties}
   </section>"""
 
 
@@ -1422,15 +1445,16 @@ def bouw_home(items):
     # met dezelfde dikke lijn in inkt.
     # Categorieblokken in de vaste volgorde van site.json (Frits, 02-10-2026). Een categorie zonder artikelen, of
     # met alleen het uitgelichte item, krijgt geen blok.
-    blokken, groot_getoond = [], []
+    blokken, groot_getoond, cat_plank = [], [], []
     for slug in CATEGORIEEN:
         if slug not in STAAT["categorieen"]:
             continue
-        groot, totaal = categorie_keuze(slug, live, uit)
+        groot, totaal, rest = categorie_keuze(slug, live, uit)
         if not groot:
             continue
-        blokken.append(categorie_blok(slug, groot, totaal))
+        blokken.append(categorie_blok(slug, groot, totaal, rest))
         groot_getoond.append(groot)
+        cat_plank += [groot] + (rest if CATEGORIEEN[slug].get("plank") else [])
     # De plank: het nieuwste eerst, zonder wat al groot op de pagina staat (het uitgelichte item en de grote
     # kaarten van de categorieën).
     groot_ids = {id(x) for x in groot_getoond + ([uit] if uit else [])}
@@ -1458,7 +1482,7 @@ def bouw_home(items):
     # Het schema volgt wat er op de pagina staat, in die volgorde en elk item één keer. Geplande delen staan
     # er niet in: die hebben nog geen adres.
     getoond = []
-    for x in ([uit] if uit else []) + op_plank + [d for s in series for d in s.delen] + groot_getoond:
+    for x in ([uit] if uit else []) + op_plank + [d for s in series for d in s.delen] + cat_plank:
         if x not in getoond:
             getoond.append(x)
     lijst = {"@type": "ItemList", "itemListElement": [
@@ -1467,7 +1491,7 @@ def bouw_home(items):
     # en dan pas wegvalt om binnen te komen.
     spreker_js = f'<script src="/assets/spreker.js?v={VERSIE}"></script>' if h.get("spreker") else ""
     # plank.js bedient de pijlknoppen van de plank en de series; zonder script werkt alles ook.
-    plank_js = f'<script src="/assets/plank.js?v={VERSIE}" defer></script>' if (op_plank or series) else ""
+    plank_js = f'<script src="/assets/plank.js?v={VERSIE}" defer></script>' if (op_plank or series or len(cat_plank) > len(groot_getoond)) else ""
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",
            schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"], extra_kop=beweging_html()[0],
            extra_voet="\n  ".join(x for x in (spreker_js, plank_js, beweging_html()[1]) if x))

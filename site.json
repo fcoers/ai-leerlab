@@ -47,6 +47,7 @@
     },
     {
       "slug": "didactiek",
+      "plank": true,
       "naam": "Didactiek",
       "avatar": "dide-rust",
       "lede": "Hoe je AI inzet in je lessen, opdrachten en toetsing. En wat je beter zelf blijft doen.",

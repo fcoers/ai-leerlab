@@ -26,7 +26,9 @@
   <link rel="icon" href="/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#17211C">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
   <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/site.css?v={{versie}}">
   <script>document.documentElement.className = 'js';</script>
@@ -38,7 +40,7 @@
   <header class="kop">
     <div class="wrap">
       <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
-        <img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt="">
+        <picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/logo-op-donker.svg"><img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt=""></picture>
       </a>
       <nav class="nav" aria-label="Hoofdmenu">
         <a href="/leren/"{{menu_leren}}>Leren</a>{{menu_tools}}{{menu_series}}

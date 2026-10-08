@@ -21,6 +21,18 @@ python3 bouw.py --bekijk
 
 De browser opent http://localhost:8000. Stoppen doe je met Ctrl+C in het Terminal-venster. Na een wijziging bouw je opnieuw en ververs je de pagina.
 
+### In donker bekijken
+
+De site volgt de stand van je computer of telefoon: licht of donker, zonder knop op de site. Staat je Mac op licht en wil je donker zien, start dan een apart Chrome-venster dat donker doet (je gewone Chrome blijft zoals hij is):
+
+```
+open -na "Google Chrome" --args --force-dark-mode --user-data-dir=/tmp/chrome-donker http://localhost:8000
+```
+
+Of in je gewone Chrome: open de ontwikkelaarstools (Cmd-Option-I), dan Cmd-Shift-P, typ "dark" en kies "Emulate CSS prefers-color-scheme: dark".
+
+De kleuren voor donker staan onderaan in `statisch/assets/site.css` (blok "Donkere stand"). De figuren hebben een tweede bestand met lichte lijnen in `statisch/assets/img/avatars/donker/`, met dezelfde naam; komt er een nieuw figuur bij, zet dan ook de donkere versie daar, anders waarschuwt `bouw.py`. Een figuur voor een bel in mos (kop van de beginpagina, categoriekaarten) houdt in donker zijn inktlijnen (Frits, 08-10-2026). Dat staat in `site.json` als `"donker_lichte_lijnen_voor_bel": false`; op `true` krijgen ook die figuren lichte lijnen.
+
 ## Een nieuw artikel toevoegen
 
 1. Maak een bestand in `inhoud/leren/`. De bestandsnaam wordt het adres: `inhoud/leren/prompts-schrijven.md` komt op `https://ai-leerlab.nl/leren/prompts-schrijven/`. Gebruik kleine letters en streepjes.

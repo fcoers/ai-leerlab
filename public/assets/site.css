@@ -19,6 +19,11 @@
   --inkt: #17211C; --inkt-zacht: #4A5550; --papier: #F7F8F4; --vlak: #FFFFFF;
   --lijn: #DDE2DA; --labgroen: #1B6E4A; --labgroen-donker: #155A3C; --munt: #E4F1E8; --mos: #C5D94A;
   --stip-munt: #CFE0D4;
+  /* Vijf rollen voor plekken die eerst vast wit of "inkt als vlak" waren, zodat ze meedraaien in donker
+     (DESIGN.md, Donkere stand). op-inkt/op-groen: tekst op een vlak in inkt of labgroen. nacht: het vlak onder
+     mos-op-inkt, donker in beide standen. voet, voet-zacht: grond en bijtekst van de voet. */
+  --op-inkt: #FFFFFF; --op-groen: #FFFFFF; --nacht: #17211C; --voet: #17211C; --voet-zacht: #D6DCD8;
+  color-scheme: light dark;
   --sans: "Roboto Flex", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
   --pagina: 1160px; --tekst: 680px;
@@ -45,7 +50,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .knoppen { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 .knop { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 22px; border-radius: 8px; font: 600 18px/1.2 var(--sans); text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: background-color .15s var(--uit), border-color .15s var(--uit); }
 .knop svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.knop-primair { background: var(--labgroen); color: #fff; }
+.knop-primair { background: var(--labgroen); color: var(--op-groen); }
 .knop-primair:hover { background: var(--labgroen-donker); }
 .knop-secundair, .knop-spook { background: var(--vlak); color: var(--inkt); border-color: var(--inkt); }
 .knop-secundair:hover, .knop-spook:hover { background: var(--papier); }
@@ -61,12 +66,12 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .nav a:hover { background: var(--papier); }
 .nav a[aria-current] { box-shadow: inset 0 -3px 0 var(--labgroen); border-radius: 0; }
 
-.voet { background: var(--inkt); color: #fff; padding: 48px 0 56px; font-size: 16px; margin-top: 72px; }
+.voet { background: var(--voet); color: #fff; padding: 48px 0 56px; font-size: 16px; margin-top: 72px; }
 .voet .wrap { display: flex; flex-wrap: wrap; gap: 24px 48px; justify-content: space-between; align-items: flex-start; }
 .voet .logo { height: 36px; }
-.voet p { margin: 16px 0 0; color: #D6DCD8; max-width: 34em; }
+.voet p { margin: 16px 0 0; color: var(--voet-zacht); max-width: 34em; }
 .voet nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
-.voet a { color: #fff; }
+.voet a { color: inherit; }
 .voet nav a { min-height: 44px; display: inline-flex; align-items: center; }
 .voet nav a.profiel { min-width: 44px; justify-content: center; }
 .voet .profiel svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -225,7 +230,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .os summary::-webkit-details-marker { display: none; }
 .os summary::after { flex: none; margin-left: auto; color: var(--inkt); }
 .os summary:hover .os-titel { text-decoration: underline; text-underline-offset: 3px; }
-.os-teken { flex: none; width: 36px; height: 36px; border-radius: 8px; background: var(--inkt); display: grid; place-items: center; }
+.os-teken { flex: none; width: 36px; height: 36px; border-radius: 8px; background: var(--nacht); display: grid; place-items: center; }
 .os-teken svg { width: 20px; height: 20px; stroke: var(--mos); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .os-naam { flex: none; min-width: 5.6em; font: 500 15px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--inkt-zacht); }
 .os-titel { font-weight: 600; }
@@ -270,7 +275,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 /* ---------- verwijsblok: naar een tutorial of tool ---------- */
 .verwijs { position: relative; display: grid; grid-template-columns: 56px 1fr; gap: 20px; align-items: start; margin: 40px 0; padding: 24px; border: 1px solid var(--lijn); border-radius: 14px; background-color: var(--munt); background-image: radial-gradient(var(--stip-munt) 1.5px, transparent 1.6px); background-size: 24px 24px; transition: border-color .15s var(--uit); }
 .verwijs:hover { border-color: var(--inkt); }
-.verwijs .teken { width: 56px; height: 56px; border-radius: 8px; background: var(--inkt); display: grid; place-items: center; overflow: hidden; }
+.verwijs .teken { width: 56px; height: 56px; border-radius: 8px; background: var(--nacht); display: grid; place-items: center; overflow: hidden; }
 .verwijs .teken svg { width: 28px; height: 28px; stroke: var(--mos); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .verwijs .teken.avatar { background: var(--vlak); border: 1px solid var(--lijn); }
 .verwijs .teken.avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 6%; transform: scale(1.9); transform-origin: 50% 22%; }
@@ -334,14 +339,14 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .kopieer pre { margin: 0; padding: 16px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; font: 400 16px/1.55 var(--mono); background: var(--papier); border-radius: 0 0 8px 8px; }
 .kopieer-knop { min-height: 44px; padding: 8px 16px; font-size: 16px; flex: none; }
 .kopieer-knop .vink { display: none; }
-.kopieer-knop.gekopieerd { background: var(--inkt); color: #fff; border-color: var(--inkt); }
+.kopieer-knop.gekopieerd { background: var(--inkt); color: var(--op-inkt); border-color: var(--inkt); }
 .kopieer-knop.gekopieerd .vink { display: inline; }
 .kopieer-knop.gekopieerd .kopieer-icoon { display: none; }
 .kopieer-knop .label { font: inherit; letter-spacing: 0; text-transform: none; color: inherit; display: inline; }
 
 /* Zo ziet het eruit als het gelukt is: vinkje in mos op inkt, net als het teken van een verwijsblok. */
 .gelukt { margin: 0 0 40px; padding: 24px; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; display: grid; grid-template-columns: 40px 1fr; column-gap: 16px; }
-.gelukt::before { content: ""; grid-row: span 3; width: 40px; height: 40px; border-radius: 8px; background: var(--inkt) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23C5D94A' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/24px no-repeat; }
+.gelukt::before { content: ""; grid-row: span 3; width: 40px; height: 40px; border-radius: 8px; background: var(--nacht) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23C5D94A' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/24px no-repeat; }
 .gelukt h3 { margin-top: 6px; }
 .gelukt p { margin: 0; }
 .schermafbeelding { grid-column: 2; margin: 16px 0 0; }
@@ -382,7 +387,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .tool-optie:hover { border-color: var(--inkt); }
 .tool-optie[aria-current="true"] { background: var(--munt); border-color: var(--inkt); box-shadow: inset 0 0 0 1px var(--inkt); }
 .tool-teken { width: 32px; height: 32px; margin-top: 2px; border: 2px solid var(--inkt); border-radius: 50%; background: var(--vlak); }
-.tool-optie[aria-current="true"] .tool-teken { background: var(--inkt) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23C5D94A' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat; }
+.tool-optie[aria-current="true"] .tool-teken { background: var(--nacht) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23C5D94A' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat; }
 .tool-tekst { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .tool-naam { font: 700 20px/1.3 var(--sans); }
 .tool-uitleg { font-size: 17px; line-height: 1.5; }
@@ -452,8 +457,8 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .tabrij ul { list-style: none; margin: 0; padding: 12px 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .tabrij a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border: 1px solid var(--lijn); border-radius: 8px; color: var(--inkt); text-decoration: none; font-weight: 500; white-space: nowrap; transition: border-color .15s var(--uit); }
 .tabrij a:hover { border-color: var(--inkt); }
-.tabrij a .aantal { font: 500 14px/1 var(--mono); color: var(--inkt-zacht); }
-.tabrij a[aria-current="page"] { background: var(--inkt); border-color: var(--inkt); color: #fff; }
+.tabrij a .aantal { font: 500 15px/1 var(--mono); color: var(--inkt-zacht); }
+.tabrij a[aria-current="page"] { background: var(--inkt); border-color: var(--inkt); color: var(--op-inkt); }
 .tabrij a[aria-current="page"] .aantal { color: var(--mos); }
 
 /* ---------- kaart van een seriedeel ---------- */
@@ -895,3 +900,53 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
   .plank-baan { width: auto; margin-left: 0; padding: 0; overflow: visible; flex-wrap: wrap; }
   .pijlen { display: none !important; }
 }
+
+/* ================= Donkere stand (Roel, 08-10-2026, naar Brams ontwerp en DESIGN.md) =================
+   De site volgt de stand van het systeem; er is geen schakelaar. Dezelfde rollen, andere waarden; er komt geen
+   kleur bij. Alleen op het scherm: afdrukken gebeurt altijd licht. Lettermaten en beweging veranderen niet. */
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --papier: #101613;      /* grond: groenzwart, geen puur zwart */
+    --vlak: #18201C;        /* kaart, kop, invoer: één stap lichter dan de grond, diepte zonder schaduw */
+    --lijn: #2E3A34;        /* haarlijnen en de stippen van labpapier */
+    --inkt: #DFE6E0;        /* tekst 14,4:1 op papier; gebroken wit, minder schittering */
+    --inkt-zacht: #A6B2AB;  /* 8,4:1 op papier, 7,6:1 op vlak */
+    --labgroen: #7ECDA0;    /* 9,7:1 op papier */
+    --labgroen-donker: #A3DDBC;  /* hover: in donker wordt groen lichter */
+    --munt: #1A2B22;
+    --stip-munt: #26392E;
+    --mos: #C5D94A;         /* blijft mos; nooit tekst */
+    --op-inkt: #101613;
+    --op-groen: #101613;    /* 9,7:1 op labgroen */
+    --nacht: #0B100D;
+    --voet: #0B100D;
+    --voet-zacht: #A6B2AB;
+  }
+
+  /* voet: de donkerste laag, met een haarlijn erboven */
+  .voet { color: var(--inkt); border-top: 1px solid var(--lijn); }
+
+  /* mos op nacht: in donker houdt een haarlijn het teken los van de grond */
+  .verwijs .teken:not(.avatar), .os-teken { box-shadow: inset 0 0 0 1px var(--lijn); }
+
+  /* "Vol" draait om: in licht inkt met mos, in donker mos met inkt. Het zwaarste vlak blijft het zwaarste. */
+  .laatst-uit .halte, .deel.nieuwste .nr { background: var(--mos); color: var(--op-inkt); border-color: var(--mos); }
+  /* actief filter is in donker een licht vlak: het aantal in mos zou dan mos op licht zijn */
+  .tabrij a[aria-current="page"] .aantal { color: var(--op-inkt); }
+
+  /* het portret blijft op wit; het witte vlak is zelf de rand */
+  .van-frits img, .losse-pagina .portret { border-color: transparent; }
+
+  /* schermafbeeldingen blijven zoals ze zijn, een haarlijn houdt het lichte beeld bij elkaar */
+  .artikel p > img { border: 1px solid var(--lijn); border-radius: 8px; }
+
+  /* toestemmingsmelding: een schaduw zie je op donker niet, de rand draagt hem */
+  .toestemming-binnen { box-shadow: none; }
+
+  /* tekstballon (staat nu uit): staart in de kleuren van de ballon */
+  .spreker .ballon::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 40'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Crect y='9' width='36' height='31'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M0 0C6 16 16 30 34 38C24 26 20 14 20 0Z' fill='%2318201C'/%3E%3Cpath d='M0 0C6 16 16 30 34 38C24 26 20 14 20 0' fill='none' stroke='%23DFE6E0' stroke-width='1.5' stroke-linejoin='round' clip-path='url(%23c)'/%3E%3C/svg%3E"); }
+  @media (max-width: 1000px) { .spreker .ballon::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 36'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Crect x='9' width='31' height='36'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M0 0C16 6 30 16 38 34C26 24 14 20 0 20Z' fill='%2318201C'/%3E%3Cpath d='M0 0C16 6 30 16 38 34C26 24 14 20 0 20' fill='none' stroke='%23DFE6E0' stroke-width='1.5' stroke-linejoin='round' clip-path='url(%23c)'/%3E%3C/svg%3E"); } }
+}
+
+/* Beelden die per stand wisselen (logo, figuren) staan in een <picture>; die doet niet mee in de opmaak. */
+picture.per-stand { display: contents; }

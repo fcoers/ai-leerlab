@@ -633,14 +633,37 @@ def avatar_schaal(naam, h):
     return h / maat[1] if maat and maat[1] else 1.0
 
 
-def avatar_img(naam, klasse, hoogte=None):
+def avatar_donker(naam, voor_bel=False):
+    """Het figuur met lichte lijnen voor de donkere stand (Anouk, 08-10-2026): zelfde naam en maat in
+    statisch/assets/img/avatars/donker/. Een figuur dat voor een bel in mos staat (kop van de beginpagina,
+    categoriekaarten) houdt in donker zijn inktlijnen, want lichte lijnen op mos hebben weinig contrast (Frits,
+    08-10-2026). Omzetten kan met één vlag in site.json: "donker_lichte_lijnen_voor_bel": true."""
+    if not naam or (voor_bel and not SITE.get("donker_lichte_lijnen_voor_bel", False)):
+        return None
+    p = os.path.join(STATISCH, "assets", "img", "avatars", "donker", f"{naam}.webp")
+    if not os.path.exists(p):
+        let_op(f"avatar '{naam}' heeft geen versie voor donker in statisch/assets/img/avatars/donker/")
+        return None
+    return f"/assets/img/avatars/donker/{naam}.webp"
+
+
+def per_stand(img, donker_url):
+    """Zet een <img> in een <picture> die in donker het andere bestand laadt. Zonder JavaScript, zonder flits."""
+    if not donker_url:
+        return img
+    return (f'<picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="{donker_url}">'
+            f'{img}</picture>')
+
+
+def avatar_img(naam, klasse, hoogte=None, voor_bel=False):
     a = avatar(naam) if naam else None
     if not a:
         return ""
     url, w, h = a
     schaal = avatar_schaal(naam, h)
     stijl = f' style="--schaal: {schaal:.3f}"' if abs(schaal - 1) > 0.005 else ""
-    return f'<img class="{klasse}" src="{url}" width="{w}" height="{h}" alt=""{stijl}>'
+    img = f'<img class="{klasse}" src="{url}" width="{w}" height="{h}" alt=""{stijl}>'
+    return per_stand(img, avatar_donker(naam, voor_bel))
 
 
 def maak_verwijzing(pagina, alle):
@@ -689,7 +712,8 @@ def maak_verwijzing(pagina, alle):
                 teken_naam = f"{figuur(teken_naam)}-rust"
             a = avatar(teken_naam)
             if a:
-                teken = f'<div class="teken avatar" aria-hidden="true"><img src="{a[0]}" alt=""></div>'
+                beeld = per_stand(f'<img src="{a[0]}" alt="">', avatar_donker(teken_naam))
+                teken = f'<div class="teken avatar" aria-hidden="true">{beeld}</div>'
         extra = f" · {esc(doel.meta['duur'])}" if doel and doel.meta.get("duur") else ""
         return f"""<aside class="verwijs" aria-label="{esc(label)}">
   {teken}
@@ -1200,7 +1224,7 @@ def kaart_figuur(slug):
         rol = re.sub(r"-rust$", "-rol", naam)
         if avatar(rol):
             naam = rol
-    return avatar_img(naam, "kaart-figuur")
+    return avatar_img(naam, "kaart-figuur", voor_bel=True)
 
 
 def categorie_keuze(slug, live, uit):
@@ -1459,7 +1483,7 @@ def held_html(h):
     if not zin:
         return f"""<section class="held labpapier" aria-labelledby="titel">
   <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
-  {avatar_img(h["avatar"], "held-avatar")}
+  {avatar_img(h["avatar"], "held-avatar", voor_bel=True)}
   <div class="wrap">
     <h1 id="titel">{esc(h["kop"])}</h1>
     <p class="lede">{esc(h["lede"])}</p>
@@ -1482,7 +1506,7 @@ def held_html(h):
         </div>
         <div class="spreker-beeld">
           <div class="bel groot" aria-hidden="true"></div><div class="bel klein" aria-hidden="true"></div>
-          {avatar_img(h["avatar"], "")}
+          {avatar_img(h["avatar"], "", voor_bel=True)}
         </div>
       </figure>
     </div>

@@ -928,6 +928,16 @@ def delen_html(item, altijd=False):
     </div>"""
 
 
+def beweging_html():
+    """Rustige beweging bij scrollen (proef, Roel 08-10-2026): blokken komen één keer op, de kop krijgt diepte,
+    figuren in kaarten staan op. Aan met "beweging_bij_scrollen": true in site.json; alleen beginpagina en
+    artikelen. Alle tekst staat gewoon in de HTML: zonder JavaScript of bij "minder beweging" staat alles stil."""
+    if not SITE.get("beweging_bij_scrollen"):
+        return "", ""
+    return (f'<link rel="stylesheet" href="/assets/beweging.css?v={VERSIE}">',
+            f'<script src="/assets/beweging.js?v={VERSIE}" defer></script>')
+
+
 def delen_script(item, altijd=False):
     return "" if item.concept and not altijd else f'<script src="{DELEN_JS}?v={VERSIE}" defer></script>'
 
@@ -1039,9 +1049,10 @@ def bouw_artikel(item, alle):
         item_kruimelpad_schema(item))
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
            menu="series" if item.is_deel else "leren", ogtype="article", deel=deelbeeld(item.slug), schema=schema,
-           noindex=item.concept, extra_voet=delen_script(item),
+           noindex=item.concept, extra_voet="\n  ".join(x for x in (delen_script(item), beweging_html()[1]) if x),
            extra_kop=f'<meta property="article:published_time" content="{item.datum.isoformat()}">\n'
-                     f'  <meta property="article:modified_time" content="{item.bijgewerkt.isoformat()}">')
+                     f'  <meta property="article:modified_time" content="{item.bijgewerkt.isoformat()}">'
+                     + (f"\n  {beweging_html()[0]}" if beweging_html()[0] else ""))
 
 
 EXTERNE_LINK = re.compile(r'<a\b([^>]*\bhref="https?://(?!(?:www\.)?ai-leerlab\.nl[/"])[^"]*"[^>]*)>(.*?)</a>', re.S)
@@ -1283,7 +1294,8 @@ def bouw_home(items):
     # en dan pas wegvalt om binnen te komen.
     spreker_js = f'<script src="/assets/spreker.js?v={VERSIE}"></script>' if h.get("spreker") else ""
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",
-           schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"], extra_voet=spreker_js)
+           schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"], extra_kop=beweging_html()[0],
+           extra_voet="\n  ".join(x for x in (spreker_js, beweging_html()[1]) if x))
 
 
 def held_html(h):

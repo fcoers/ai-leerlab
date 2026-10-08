@@ -1,0 +1,54 @@
+/* Beweging bij scrollen (proef, Roel 08-10-2026). Drie bewegingen, één karakter: kort, rustig, alleen transform,
+   translate en opacity, nooit iets dat de opmaak laat verspringen. Alles valt binnen "geen voorkeur voor minder
+   beweging"; bij minder beweging, zonder JavaScript of in een browser zonder scroll-tijdlijnen staat alles stil
+   en compleet. Geladen door bouw.py als "beweging_bij_scrollen" aan staat in site.json.
+
+   1. Opkomen   blokken op de beginpagina en verwijsblokken in een artikel komen één keer op (beweging.js).
+                Nooit lopende tekst: een alinea, kop of lijst in een artikel beweegt niet.
+   2. Diepte    in de kop blijven figuur en bels iets achter bij het scrollen; de tekst niet.
+   3. Opstaan   het figuur in een uitgelichte of grote kaart staat op zijn vloer als de kaart in beeld komt. */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* 1. Opkomen. beweging.js zet .wacht alleen op blokken die bij het laden nog onder de vouw staan, dus wat je
+     meteen ziet, staat er gewoon. */
+  .wacht { opacity: 0; transform: translateY(16px); }
+  .komt { transition: opacity 480ms var(--uit), transform 600ms var(--uit); }
+
+  @supports (animation-timeline: scroll()) {
+
+    /* 2. Diepte in de kop. Over de eerste 520px scroll: de grote bel blijft het verst achter, dan de kleine,
+       dan het figuur. Ze zakken onder de onderrand van de kop weg (die knipt af), zodat de vloer klopt. */
+    .held .bel.groot, .held .bel.klein, .held-avatar {
+      animation-name: diepte; animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both;
+      animation-timeline: scroll(root); animation-range: 0px 520px;
+    }
+    /* De bels hebben ook de bestaande opkomst bij het laden (transform); diepte werkt via translate, ernaast. */
+    html .held .bel.groot { --diep: 96px; animation-name: bel-op, diepte; animation-duration: 900ms, 1ms;
+      animation-timing-function: var(--uit), linear; animation-timeline: auto, scroll(root); animation-range: normal, 0px 520px; }
+    html .held .bel.klein { --diep: 64px; animation-name: bel-op, diepte; animation-duration: 900ms, 1ms; animation-delay: 180ms, 0s;
+      animation-timing-function: var(--uit), linear; animation-timeline: auto, scroll(root); animation-range: normal, 0px 520px; }
+    .held-avatar { --diep: 40px; }
+
+    /* Artikelkop: alleen het figuur, en alleen breed genoeg (op de telefoon staat het boven de titel). */
+    @media (min-width: 641px) {
+      .item-kop.met-avatar { overflow: clip; }
+      .item-kop .kop-avatar img {
+        --diep: 32px;
+        animation: diepte 1ms linear both; animation-timeline: scroll(root); animation-range: 0px 420px;
+      }
+    }
+
+    /* 3. Opstaan. Het figuur begint 22px onder zijn vloer (de kaart knipt af) en staat als de kaart voor een
+       derde in beeld is. Daarna staat het stil. */
+    .uitgelicht, .kaart-groot.met-figuur { view-timeline: --kaart block; }
+    .uitgelicht-avatar img, .kaart-groot .kaart-figuur {
+      animation: opstaan 1ms linear both; animation-timeline: --kaart; animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
+@keyframes diepte { from { translate: 0 0; } to { translate: 0 var(--diep, 40px); } }
+@keyframes opstaan { from { translate: 0 22px; } to { translate: 0 0; } }
+
+@media print { .wacht { opacity: 1; transform: none; } }

@@ -13,7 +13,7 @@ datum: 2026-09-30
 
 Ik ben Frits Coers, docent bij Hogeschool Windesheim. Ik werk zelf elke dag met een team van AI-hulpjes en zie hoe studenten en collega's er hun weg in zoeken. Wat ik maak en leer deel ik op deze website.
 
-Sinds augustus 2023 ben ik docent bij de opleiding Technische Bedrijfskunde. Daarnaast volg ik de master Leren & Innoveren.
+Ik ben docent bij de opleidingen Technische Bedrijfskunde en Logistics Engineering. Daarnaast volg ik de master Leren & Innoveren.
 
 Alles op deze site heb ik eerst in mijn eigen onderwijs of werk gebruikt. Je mag het gebruiken in je eigen les of studie.
 

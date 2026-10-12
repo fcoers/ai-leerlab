@@ -63,7 +63,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 /* ---------- kop en voet ---------- */
 .kop { background: var(--vlak); border-bottom: 1px solid var(--lijn); }
 .kop .wrap { display: flex; align-items: center; justify-content: space-between; min-height: 76px; gap: 24px; }
-.merk { display: inline-flex; align-items: center; min-height: 44px; }
+.merk { display: inline-flex; align-items: center; min-height: 44px; flex: none; }
 .merk .logo { height: 44px; width: auto; }
 .nav { display: flex; gap: 4px; }
 .nav a { color: var(--inkt); text-decoration: none; font-weight: 500; padding: 10px 14px; border-radius: 8px; min-height: 44px; display: inline-flex; align-items: center; }
@@ -141,13 +141,13 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @media (max-width: 719px) { .raster { grid-template-columns: 1fr; } }
 .kaart { position: relative; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; padding: 24px 24px 20px; display: flex; flex-direction: column; gap: 12px; transition: border-color .15s var(--uit); }
 .kaart:hover { border-color: var(--inkt); }
-.kaart h3 { font: 700 22px/1.25 var(--sans); margin: 4px 0 0; }
-.kaart h3 a { color: var(--inkt); text-decoration: none; }
-.kaart h3 a::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
-.kaart:hover h3 a { text-decoration: underline; text-decoration-thickness: 2px; }
+.kaart :is(h2, h3) { font: 700 22px/1.25 var(--sans); margin: 4px 0 0; }
+.kaart :is(h2, h3) a { color: var(--inkt); text-decoration: none; }
+.kaart :is(h2, h3) a::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
+.kaart:hover :is(h2, h3) a { text-decoration: underline; text-decoration-thickness: 2px; }
 .kaart .uitleg { margin: 0; }
 .voor { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--lijn); font-size: 16px; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; min-height: 24px; }
-.voor .v-tekst { min-width: 0; white-space: nowrap; }
+.voor .v-tekst { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .van-frits { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: center; border-top: 1px solid var(--lijn); padding: 72px 0 0; margin-top: 48px; }
 .van-frits img { width: 220px; background: #fff; border: 1px solid var(--lijn); border-radius: 8px; }
@@ -191,7 +191,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
   .item-kop .tekst { padding-bottom: 40px; }
   /* Op een artikel blijft de avatar op mobiel: klein, rechts naast kruimelpad en label, boven de titel.
      Hij neemt ruimte die daar toch leeg is, dus de titel zakt niet (Frits, 01-10-2026). */
-  .item-kop.met-avatar .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 16px; padding-top: 8px; padding-bottom: 40px; align-items: end; }
+  .item-kop.met-avatar .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 20px; row-gap: 16px; padding-top: 20px; padding-bottom: 40px; align-items: end; }
   .item-kop.met-avatar .tekst { display: contents; }
   .item-kop.met-avatar .tekst > * { grid-column: 1 / -1; }
   .item-kop.met-avatar .tekst > nav { grid-column: 1; grid-row: 1; }
@@ -305,13 +305,18 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .tutorial { max-width: var(--tekst); padding: 32px 0 0; }
 .tut-bezig .item-kop { display: none; }
 .voortgang { display: flex; align-items: center; justify-content: flex-start; gap: 16px; padding: 0 0 16px; margin: 0 0 32px; border-bottom: 1px solid var(--lijn); }
-/* De tekst 'Stap 2 van 4' staat al boven de stap; hier alleen voor schermlezers. */
-.voortgang-tekst { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* 'Vier stappen' of 'Stap 2 van 4' staat zichtbaar naast de balk (expertscan 11-10-2026). */
+.voortgang .voortgang-tekst { margin: 0; font-size: 16px; color: var(--inkt-zacht); white-space: nowrap; }
 .voortgang-balk { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
 .voortgang-balk a { display: flex; align-items: center; width: 44px; height: 44px; }
 .voortgang-balk a::before { content: ""; display: block; width: 100%; height: 8px; border-radius: 4px; background: var(--lijn); transition: background-color .2s var(--uit); }
 .voortgang-balk a.gedaan::before { background: var(--inkt-zacht); }
 .voortgang-balk a[aria-current="step"]::before { background: var(--inkt); height: 12px; }
+/* Een stap die je nog niet zag: een open balk met een rand in inkt-zacht (contrast ruim boven 3:1), zodat je
+   ziet dat het een link is. Gedaan is gevuld, de huidige stap gevuld en hoger: vorm, niet alleen kleur. */
+.voortgang .voortgang-balk a::before { border: 1.5px solid var(--inkt-zacht); background: transparent; }
+.voortgang .voortgang-balk a.gedaan::before { background: var(--inkt-zacht); }
+.voortgang .voortgang-balk a[aria-current="step"]::before { background: var(--inkt); border-color: var(--inkt); }
 .no-js .voortgang { display: none; }
 
 .terug-melding p { margin: 0 0 24px; padding: 8px 16px; background: var(--munt); border-radius: 8px; }
@@ -417,6 +422,9 @@ main:focus, h1:focus, h2:focus { outline: none; }
 
 .stapknoppen { display: none; }
 .js .stapknoppen { display: block; position: sticky; bottom: 0; z-index: 5; }
+/* Een korte vervaging boven de balk, zodat een tekstregel er niet hard doormidden wordt gesneden. */
+.stapknoppen-binnen { position: relative; }
+.stapknoppen-binnen::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 32px; margin-bottom: 1px; background: linear-gradient(to bottom, transparent, var(--papier)); pointer-events: none; }
 .stapknoppen-binnen { padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); background: var(--papier); border-top: 1px solid var(--lijn); display: flex; justify-content: space-between; gap: 16px; margin-top: 40px; }
 .stapknoppen .knop { min-width: 140px; white-space: nowrap; }
 #volgende { margin-left: auto; }
@@ -438,6 +446,19 @@ main:focus, h1:focus, h2:focus { outline: none; }
   .artikel { padding-top: 40px; }
   .artikel > p:first-child { font-size: 19px; }
   .artikel h2 { font-size: 25px; margin-top: 44px; }
+}
+
+/* Onder 480 px past het woordmerk niet naast het menu: dan alleen het kolfje (expertscan 11-10-2026).
+   Het kolfje is het linker deel van logo.svg; de link houdt zijn naam via aria-label. */
+@media (max-width: 480px) {
+  .kop .merk { width: 40px; overflow: hidden; }
+  .kop .merk picture { flex: none; }
+  .kop .merk .logo { max-width: none; height: 36px; width: auto; }
+}
+@media (max-width: 360px) {
+  .kop .wrap { padding: 0 16px; }
+  .nav { gap: 0; }
+  .nav a { padding: 10px 8px; }
 }
 
 /* ---------- minder beweging ---------- */
@@ -469,10 +490,10 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .label .serie-deel { color: var(--inkt); }
 /* label "Serie", het deelnummer vóór de titel en de serienaam onderaan. Het nummer staat in hetzelfde
    vierkantje als een halte in de serierij (Frits, 08-10-2026); de titel hangt ernaast, ook als hij afbreekt. */
-.kaart h3 a:has(.nr), .uitgelicht h2 a:has(.nr) { display: flex; align-items: first baseline; gap: 14px; }
-.kaart h3 .nr, .uitgelicht h2 .nr { width: 40px; height: 40px; flex: none; border-radius: 8px; background: var(--papier); color: var(--inkt); border: 1.5px solid var(--inkt); font: 700 17px/1 var(--mono); letter-spacing: 0; display: inline-flex; align-items: center; justify-content: center; }
-.kaart:hover h3 a:has(.nr), .uitgelicht:hover h2 a:has(.nr) { text-decoration: none; }
-.kaart:hover h3 .nr-titel, .uitgelicht:hover h2 .nr-titel { text-decoration: underline; text-decoration-thickness: 2px; }
+.kaart :is(h2, h3) a:has(.nr), .uitgelicht h2 a:has(.nr) { display: flex; align-items: first baseline; gap: 14px; }
+.kaart :is(h2, h3) .nr, .uitgelicht h2 .nr { width: 40px; height: 40px; flex: none; border-radius: 8px; background: var(--papier); color: var(--inkt); border: 1.5px solid var(--inkt); font: 700 17px/1 var(--mono); letter-spacing: 0; display: inline-flex; align-items: center; justify-content: center; }
+.kaart:hover :is(h2, h3) a:has(.nr), .uitgelicht:hover h2 a:has(.nr) { text-decoration: none; }
+.kaart:hover :is(h2, h3) .nr-titel, .uitgelicht:hover h2 .nr-titel { text-decoration: underline; text-decoration-thickness: 2px; }
 .kaart .serie-voet { color: var(--inkt); font-weight: 500; }
 /* voetregel van een kaart: eerst de publicatiedatum ("1 okt 2026"), dan voor wie of de serie */
 .voor time { white-space: nowrap; }
@@ -557,7 +578,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .uitgelicht .datum-pill { margin-left: 12px; background: var(--vlak); }
 /* Nieuw: een klein icoon rechts in de voetregel, met "Nieuw" voor schermlezers en als tooltip.
    De vorm (een kiemplantje) draagt het teken, niet de kleur. */
-.nieuw-icoon { margin-left: auto; flex: none; display: inline-flex; width: 22px; height: 22px; }
+.nieuw-icoon { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; color: var(--inkt-zacht); white-space: nowrap; }
 .nieuw-icoon svg { width: 22px; height: 22px; fill: none; stroke: var(--inkt); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .nieuw-icoon svg .blad { fill: var(--mos); }
 .deel .wanneer .nieuw-icoon, .uitgelicht .nieuw-icoon { margin-left: 4px; }
@@ -648,6 +669,23 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .toestemming .knoppen { margin-top: 0; }
 .toestemming .knop { min-height: 48px; min-width: 140px; }
 @media (max-width: 480px) { .toestemming .knop { flex: 1 1 0; min-width: 0; } }
+/* Op een telefoon kort (expertscan 11-10-2026: 31 tot 40% van het scherm): kop, één regel en de twee knoppen. */
+.toestemming .kort { display: none; }
+@media (max-width: 640px) {
+  .toestemming { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .toestemming-binnen { padding: 14px 16px; }
+  .toestemming h2 { font-size: 18px; margin-bottom: 4px; }
+  .toestemming p { font-size: 15px; margin-bottom: 10px; }
+  .toestemming .lang { display: none; } .toestemming .kort { display: inline; }
+  .toestemming .knop { min-height: 44px; }
+}
+/* Op een breed scherm rechtsonder, zodat de melding niet over de knoppen in de tekstkolom ligt. */
+@media (min-width: 1080px) {
+  .toestemming { justify-content: flex-end; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .toestemming-binnen { max-width: 420px; }
+  .toestemming .knoppen { flex-wrap: nowrap; }
+  .toestemming .knop { min-width: 0; flex: 1 1 0; }
+}
 @keyframes toestemming-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 /* weggaan: zakt en vervaagt, zet aan (in), korter dan binnenkomen; daarna haalt toestemming.js hem weg */
 .toestemming.gaat { animation: toestemming-uit .24s var(--in) both; }
@@ -995,3 +1033,10 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
 
 /* Beelden die per stand wisselen (logo, figuren) staan in een <picture>; die doet niet mee in de opmaak. */
 picture.per-stand { display: contents; }
+
+/* ---------- expertscan 11-10-2026 (klus 316) ---------- */
+/* Het woord bij de tekens: "Nieuwste deel" bij de volle halte en het donkere vakje. */
+.nieuwste-woord { margin-left: auto; font-size: 15px; font-weight: 600; color: var(--inkt); white-space: nowrap; }
+.deel .wanneer .nieuwste-woord { margin-left: 4px; }
+/* De negen labels in de zelftest: de naam als eigen regel, zodat je hem terugvindt in de lijst. */
+.zt-labelnaam { display: block; font-weight: 600; color: var(--inkt); }

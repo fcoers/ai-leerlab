@@ -92,7 +92,8 @@
     melding.innerHTML =
       '<div class="toestemming-binnen">' +
       '<h2 id="toestemming-kop" tabindex="-1">Mag ik meten hoeveel mensen hier komen?</h2>' +
-      '<p>Met je toestemming telt Google Analytics de bezoeken. Daarvoor zet het cookies en gaan er gegevens naar Google. ' +
+      '<p><span class="lang">Met je toestemming telt Google Analytics de bezoeken. Daarvoor zet het cookies en gaan er gegevens naar Google. </span>' +
+      '<span class="kort">Met cookies van Google. </span>' +
       '<a href="/over/#colofon">Meer hierover</a></p>' +
       '<div class="knoppen">' +
       '<button type="button" class="knop knop-secundair" data-keuze="ja">Accepteren</button>' +

@@ -132,7 +132,8 @@ def voor_kort(voor):
 # De voetregel van een kaart staat op één regel (Frits, 01-10-2026). Hij toont de lange vorm (volledige
 # serienaam, "Voor studenten en docenten") en wisselt naar de korte vorm als de kaart te smal is. Dat doet
 # een container query op de kaart; het script schat hier per regel de breedte waaronder dat moet.
-# Tekenbreedte bij 16px Roboto Flex: ongeveer 7,7px (400) en 8,1px (500). Plus 28px voor het Nieuw-icoon.
+# Tekenbreedte bij 16px Roboto Flex: ongeveer 7,7px (400) en 8,1px (500). Plus 28px voor het Nieuw-icoon, en
+# 50px extra voor het woord "Nieuw" ernaast als het item nieuw is (expertscan 11-10-2026).
 DREMPELS = range(200, 421, 20)     # moet gelijk lopen met de @container-regels in site.css
 KAART_SMALST = 230                 # smalste kaart (telefoon van 320px), tekstbreedte in px
 
@@ -145,7 +146,7 @@ def voet_html(item, lang, kort, vet=False, nieuw=False):
     """Voetregel van een kaart: tekst links (lang en kort), Nieuw-icoon rechts. Geeft (html, klasse)."""
     klasse = ""
     if kort and kort != lang:
-        nodig = voet_breedte(lang, vet) + 8
+        nodig = voet_breedte(lang, vet) + 8 + (50 if nieuw else 0)
         drempel = next((d for d in DREMPELS if d >= nodig), None)
         if drempel is None:
             klasse = " altijd-kort"            # te lang voor elke kaart: altijd de korte vorm
@@ -568,9 +569,10 @@ def soort_label(item):
     return f"{icoon(item.soort)}{esc(item.soortlabel)}"
 
 
-# "Nieuw" is een klein icoon rechts in de voetregel, met de tekst voor schermlezers en als tooltip
-# (Frits, 01-10-2026: minder nadruk dan het blokje in de labelregel).
-NIEUW_ICOON = ('<span class="nieuw-icoon" title="Nieuw">' + icoon("nieuw") + '<span class="sr">Nieuw</span></span>')
+# "Nieuw" is een klein icoon rechts in de voetregel (Frits, 01-10-2026: minder nadruk dan het blokje in de
+# labelregel), met het woord ernaast: alleen bij muisover was de betekenis niet te vinden (expertscan 11-10-2026).
+NIEUWSTE_WOORD = '<span class="nieuwste-woord">Nieuwste deel</span>'
+NIEUW_ICOON = ('<span class="nieuw-icoon">' + icoon("nieuw") + '<span>Nieuw</span></span>')
 
 
 def datum_pill(item):
@@ -582,7 +584,9 @@ def kaart_label(item):
     """Labelregel van een kaart. Een seriedeel krijgt alleen "Serie", net als "Uitleg" of "Tutorial";
     het deelnummer staat vóór de titel en de serienaam onderaan (Bram, 01-10-2026)."""
     if item.is_deel:
-        return f"{icoon('serie')}Serie"
+        # "deel 3" erbij, zodat het cijfer in het vakje een betekenis heeft (expertscan 11-10-2026). Voor een
+        # schermlezer verborgen: die hoort "Deel 3:" al in de titel.
+        return f"{icoon('serie')}Serie<span aria-hidden=\"true\">· deel {item.deel}</span>"
     return f"{icoon(item.soort)}{esc(item.soortlabel)}"
 
 
@@ -596,7 +600,7 @@ def titel_html(item):
     return esc(item.titel)
 
 
-def kaart(item, nieuw=False, tag="li"):
+def kaart(item, nieuw=False, tag="li", kop=3):
     """Een kaart: labelregel met de datum als pill rechts, titel, uitleg, en onderaan de serienaam of voor
     wie, met rechts het Nieuw-icoon (Frits, 01-10-2026). Op de plank is de kaart een article in een li."""
     if item.is_deel:
@@ -606,17 +610,19 @@ def kaart(item, nieuw=False, tag="li"):
         voet, klasse = voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw)
     return f"""<{tag} class="kaart{klasse}">
   <p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>
-  <h3><a href="{item.url}">{titel_html(item)}</a></h3>
+  <h{kop}><a href="{item.url}">{titel_html(item)}</a></h{kop}>
   <p class="uitleg">{esc(item.kaarttekst)}</p>
   {voet}
 </{tag}>"""
 
 
-def raster(items, nieuw=False, kop=""):
+def raster(items, nieuw=False, kop="", niveau=3):
     """Kaarten in een raster. Met nieuw=True krijgen items van de afgelopen NIEUW_DAGEN het teken
-    (alleen op de beginpagina). kop is het id van een zichtbare kop boven het raster."""
+    (alleen op de beginpagina). kop is het id van een zichtbare kop boven het raster. niveau is het kopniveau
+    van de kaarttitels: 2 op een lijstpagina die direct onder de h1 begint, anders slaat de pagina een niveau
+    over (axe-core, expertscan 11-10-2026)."""
     attr = f' aria-labelledby="{kop}"' if kop else ""
-    return f'<ul class="raster"{attr}>\n' + "\n".join(kaart(x, nieuw and is_nieuw(x)) for x in items) + "\n</ul>"
+    return f'<ul class="raster"{attr}>\n' + "\n".join(kaart(x, nieuw and is_nieuw(x), kop=niveau) for x in items) + "\n</ul>"
 
 
 def figuur(naam):
@@ -1230,7 +1236,7 @@ def kaart_figuur(slug):
     return avatar_img(naam, "kaart-figuur", voor_bel=True)
 
 
-def categorie_keuze(slug, live, uit):
+def categorie_keuze(slug, live, uit, ook_niet=frozenset()):
     """(grote kaart, totaal) voor het blok van een categorie op de beginpagina.
 
     Het uitgelichte item van de beginpagina komt niet terug. Een seriedeel telt als gewoon artikel.
@@ -1238,7 +1244,7 @@ def categorie_keuze(slug, live, uit):
     De lijst "Laatst verschenen" is vervallen: wat nieuw is, staat op de plank Nieuw (Frits, 08-10-2026)."""
     alle = [x for x in live if x.categorie == slug]
     totaal = len(alle)
-    rest = [x for x in alle if x is not uit]
+    rest = [x for x in alle if x is not uit and id(x) not in ook_niet]   # ook_niet: delen die al in een serieblok staan
     if not rest:
         return None, totaal, []
     gemarkeerd = [x for x in rest if x.uitgelicht_categorie]
@@ -1394,7 +1400,11 @@ def serie_blok(s):
         if x is None:
             kaart_ = f'<div class="deel-kaart"><p><span class="sr">Deel {nr}: </span><b>Volgt</b> op {datum_dag(volgt.datum)}</p></div>'
         else:
-            nieuw = NIEUW_ICOON if is_nieuw(x) else ""
+            # Het laatst verschenen deel: de volle halte met het woord erbij; dat zegt al dat het nieuw is.
+            if "laatst-uit" in klassen:
+                nieuw = NIEUWSTE_WOORD
+            else:
+                nieuw = NIEUW_ICOON if is_nieuw(x) else ""
             kaart_ = (f'<div class="deel-kaart"><h3><a href="{x.url}"><span class="sr">Deel {nr}: </span>{esc(x.titel)}</a></h3>'
                       f'<p class="meta"><time datetime="{x.datum.isoformat()}">{datum_kort(x.datum)}</time>{nieuw}</p></div>')
         li.append(f'<li{k}><span class="halte" aria-hidden="true">{nr}</span>\n          {kaart_}</li>')
@@ -1448,23 +1458,31 @@ def bouw_home(items):
     # met dezelfde dikke lijn in inkt.
     # Categorieblokken in de vaste volgorde van site.json (Frits, 02-10-2026). Een categorie zonder artikelen, of
     # met alleen het uitgelichte item, krijgt geen blok.
-    blokken, groot_getoond, cat_plank = [], [], []
-    for slug in CATEGORIEEN:
-        if slug not in STAAT["categorieen"]:
-            continue
-        groot, totaal, rest = categorie_keuze(slug, live, uit)
-        if not groot:
-            continue
-        blokken.append(categorie_blok(slug, groot, totaal, rest))
-        groot_getoond.append(groot)
-        cat_plank += [groot] + (rest if CATEGORIEEN[slug].get("plank") else [])
-    # De plank: het nieuwste eerst, zonder wat al groot op de pagina staat (het uitgelichte item en de grote
-    # kaarten van de categorieën).
-    groot_ids = {id(x) for x in groot_getoond + ([uit] if uit else [])}
-    op_plank = [x for x in leren_items(items) if id(x) not in groot_ids][:NIEUW_MAX]
+    # Elk item staat hooguit één keer op de pagina (expertscan 11-10-2026, klus 316: 17 kaarten voor 10 items).
+    # Een seriedeel staat in zijn serieblok, want die lijn moet compleet blijven; daarom niet op de plank Nieuw.
+    # De plank van een categorie laat weg wat al op de plank Nieuw staat.
     # Lopende series, hooguit drie, de serie met het nieuwste deel bovenaan. Een afgeronde serie staat op Series.
     lopend = sorted((s for s in STAAT["series"].values() if s.lopend), key=lambda s: s.nieuwste.datum, reverse=True)
     series = lopend[:SERIES_HOME_MAX]
+    in_serieblok = {id(d) for s in series for d in s.delen}
+    keuzes = []
+    for slug in CATEGORIEEN:
+        if slug not in STAAT["categorieen"]:
+            continue
+        groot, totaal, rest = categorie_keuze(slug, live, uit, in_serieblok)
+        if groot:
+            keuzes.append((slug, groot, totaal, rest))
+    # De plank: het nieuwste eerst, zonder wat al groot op de pagina staat (het uitgelichte item en de grote
+    # kaarten van de categorieën) en zonder de delen in een serieblok.
+    groot_ids = {id(g) for _, g, _, _ in keuzes} | ({id(uit)} if uit else set())
+    op_plank = [x for x in leren_items(items) if id(x) not in groot_ids and id(x) not in in_serieblok][:NIEUW_MAX]
+    op_plank_ids = {id(x) for x in op_plank}
+    blokken, groot_getoond, cat_plank = [], [], []
+    for slug, groot, totaal, rest in keuzes:
+        rest = [x for x in rest if id(x) not in op_plank_ids and id(x) not in in_serieblok]
+        blokken.append(categorie_blok(slug, groot, totaal, rest))
+        groot_getoond.append(groot)
+        cat_plank += [groot] + (rest if CATEGORIEEN[slug].get("plank") else [])
     lagen = "\n  ".join(x for x in [plank_nieuw(op_plank, leren_items(items))]
                         + [serie_blok(s) for s in series] + blokken if x)
     inhoud = f"""{held_html(h)}
@@ -1576,7 +1594,7 @@ def bouw_leren(items):
 </section>
 {tabrij(items)}
 <div class="wrap lijst">
-  {raster(live)}
+  {raster(live, niveau=2)}
 </div>"""
     pagina("/leren/", titel=SITE["leren"]["seotitel"], beschrijving=SITE["leren"]["beschrijving"], inhoud=inhoud,
            url="/leren/", menu="leren",
@@ -1597,7 +1615,7 @@ def bouw_tools(items):
   </div>
 </section>
 <div class="wrap lijst">
-  {raster(STAAT["tools"])}
+  {raster(STAAT["tools"], niveau=2)}
 </div>"""
     pagina("/tools/", titel=t["seotitel"], beschrijving=t["beschrijving"], inhoud=inhoud, url="/tools/", menu="tools",
            schema=lijst_schema("Tools", "/tools/", t["beschrijving"], STAAT["tools"],
@@ -1634,7 +1652,7 @@ def bouw_categorieen(items):
 </section>
 {tabrij(items, slug)}
 <div class="wrap lijst">
-  {raster(leden)}
+  {raster(leden, niveau=2)}
 </div>"""
         pagina(url, titel=c["seotitel"], beschrijving=c["beschrijving"], inhoud=inhoud, url=url, menu="leren",
                schema=lijst_schema(c["naam"], url, c["beschrijving"], leden,
@@ -1659,7 +1677,7 @@ def bouw_onderwerpen():
   </div>
 </section>
 <div class="wrap lijst">
-  {raster(leden)}
+  {raster(leden, niveau=2)}
 </div>"""
         pagina(url, titel=seotitel, beschrijving=beschrijving, inhoud=inhoud, url=url, menu="leren",
                schema=lijst_schema(naam, url, beschrijving, leden,
@@ -1693,7 +1711,7 @@ def bouw_series():
         rijen = []
         for x in s.delen:
             is_nieuwste = x is nieuwste and s.lopend and len(s.delen) > 1
-            nieuw = NIEUW_ICOON if is_nieuw(x) else ""
+            nieuw = NIEUWSTE_WOORD if is_nieuwste else (NIEUW_ICOON if is_nieuw(x) else "")
             rijen.append(f"""<li class="deel{' nieuwste' if is_nieuwste else ''}" id="deel-{x.deel}">
           <span class="nr" aria-hidden="true">{x.deel}</span>
           <h3><a href="{x.url}"><span class="sr">Deel {x.deel}: </span>{esc(x.titel)}</a></h3>
@@ -1753,7 +1771,7 @@ def bouw_series():
     alle = sorted(STAAT["series"].values(), key=lambda s: s.delen[-1].datum, reverse=True)
     kaarten = "\n".join(f"""<li class="kaart">
   <p class="label">{icoon("serie")}{esc(s.label)}</p>
-  <h3><a href="{s.url}">{esc(s.titel)}</a></h3>
+  <h2><a href="{s.url}">{esc(s.titel)}</a></h2>
   <p class="uitleg">{esc(s.lede)}</p>
   <p class="voor">{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"} · nieuwste {datum_kort(s.delen[-1].datum)}</p>
 </li>""" for s in alle)

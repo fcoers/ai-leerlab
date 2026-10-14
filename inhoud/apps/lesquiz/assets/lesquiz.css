@@ -35,7 +35,10 @@
 .lq-student h1 { font: 800 clamp(28px, 7.5vw, 36px)/1.12 var(--sans); letter-spacing: -.01em; margin: 6px 0 10px; }
 .lq-student .lede { font-size: 19px; color: var(--inkt-zacht); }
 .lq-staat[hidden] { display: none; }
-.lq-staat { animation: lq-in .45s var(--uit) both; }
+/* Binnenkomen: ease-out, zonder fill-mode, zodat de animatie na afloop de dekking niet vasthoudt.
+   Weggaan: .is-weg vervaagt met ease-in (200 ms); student.js verbergt het scherm pas daarna. */
+.lq-staat { animation: lq-in .45s var(--uit); }
+.lq-staat.is-weg { animation: none; opacity: 0; transform: translateY(-6px); transition: opacity .2s var(--in), transform .2s var(--in); }
 @keyframes lq-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .lq-namen { border: 0; padding: 0; margin: 28px 0 0; display: grid; gap: 16px; }
 .lq-namen legend { font: 700 22px/1.25 var(--sans); padding: 0; margin-bottom: 12px; }
@@ -143,6 +146,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .lq-staat, .lq-melding { animation: none; }
+  .lq-staat.is-weg { transition: none; }
   .lq-vink path { animation: none; stroke-dashoffset: 0; }
   .lq-keuze, .lq-rond::after { transition: none; }
 }

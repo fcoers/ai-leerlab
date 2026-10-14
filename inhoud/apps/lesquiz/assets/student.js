@@ -32,16 +32,20 @@
     var oud = huidig;
     huidig = nieuw;
     function wissel() {
-      if (oud && oud !== nieuw) { oud.hidden = true; oud.style.opacity = ''; oud.style.transition = ''; }
+      if (oud && oud !== nieuw) { oud.hidden = true; oud.classList.remove('is-weg'); }
       nieuw.hidden = false;
       window.scrollTo(0, 0);
       var f = focus ? $(focus, nieuw) : $('h1', nieuw);
       if (f) f.focus({ preventScroll: true });
     }
     if (oud && oud !== nieuw && !oud.hidden && !minder) {
-      oud.style.transition = 'opacity .2s cubic-bezier(0.55, 0, 0.85, 0.35)';
-      oud.style.opacity = '0';
-      setTimeout(wissel, 200);
+      // Eerst de lopende binnenkomst-animatie los, dan de stand vastleggen, dan zacht weg (ease-in, 200 ms).
+      oud.style.animation = 'none';
+      oud.style.opacity = getComputedStyle(oud).opacity;
+      void oud.offsetHeight;
+      oud.style.animation = ''; oud.style.opacity = '';
+      oud.classList.add('is-weg');
+      setTimeout(wissel, 210);
     } else wissel();
   }
 

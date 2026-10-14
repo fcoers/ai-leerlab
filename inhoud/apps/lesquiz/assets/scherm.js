@@ -62,6 +62,7 @@
       requestAnimationFrame(function () { requestAnimationFrame(function () { r.balk.style.transform = 'scaleX(' + deel.toFixed(4) + ')'; }); });
     });
     var toonQR = metQR && d.open;
+    var qrWissel = root.classList.contains('met-qr') !== toonQR;
     root.classList.toggle('met-qr', toonQR);
     $('[data-doe-mee]').hidden = !toonQR;
     if (toonQR && qrVoor !== d.code && window.lqQR) {
@@ -70,7 +71,24 @@
       $('[data-code]').textContent = d.code;
       qrVoor = d.code;
     }
+    if (qrWissel || pasNodig !== tekstSleutel(d)) { pasNodig = tekstSleutel(d); pasAan(); }
   }
+
+  // Laat titel en vragen passen: eerst de titel tot hooguit twee regels, dan de vragen tot er niets meer
+  // buiten beeld valt. Stappen van 5 procent, titel nooit onder 60, vragen nooit onder 50 procent. Opnieuw bij een andere tekst of venstermaat.
+  var pasNodig = '';
+  function tekstSleutel(d) { return d.titel + '|' + d.vragen.map(function (v) { return v.vraag; }).join('|'); }
+  function pasAan() {
+    var h1 = document.querySelector('[data-titel]'), stand = document.querySelector('.sc-stand');
+    var ft = 1, fv = 1;
+    root.style.setProperty('--ft', 1); root.style.setProperty('--fv', 1);
+    var regel = function () { return parseFloat(getComputedStyle(h1).lineHeight) || h1.clientHeight; };
+    while (ft > 0.6 && h1.scrollHeight > regel() * 2 + 2) { ft -= 0.05; root.style.setProperty('--ft', ft.toFixed(2)); }
+    while (fv > 0.5 && stand.scrollHeight > stand.clientHeight + 1) { fv -= 0.05; root.style.setProperty('--fv', fv.toFixed(2)); }
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (pasNodig) pasAan(); });
+  var wacht;
+  window.addEventListener('resize', function () { clearTimeout(wacht); wacht = setTimeout(pasAan, 150); });
 
   function haal() {
     fetch('/apps/lesquiz/api/stand.php?s=' + encodeURIComponent(s), { cache: 'no-store' })

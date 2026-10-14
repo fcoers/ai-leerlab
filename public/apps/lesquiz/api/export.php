@@ -8,16 +8,27 @@ define('LESQUIZ', true);
 require __DIR__ . '/lib/kern.php';
 
 $sleutel = (string)($_SERVER['HTTP_X_LESQUIZ_SLEUTEL'] ?? '');
+if ($sleutel === '' || !hash_equals(lq_exportsleutel(), $sleutel)) {
+    // Geen rem vóór de controle: een vreemde kan zo het script op de Mac niet laten haperen.
+    // Raden heeft geen zin: de sleutel is 40 tekens (160 bits).
+    lq_fout(403, 'De sleutel klopt niet. Haal hem opnieuw op in het beheer, onder Koppeling met je Mac.');
+}
 if (!lq_rem('export', 120, 60)) {
     lq_fout(429, 'Te vaak opgevraagd.');
 }
-if ($sleutel === '' || !hash_equals(lq_exportsleutel(), $sleutel)) {
-    lq_fout(403, 'De sleutel klopt niet. Haal hem opnieuw op in het beheer, onder Koppeling met je Mac.');
-}
 lq_opruimen();
 $pdo = lq_db();
-$st = $pdo->prepare('SELECT * FROM lq_les WHERE datum >= ? OR open_tot > ? ORDER BY datum, id');
-$st->execute([date('Y-m-d', time() - 86400), lq_nu()]);
+// ?ids=1,2,3: ook deze lessen, hoe oud ook. Het script vraagt zo de lessen die al in Excel staan; een les die
+// niet terugkomt, is verwijderd, en een les zonder inzendingen is gewist. Zo volgt Excel de server.
+$ids = array_slice(array_values(array_unique(array_filter(array_map('intval', explode(',', (string)($_GET['ids'] ?? '')))))), 0, 1000);
+$waar = 'datum >= ? OR open_tot > ?';
+$args = [date('Y-m-d', time() - 86400), lq_nu()];
+if ($ids) {
+    $waar .= ' OR id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')';
+    $args = array_merge($args, $ids);
+}
+$st = $pdo->prepare("SELECT * FROM lq_les WHERE $waar ORDER BY datum, id");
+$st->execute($args);
 $lessen = [];
 foreach ($st->fetchAll() as $les) {
     $vragen = lq_vragen($les);

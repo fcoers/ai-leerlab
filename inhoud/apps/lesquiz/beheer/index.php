@@ -139,7 +139,16 @@ function voet(): void
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $actie = (string)($_POST['actie'] ?? '');
     if ($actie === 'inloggen') {
-        if (!lq_rem('login', 10, 600)) {
+        // Rem per bezoeker, zodat een ander Frits niet uit het beheer kan houden:
+        // - een browser waarop eerder goed is ingelogd (ondertekend cookie) heeft een eigen teller;
+        // - anders telt de sessie (10 per 10 minuten) en het netwerkadres, versleuteld (40 per 10 minuten,
+        //   ruimer omdat een klas achter één adres kan zitten). Het adres zelf wordt niet bewaard.
+        $apparaat = lq_apparaat();
+        $ip_sleutel = 'login-ip:' . substr(hash_hmac('sha256', (string)($_SERVER['REMOTE_ADDR'] ?? ''), lq_geheim()), 0, 32);
+        $vrij = $apparaat !== ''
+            ? lq_rem('login-a:' . $apparaat, 10, 600)
+            : (lq_rem('login-s:' . substr(hash('sha256', session_id()), 0, 32), 10, 600) && lq_rem($ip_sleutel, 40, 600));
+        if (!$vrij) {
             $_SESSION['fout_login'] = 'Te vaak geprobeerd. Wacht tien minuten.';
             naar('?');
         }
@@ -150,6 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (hash_equals($ww, (string)($_POST['wachtwoord'] ?? ''))) {
             session_regenerate_id(true);
+            lq_apparaat_onthouden($https);
             $_SESSION = ['in' => true, 'tot' => time() + 8 * 3600, 'csrf' => bin2hex(random_bytes(24))];
             naar('?');
         }
@@ -211,6 +221,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             naar('?p=koppeling', 'Er is een nieuwe sleutel. De oude werkt niet meer.');
     }
     naar('?');
+}
+
+/** Id van een browser waarop eerder goed is ingelogd (cookie met HMAC), of '' als die er niet is of niet klopt. */
+function lq_apparaat(): string
+{
+    $c = (string)($_COOKIE['lesquiz_apparaat'] ?? '');
+    if (!preg_match('/^([a-z0-9]{24})\.([0-9a-f]{64})$/', $c, $m)) {
+        return '';
+    }
+    return hash_equals(hash_hmac('sha256', 'apparaat-' . $m[1], lq_geheim()), $m[2]) ? $m[1] : '';
+}
+
+function lq_apparaat_onthouden(bool $https): void
+{
+    $id = lq_apparaat() ?: lq_willekeurig(24, 'abcdefghijkmnpqrstuvwxyz23456789');
+    setcookie('lesquiz_apparaat', $id . '.' . hash_hmac('sha256', 'apparaat-' . $id, lq_geheim()),
+              ['expires' => time() + 180 * 86400, 'path' => '/apps/lesquiz/beheer/', 'secure' => $https,
+               'httponly' => true, 'samesite' => 'Strict']);
 }
 
 /** Leest en controleert het lesformulier. Geeft [les, fouten]. */
@@ -367,7 +395,7 @@ if ($p === 'nieuw' || $p === 'bewerk') {
           <input id="datum" name="datum" type="date" required value="<?= h($w['datum'] ?? '') ?>" <?= isset($fouten['datum']) ? 'aria-invalid="true"' : '' ?>>
         </div>
       </div>
-      <p class="lq-hint">De drie vragen gaan over de vorige les. Twee tot vier antwoorden per vraag; kies bij elke vraag het goede antwoord.</p>
+      <p class="lq-hint">De drie vragen gaan over de vorige les. Twee tot vier antwoorden per vraag; kies bij elke vraag het goede antwoord. Een korte vraag (tot ongeveer 120 tekens) blijft groot op het dashboard; een langere wordt daar kleiner.</p>
       <?php for ($i = 0; $i < LQ_AANTAL_VRAGEN; $i++): ?>
       <fieldset class="lq-vraagblok" <?= isset($fouten["vraag$i"]) ? 'aria-invalid="true"' : '' ?>>
         <legend>Vraag <?= $i + 1 ?></legend>

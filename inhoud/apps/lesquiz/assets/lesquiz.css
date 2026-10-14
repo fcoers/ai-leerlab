@@ -27,6 +27,7 @@
 [aria-invalid="true"] { border-color: var(--inkt) !important; border-width: 2px !important; }
 .lq-fout { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; font-weight: 600; color: var(--inkt); }
 .lq-fout::before { content: "!"; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--inkt); color: var(--vlak); font: 700 16px/24px var(--sans); text-align: center; }
+.lq-fout[hidden] { display: none; }
 .lq-hint { color: var(--inkt-zacht); font-size: 16px; margin: 8px 0 0; }
 
 /* ---------- student ---------- */

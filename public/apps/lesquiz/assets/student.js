@@ -163,6 +163,17 @@
     laad();
   });
 
+  ['voornaam', 'achternaam'].forEach(function (id) {
+    $('#' + id).addEventListener('input', function () { if (this.value.trim()) { veldFout(id, ''); misschienKlaar(); } });
+  });
+  $('[data-vragen]').addEventListener('change', function (e) {
+    var fs = e.target.closest('fieldset'); if (fs) fs.removeAttribute('aria-invalid');
+    misschienKlaar();
+  });
+  function misschienKlaar() {
+    if (!$$('fieldset.lq-vraag[aria-invalid]').length && !$$('.lq-namen [aria-invalid]').length) $('[data-formfout]').hidden = true;
+  }
+
   $$('[data-opnieuw]').forEach(function (k) { k.addEventListener('click', function () { toon('laden'); laad(); }); });
 
   function fout(t) { $('[data-foutmelding]').textContent = t; toon('fout'); }

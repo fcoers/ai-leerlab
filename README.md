@@ -174,6 +174,31 @@ Een tool is een `.html`-bestand in `inhoud/tools/` met een kopje, net als de tut
 - Uitslag: alleen het label, eventueel een tweede (som hooguit 2 lager) of bij een niet te beslissen gelijke stand twee labels. Geen punten of percentages. De puntentabel staat bovenin `zelftest.js` (`PUNTEN`), de uitslagregel in `uitslag()`.
 - Na een wijziging in de scoring: draai Dides twaalf testgevallen. `uitslag()` laadt ook in Node (`require('./statisch/assets/zelftest.js').uitslag(['A', …])`).
 
+## Apps
+
+Een app is een map in `inhoud/apps/<naam>/` met een bestand `app.json` en de bestanden van de app (14-10-2026). `bouw.py` kopieert de map naar `/apps/<naam>/` en zet in elk `.html`-, `.php`-, `.css`-, `.js`- en `.xml`-bestand `{{versie}}` om in het versienummer van de bouw, zodat een nieuwe css of js meteen geladen wordt.
+
+```
+{
+  "titel": "Naam van de app",
+  "kaarttekst": "Eén of twee zinnen voor de kaart op /apps/.",
+  "zichtbaar": false,
+  "artikel": "/leren/<naam>/",
+  "lesapp": true
+}
+```
+
+- `zichtbaar: true` zet de app als kaart op `/apps/`, met een link naar het artikel als `artikel` is ingevuld. Zodra er één zichtbare app is, staat Apps in het menu en de voet, krijgt `/apps/` de hele vindbaarheidschecklist (CollectionPage met WebApplication) en komt de pagina in de sitemap. Zonder zichtbare app bestaat `/apps/` wel, maar op noindex en buiten menu en sitemap.
+- `lesapp: true` is een app voor in de les: eigen pagina's met `noindex`, geen Analytics en niet in de sitemap. Niet blokkeren in `robots.txt`, anders leest Google de noindex niet.
+- Teksten van `/apps/` (titel, beschrijving, lede, GenAI-vermelding) staan onder `apps` in `site.json`.
+- Een nieuwe app: map maken, `app.json` invullen, `python3 bouw.py --bekijk`, pushen. Een grotere app mag in React gebouwd worden; zet dan het resultaat van die bouw in de map.
+
+### Lesquiz (aanwezigheid en drie vragen)
+
+`inhoud/apps/lesquiz/`: studentpagina (`?les=CODE`), dashboard (`scherm/?s=<geheime sleutel>`), beheer (`beheer/`, achter een wachtwoord), API in PHP (`api/`) en een PowerPoint-invoegtoepassing (`powerpoint/`). Database: MySQL/MariaDB op de hosting; de tabellen (`lq_...`) maakt de app zelf bij het eerste gebruik. Het configbestand `lesquiz-config.php` staat buiten de webroot (in Plesk in de map `private` naast `httpdocs`) en nooit in deze repository. Handleiding: `Projecten/AI-leerlab/Leveringen/Lesquiz/Handleiding lesquiz.html`. Het script dat tijdens de les Excel bijhoudt: `Projecten/AI-leerlab/Lesquiz/`.
+
+Lokaal testen kan alleen met PHP en een database: `LESQUIZ_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public` (zie de handleiding). `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.
@@ -242,6 +267,7 @@ git push -u origin main
 |---|---|
 | `inhoud/leren/` | De artikelen (`.md`) en de tutorial (`.html`, eigen opmaak met een kopje bovenaan) |
 | `inhoud/over.md` | De pagina Over, met privacy en colofon. In de colofon staat Frits als redactioneel verantwoordelijke (03-10-2026, AI-verordening art. 50 lid 4) |
+| `inhoud/apps/` | De apps, een map per app met `app.json` (zie Apps) |
 | `inhoud/series/` | De series (`.md`, kopje plus de tekst "Over deze serie") |
 | `site.json` | Adres, teksten van de beginpagina, Leren en Series, de categorieën en de lijst onderwerpen |
 | `sjablonen/basis.html` | Wat op elke pagina staat: de kop, de voet en alles voor Google |

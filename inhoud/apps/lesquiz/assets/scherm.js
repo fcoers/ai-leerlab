@@ -44,7 +44,7 @@
   }
 
   function teken(d) {
-    $('[data-vak]').textContent = d.vak + ' · Lesquiz';
+    $('[data-vak]').textContent = d.vak;
     $('[data-titel]').textContent = d.titel;
     document.title = d.titel + ' · Dashboard';
     status(d.open);

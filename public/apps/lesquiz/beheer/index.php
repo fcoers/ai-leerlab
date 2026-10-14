@@ -107,11 +107,11 @@ function kop(string $titel, bool $met_uitloggen = true): void
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <meta name="color-scheme" content="light dark">
-  <link rel="stylesheet" href="/assets/site.css?v=202610142001">
-  <link rel="stylesheet" href="/apps/lesquiz/assets/lesquiz.css?v=202610142001">
-  <script src="/apps/lesquiz/assets/qrcode.js?v=202610142001" defer></script>
-  <script src="/apps/lesquiz/assets/qr.js?v=202610142001" defer></script>
-  <script src="/apps/lesquiz/assets/beheer.js?v=202610142001" defer></script>
+  <link rel="stylesheet" href="/assets/site.css?v=202610142010">
+  <link rel="stylesheet" href="/apps/lesquiz/assets/lesquiz.css?v=202610142010">
+  <script src="/apps/lesquiz/assets/qrcode.js?v=202610142010" defer></script>
+  <script src="/apps/lesquiz/assets/qr.js?v=202610142010" defer></script>
+  <script src="/apps/lesquiz/assets/beheer.js?v=202610142010" defer></script>
 </head>
 <body class="lq-beheer">
   <header class="lq-kop">

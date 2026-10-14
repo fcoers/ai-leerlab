@@ -984,6 +984,16 @@ html { overflow-x: clip; }   /* de plank loopt tot de rand van het scherm; dat m
   .pijlen { display: none !important; }
 }
 
+/* ---------- apps: het overzicht /apps/ (Roel, 14-10-2026). Een kaart per zichtbare app, zoals de lijstpagina's. ---------- */
+.app-kaarten { list-style: none; padding: 0; margin: 0; display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.app-kaart { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.app-kaart h2 { font: 700 22px/1.25 var(--sans); margin: 0; }
+.app-kaart p { margin: 0; }
+.app-kaart .app-links { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: auto; padding-top: 8px; }
+.app-kaart .app-links a { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.app-kaart .app-links a svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+
 /* ================= Donkere stand (Roel, 08-10-2026, naar Brams ontwerp en DESIGN.md) =================
    De site volgt de stand van het systeem; er is geen schakelaar. Dezelfde rollen, andere waarden; er komt geen
    kleur bij. Alleen op het scherm: afdrukken gebeurt altijd licht. Lettermaten en beweging veranderen niet. */

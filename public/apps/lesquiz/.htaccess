@@ -1,0 +1,6 @@
+# Lesquiz: een les-app. Niet in Google, ook niet de API of het beheer.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+# Geen mappenlijst.
+Options -Indexes

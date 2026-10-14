@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'">
+  <meta name="referrer" content="same-origin">
+  <title>Lesquiz · AI-leerlab</title>
+  <meta name="description" content="Aanwezigheid en drie vragen over de vorige les.">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
+  <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css?v=202610142001">
+  <link rel="stylesheet" href="/apps/lesquiz/assets/lesquiz.css?v=202610142001">
+  <script src="/apps/lesquiz/assets/student.js?v=202610142001" defer></script>
+</head>
+<body class="lq-student">
+  <header class="lq-kop">
+    <div class="wrap">
+      <span class="merk"><picture><source media="(prefers-color-scheme: dark)" srcset="/assets/img/logo-op-donker.svg"><img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt="AI-leerlab"></picture></span>
+      <p class="label">Lesquiz</p>
+    </div>
+  </header>
+  <main id="inhoud">
+    <noscript><p class="lq-melding-blok">Deze pagina heeft JavaScript nodig. Zet JavaScript aan in je browser, of vraag je docent om hulp.</p></noscript>
+
+    <section class="lq-staat" data-staat="laden" aria-live="polite">
+      <p class="lede">Even laden…</p>
+    </section>
+
+    <section class="lq-staat" data-staat="code" hidden>
+      <h1>Lesquiz</h1>
+      <p class="lede">Typ de lescode die op de dia staat.</p>
+      <form class="lq-veld" data-codeformulier novalidate>
+        <label for="lescode">Lescode</label>
+        <div class="lq-codeveld">
+          <input id="lescode" name="les" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" inputmode="text" required>
+          <button class="knop knop-primair">Verder</button>
+        </div>
+        <p class="lq-fout" data-codefout hidden></p>
+      </form>
+    </section>
+
+    <section class="lq-staat" data-staat="dicht" hidden>
+      <p class="label" data-vak></p>
+      <h1 data-titel tabindex="-1"></h1>
+      <p class="lede">De quiz staat nu niet open. Wacht tot je docent hem opent en probeer het dan opnieuw.</p>
+      <div class="knoppen"><button class="knop knop-primair" type="button" data-opnieuw>Opnieuw proberen</button></div>
+    </section>
+
+    <section class="lq-staat" data-staat="quiz" hidden>
+      <p class="label" data-vak></p>
+      <h1 data-titel tabindex="-1"></h1>
+      <p class="lede">Vul je naam in en beantwoord drie vragen over de vorige les. Daarmee staat ook je aanwezigheid genoteerd.</p>
+      <form data-quiz novalidate class="lq-formulier-student">
+        <fieldset class="lq-namen">
+          <legend>Je naam</legend>
+          <div class="lq-veld">
+            <label for="voornaam">Voornaam</label>
+            <input id="voornaam" name="voornaam" autocomplete="given-name" maxlength="60" required>
+            <p class="lq-fout" id="voornaam-fout" hidden></p>
+          </div>
+          <div class="lq-veld">
+            <label for="achternaam">Achternaam</label>
+            <input id="achternaam" name="achternaam" autocomplete="family-name" maxlength="80" required>
+            <p class="lq-fout" id="achternaam-fout" hidden></p>
+          </div>
+          <label class="lq-onthoud"><input type="checkbox" name="onthoud" checked> Onthoud mijn naam op deze telefoon</label>
+        </fieldset>
+        <div data-vragen></div>
+        <p class="lq-fout" data-formfout role="alert" hidden></p>
+        <button class="knop knop-primair lq-verstuur" data-verstuur>Versturen</button>
+      </form>
+      <p class="lq-privacy" data-privacy></p>
+    </section>
+
+    <section class="lq-staat lq-gelukt" data-staat="gelukt" hidden>
+      <div class="lq-vink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h1 data-gelukt-titel tabindex="-1">Gelukt</h1>
+      <p class="lede">Je aanwezigheid en je antwoorden zijn opgeslagen. Je kunt dit venster sluiten.</p>
+    </section>
+
+    <section class="lq-staat" data-staat="fout" hidden>
+      <h1 tabindex="-1">Dat lukte niet</h1>
+      <p class="lede" data-foutmelding></p>
+      <div class="knoppen"><button class="knop knop-primair" type="button" data-opnieuw>Opnieuw proberen</button></div>
+    </section>
+  </main>
+</body>
+</html>

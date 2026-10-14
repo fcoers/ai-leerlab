@@ -17,6 +17,7 @@ import re
 import shutil
 import struct
 import sys
+import types
 import urllib.parse
 
 HIER = os.path.dirname(os.path.abspath(__file__))
@@ -420,7 +421,7 @@ class Item:
 
 # Wat er zichtbaar is, berekend in bouw(): alleen series met een gepubliceerd deel, categorieën
 # met artikelen en onderwerpen vanaf ONDERWERP_DREMPEL artikelen krijgen een pagina en een link.
-STAAT = {"series": {}, "categorieen": {}, "onderwerpen": {}, "tools": []}
+STAAT = {"series": {}, "categorieen": {}, "onderwerpen": {}, "tools": [], "apps": []}
 GEPLAND = []   # artikelen met een datum in de toekomst: nog niet op de site, wel nodig voor "Deel 6 verschijnt op ..."
 
 
@@ -839,6 +840,10 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
     huidig_t = ' aria-current="page"' if menu == "tools" else ""
     menu_tools = f'\n        <a href="/tools/"{huidig_t}>Tools</a>' if STAAT["tools"] else ""
     voet_tools = '\n        <a href="/tools/">Tools</a>' if STAAT["tools"] else ""
+    # Apps staat pas in het menu als er een app op zichtbaar staat (les-apps niet).
+    huidig_a = ' aria-current="page"' if menu == "apps" else ""
+    menu_apps = f'\n        <a href="/apps/"{huidig_a}>Apps</a>' if STAAT["apps"] else ""
+    voet_apps = '\n        <a href="/apps/">Apps</a>' if STAAT["apps"] else ""
     voet_series = '\n        <a href="/series/">Series</a>' if STAAT["series"] else ""
     vervang = {
         "titel": esc(volle_titel),
@@ -858,6 +863,8 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "menu_series": menu_series,
         "menu_tools": menu_tools,
         "voet_tools": voet_tools,
+        "menu_apps": menu_apps,
+        "voet_apps": voet_apps,
         "voet_series": voet_series,
         "voet_profielen": voet_profielen(),
         "menu_over": ' aria-current="page"' if menu == "over" else "",
@@ -1940,6 +1947,101 @@ def bouw_sitemap(items):
                 f"Sitemap: {ADRES}/sitemap.xml\n")
 
 
+# ---------------------------------------------------------------- apps (/apps/<naam>/)
+APPS = os.path.join(INHOUD, "apps")
+APP_TEKST = (".html", ".php", ".css", ".js", ".xml")
+
+
+def lees_apps():
+    """Elke map in inhoud/apps/ met een app.json is een app. app.json: titel, kaarttekst, zichtbaar (true/false),
+    artikel (optioneel, bv. /leren/<naam>/), lesapp (true: noindex, niet in de sitemap, geen Analytics)."""
+    apps = []
+    if not os.path.isdir(APPS):
+        return apps
+    for naam in sorted(os.listdir(APPS)):
+        pad = os.path.join(APPS, naam, "app.json")
+        if not os.path.isfile(pad):
+            continue
+        with open(pad, encoding="utf-8") as f:
+            meta = json.load(f)
+        if naam != slugify(naam):
+            let_op(f"apps/{naam}: gebruik kleine letters en streepjes in de mapnaam")
+        meta["naam"] = naam
+        meta["url"] = f"/apps/{naam}/"
+        if meta.get("zichtbaar") and meta.get("lesapp"):
+            let_op(f"apps/{naam}: een les-app staat op zichtbaar; hij komt op /apps/, maar blijft zelf op noindex")
+        apps.append(meta)
+    return apps
+
+
+def kopieer_apps(apps):
+    """Kopieert elke app naar public/apps/<naam>/. In tekstbestanden wordt {{versie}} het versienummer van de
+    bouw, zodat een nieuwe css of js meteen geladen wordt (die blijven anders een jaar in de browser)."""
+    for app in apps:
+        bron = os.path.join(APPS, app["naam"])
+        doel = os.path.join(UIT, "apps", app["naam"])
+        shutil.copytree(bron, doel, ignore=shutil.ignore_patterns("app.json", ".DS_Store", "*.local.*"))
+        for wortel, _, bestanden in os.walk(doel):
+            for b in bestanden:
+                if b.endswith(APP_TEKST):
+                    p = os.path.join(wortel, b)
+                    with open(p, encoding="utf-8") as f:
+                        t = f.read()
+                    if "{{versie}}" in t:
+                        with open(p, "w", encoding="utf-8") as f:
+                            f.write(t.replace("{{versie}}", VERSIE))
+        if app.get("artikel") and not os.path.exists(os.path.join(UIT, app["artikel"].strip("/"), "index.html")):
+            let_op(f"apps/{app['naam']}: het artikel {app['artikel']} bestaat (nog) niet")
+
+
+def bouw_apps(apps):
+    """/apps/ met een kaart per zichtbare app. Zonder zichtbare app bestaat de pagina wel, maar op noindex,
+    niet in de sitemap en niet in het menu."""
+    t = SITE.get("apps", {})
+    zichtbaar = [a for a in apps if a.get("zichtbaar")]
+    kaarten = []
+    for a in zichtbaar:
+        links = [f'<a href="{esc(a["url"])}">Open de app{icoon("pijl")}</a>']
+        if a.get("artikel"):
+            links.append(f'<a href="{esc(a["artikel"])}">Lees het artikel</a>')
+        kaarten.append(f"""<li class="app-kaart">
+      <h2>{esc(a["titel"])}</h2>
+      <p>{esc(a.get("kaarttekst", ""))}</p>
+      <p class="app-links">{"".join(links)}</p>
+    </li>""")
+    lijst = (f'<ul class="app-kaarten">\n    ' + "\n    ".join(kaarten) + "\n  </ul>") if kaarten else \
+        f'<p>{esc(t.get("leeg", "Hier komen kleine apps die je in je les of studie gebruikt."))}</p>'
+    gemaakt = ""
+    if t.get("transparantie"):
+        gemaakt = transparantie_html(types.SimpleNamespace(transparantie=t["transparantie"], url="/apps/",
+                                                           pad="site.json (apps)"))
+        gemaakt = gemaakt.replace("Geschreven met hulp van AI", "Gebouwd met hulp van AI")
+    inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <h1 id="titel">Apps</h1>
+    <p class="lede">{esc(t.get("lede", ""))}</p>
+  </div>
+</section>
+<div class="wrap lijst">
+  {lijst}
+  {gemaakt}
+</div>"""
+    schema = jsonld({"@type": "CollectionPage", "name": "Apps", "url": f"{ADRES}/apps/",
+                     "description": t.get("beschrijving", ""), "isPartOf": {"@id": f"{ADRES}/#site"},
+                     "mainEntity": {"@type": "ItemList", "itemListElement": [
+                         {"@type": "ListItem", "position": n + 1, "item": {
+                             "@type": "WebApplication", "name": a["titel"], "url": ADRES + a["url"],
+                             "description": a.get("kaarttekst", ""), "applicationCategory": "EducationalApplication",
+                             "operatingSystem": "Alle (in de browser)", "inLanguage": "nl",
+                             "author": {"@id": f"{ADRES}/#frits"}}}
+                         for n, a in enumerate(zichtbaar)]}},
+                    WEBSITE, PERSOON, kruimelpad(("AI-leerlab", "/"), ("Apps", None)))
+    pagina("/apps/", titel=t.get("seotitel", "Apps"), beschrijving=t.get("beschrijving", ""), inhoud=inhoud,
+           url="/apps/", menu="apps", schema=schema, noindex=not zichtbaar)
+    if zichtbaar:
+        EXTRA.append(("/apps/", datetime.date.today()))
+
+
 # ---------------------------------------------------------------- bouwen
 LOSSE = []
 EXTRA = []
@@ -1962,12 +2064,16 @@ def bouw():
     STAAT["categorieen"] = {c: [x for x in live if x.categorie == c] for c in CATEGORIEEN
                             if any(x.categorie == c for x in live)}
     STAAT["tools"] = [x for x in live if x.map == "tools"]
+    apps = lees_apps()
+    STAAT["apps"] = [a for a in apps if a.get("zichtbaar")]
+    kopieer_apps(apps)
     STAAT["onderwerpen"] = {t: [x for x in live if t in x.tags] for t in ONDERWERPEN
                             if sum(t in x.tags for x in live) >= ONDERWERP_DREMPEL}
     for item in items:
         (bouw_artikel if item.vorm == "md" else bouw_html_item)(item, items)
     bouw_home(items)
     bouw_tools(items)
+    bouw_apps(apps)
     bouw_leren(items)
     bouw_categorieen(items)
     bouw_series()

@@ -50,3 +50,6 @@ html, body { margin: 0; height: 100%; background: var(--papier); color: var(--in
 .sc-leeg { font-size: calc(2.6 * var(--u)); color: var(--inkt-zacht); margin: 0; }
 @media (prefers-reduced-motion: reduce) { .sc-balk, .sc-doe-mee { transition: none; } }
 .sc-doe-mee[hidden] { display: none; }
+
+/* Het attribuut hidden wint altijd: een eigen display (flex, grid, block) mag een verborgen element niet tonen. */
+[hidden] { display: none !important; }

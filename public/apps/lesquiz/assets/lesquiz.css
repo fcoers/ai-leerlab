@@ -150,3 +150,6 @@
   .lq-vink path { animation: none; stroke-dashoffset: 0; }
   .lq-keuze, .lq-rond::after { transition: none; }
 }
+
+/* Het attribuut hidden wint altijd: een eigen display (flex, grid, block) mag een verborgen element niet tonen. */
+[hidden] { display: none !important; }

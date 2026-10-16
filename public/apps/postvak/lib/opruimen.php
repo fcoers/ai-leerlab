@@ -2,7 +2,7 @@
 /**
  * Vangnet voor het postvak, als geplande taak in Plesk (elk uur): wist inzendingen die langer dan
  * postvak_bewaar_dagen (hooguit 3) niet zijn opgehaald. Alleen vanaf de opdrachtregel; deze map is dicht voor de web.
- * Plesk: Geplande taken, Taak toevoegen, "PHP-script uitvoeren", pad httpdocs/apps/postvak/lib/opruimen.php, elk uur.
+ * Plesk: Geplande taken, Taak toevoegen, "PHP-script uitvoeren", pad httpdocs/public/apps/postvak/lib/opruimen.php (webroot is httpdocs/public), elk uur.
  */
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);

@@ -1,0 +1,12 @@
+# Taaloefenen: pagina's in PHP, want de thema's komen uit de database (de Mac stuurt ze).
+# Zolang TO_INDEXEREN in lib/kern.php false is, zetten de pagina's zelf noindex. De API en privé-thema's altijd.
+DirectoryIndex index.php
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Openbaar thema: /apps/taaloefenen/frans/h3-wonen/
+  RewriteRule ^(frans|duits)/([a-z0-9-]{1,80})/?$ thema.php?taal=$1&slug=$2 [L,QSA]
+  # Privé-thema: /apps/taaloefenen/t/<code>/
+  RewriteRule ^t/([a-z0-9]{24})/?$ thema.php?code=$1 [L,QSA]
+</IfModule>

@@ -203,6 +203,10 @@ Een app is een map in `inhoud/apps/<naam>/` met een bestand `app.json` en de bes
 
 Lokaal testen kan alleen met PHP 8.1+ en een database: `APPS_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public`. `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
 
+### Taaloefenen (Frans en Duits)
+
+`inhoud/apps/taaloefenen/`: woordjes, zinnen en vervoegingen oefenen en overhoren (16-10-2026). De pagina's zijn PHP (`index.php`, `thema.php`), omdat de thema's uit de database komen; de lede en de themalijst staan zo als echte HTML in de pagina. De Productiviteit-app stuurt thema's via `api/themas.php` met de sleutel van het postvak; de browser haalt de inhoud op via `api/inhoud.php`. Tabellen `to_thema` en `to_instelling` in dezelfde database. Een thema is openbaar (`/apps/taaloefenen/<taal>/<slug>/`) of privé (`/apps/taaloefenen/t/<code>/`, altijd noindex, niet in de lijst). De voortgang van leerlingen staat alleen in hun browser (localStorage); er gaat niets naar het postvak en er staan geen meetscripts op. Nakijken en bakjes staan los in `assets/nakijken.js`. Zolang `TO_INDEXEREN` in `lib/kern.php` false is, staat alles op noindex; Frits beslist wanneer de app in menu, sitemap en Google komt (dan ook `zichtbaar` in `app.json`). De mooie adressen komen uit `.htaccess` (mod_rewrite); lokaal doet een router dat. Koppelvlak: `Projecten/AI-leerlab/Leveringen/_bron/Taaloefen-app/Koppelvlak taaloefenen.md`.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.

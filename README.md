@@ -201,6 +201,8 @@ Een app is een map in `inhoud/apps/<naam>/` met een bestand `app.json` en de bes
 
 `inhoud/apps/lesquiz/`: studentpagina (`?les=CODE`), dashboard (`scherm/?s=<geheime sleutel>`), API in PHP (`api/`) en een PowerPoint-invoegtoepassing (`powerpoint/`). Er is geen online beheer: de Productiviteit-app stuurt lessen, vragen en open/dicht via `api/lessen.php`, met de sleutel van het postvak. Een inzending wordt gesplitst: met naam naar het postvak, naamloos (les en antwoorden) in `lq_antwoord` voor het dashboard. Database: MySQL/MariaDB op de hosting; de tabellen (`lq_...`, `pv_...`, `ap_rem`) maakt de site zelf bij het eerste gebruik. Het configbestand `apps-config.php` (één voor alle apps) staat buiten de webroot (in Plesk in de map `private` naast `httpdocs`) en nooit in deze repository. Handleiding: `Projecten/AI-leerlab/Leveringen/Lesquiz/Handleiding lesquiz.html`.
 
+Klasweergave (16-10-2026): het dashboard opent op een instructie voor studenten (QR, kort adres, code, drie stappen, aantal ingezonden). De knop, de toetsen U en I, of pijltjes en PageUp/PageDown van een presenter wisselen naar de uitslag en terug (`?weergave=uitslag` opent direct de uitslag; zo opent het PowerPoint-kader). Op de uitslag staat de knop onder de code, of zonder QR rechts in de kop, zodat hij geen vraag afdekt. Wissel: oude laag vervaagt 200 ms (ease-in), nieuwe komt op 400 ms (ease-out); bij minder beweging direct.
+
 Lokaal testen kan alleen met PHP 8.1+ en een database: `APPS_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public`. `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
 
 ### Taaloefenen (Frans en Duits)

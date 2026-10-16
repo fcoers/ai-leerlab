@@ -6,18 +6,41 @@
   <meta name="robots" content="noindex, nofollow">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'">
   <meta name="referrer" content="no-referrer">
-  <title>Dashboard · Lesquiz</title>
+  <title>Lesquiz · Klas</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <meta name="color-scheme" content="light">
   <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/apps/lesquiz/assets/scherm.css?v=202610161235">
-  <script src="/apps/lesquiz/assets/qrcode.js?v=202610161235" defer></script>
-  <script src="/apps/lesquiz/assets/qr.js?v=202610161235" defer></script>
-  <script src="/apps/lesquiz/assets/scherm.js?v=202610161235" defer></script>
+  <link rel="stylesheet" href="/apps/lesquiz/assets/scherm.css?v=202610161630">
+  <script src="/apps/lesquiz/assets/qrcode.js?v=202610161630" defer></script>
+  <script src="/apps/lesquiz/assets/qr.js?v=202610161630" defer></script>
+  <script src="/apps/lesquiz/assets/scherm.js?v=202610161630" defer></script>
 </head>
 <body>
-  <main class="sc" data-scherm>
+  <!-- Klasweergave (16-10-2026): eerst de instructie voor studenten, met één klik (of toets) de uitslag. -->
+  <main class="kl" data-instructie aria-labelledby="kl-kop">
+    <header class="kl-kop">
+      <p class="sc-label"><span>Lesquiz</span> <span data-kl-vak></span></p>
+      <p class="sc-status" data-kl-status hidden></p>
+    </header>
+    <div class="kl-tekst">
+      <h1 id="kl-kop" data-kl-titel>Vul de lesquiz in</h1>
+      <ol class="kl-stappen" data-kl-stappen>
+        <li><span>Scan de QR-code met je telefoon, of typ het adres en de code.</span></li>
+        <li><span>Vul je voornaam en achternaam in.</span></li>
+        <li><span>Beantwoord <span data-kl-aantal>de vragen</span> over de vorige les en druk op Versturen.</span></li>
+      </ol>
+      <p class="kl-waarom" data-kl-waarom>Zo weet ik meteen dat je er bent.</p>
+    </div>
+    <aside class="kl-doe-mee" data-kl-doe-mee hidden>
+      <div class="kl-qr" data-kl-qr></div>
+      <p class="kl-adres">ai-leerlab.nl/apps/lesquiz</p>
+      <p class="kl-code"><span>code</span> <strong data-kl-code></strong></p>
+    </aside>
+    <p class="kl-teller" aria-live="polite"><strong data-kl-totaal>0</strong> <span>ingezonden</span></p>
+  </main>
+
+  <main class="sc" data-scherm hidden>
     <header class="sc-kop">
       <div class="sc-kop-tekst">
         <p class="sc-label"><span data-vak>Lesquiz</span> <span class="sc-status" data-status hidden></span></p>
@@ -36,7 +59,11 @@
       <ol class="sc-vragen" data-vragen></ol>
     </section>
 
-    <p class="sc-melding" data-melding hidden></p>
   </main>
+
+  <button class="kl-wissel" type="button" data-wissel aria-keyshortcuts="U I">
+    <svg viewBox="0 0 24 24" aria-hidden="true" data-wissel-icoon></svg><span data-wissel-tekst>Uitslag</span>
+  </button>
+  <p class="sc-melding" data-melding hidden></p>
 </body>
 </html>

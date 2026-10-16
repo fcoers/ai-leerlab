@@ -22,8 +22,10 @@
     if (office) { Office.context.document.settings.set('lesquizDashboard', url); Office.context.document.settings.saveAsync(); }
     try { localStorage.setItem('lesquiz:dashboard', url); } catch (e) { /* niets */ }
   }
+  // Het kader opent op de uitslag, zoals voor de klasweergave (16-10-2026); de knop in het dashboard wisselt naar de instructie.
   function toon(url) {
     form.hidden = true; frame.hidden = false; wijzig.hidden = false;
+    var u = new URL(url); if (!u.searchParams.get('weergave')) u.searchParams.set('weergave', 'uitslag'); url = u.href;
     if (frame.getAttribute('src') !== url) frame.src = url;
   }
   function instellen() {

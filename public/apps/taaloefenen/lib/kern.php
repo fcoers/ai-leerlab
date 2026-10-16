@@ -333,6 +333,13 @@ function to_thema_uit_verzoek($t): array
                 if (is_string($vraag) && preg_match_all('/\([^()]+\)/u', $vraag) !== 1) {
                     $f["$k.vraag"] = 'Zet het hele werkwoord precies één keer tussen haakjes op de plek van het gat.';
                 }
+                // Persoon is hier optioneel; met persoon licht het rijtje precies één regel op (je parle, il parle).
+                $p = $it['persoon'] ?? null;
+                if ($p !== null && $p !== '' && !in_array($p, $T['personen'], true)) {
+                    $f["$k.persoon"] = 'Kies een persoon uit de lijst voor het ' . $T['naam'] . ': ' . implode(', ', $T['personen']) . '.';
+                } elseif ($p) {
+                    $uit['persoon'] = (string)$p;
+                }
             } else {
                 $p = $it['persoon'] ?? null;
                 if (!in_array($p, $T['personen'], true)) {

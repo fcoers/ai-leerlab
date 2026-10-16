@@ -193,11 +193,15 @@ Een app is een map in `inhoud/apps/<naam>/` met een bestand `app.json` en de bes
 - Teksten van `/apps/` (titel, beschrijving, lede, GenAI-vermelding) staan onder `apps` in `site.json`.
 - Een nieuwe app: map maken, `app.json` invullen, `python3 bouw.py --bekijk`, pushen. Een grotere app mag in React gebouwd worden; zet dan het resultaat van die bouw in de map.
 
+### Postvak (gedeeld door alle apps)
+
+`inhoud/apps/postvak/`: de brievenbus voor persoonsgegevens (16-10-2026). Een app legt een inzending met naam in het postvak (`pv_leg()` in `lib/kern.php`); de Productiviteit-app op de Mac haalt op (`ophalen.php`) en bevestigt (`bevestigen.php`), en pas dan wist de server. Niet opgehaald na 3 dagen: toch weg, bij bezoek en via de geplande taak `lib/opruimen.php` in Plesk. Eén sleutel voor alle apps, header `X-Postvak-Sleutel`; de server kent alleen de SHA-256-hash (`postvak_sleutel_sha256` in het configbestand). `lib/kern.php` is ook de gedeelde kern voor config, database, JSON-fouten en rem. Koppelvlak: `Projecten/AI-leerlab/Leveringen/_bron/Lesquiz/Koppelvlak postvak.md`.
+
 ### Lesquiz (aanwezigheid en drie vragen)
 
-`inhoud/apps/lesquiz/`: studentpagina (`?les=CODE`), dashboard (`scherm/?s=<geheime sleutel>`), beheer (`beheer/`, achter een wachtwoord), API in PHP (`api/`) en een PowerPoint-invoegtoepassing (`powerpoint/`). Database: MySQL/MariaDB op de hosting; de tabellen (`lq_...`) maakt de app zelf bij het eerste gebruik. Het configbestand `lesquiz-config.php` staat buiten de webroot (in Plesk in de map `private` naast `httpdocs`) en nooit in deze repository. Handleiding: `Projecten/AI-leerlab/Leveringen/Lesquiz/Handleiding lesquiz.html`. Het script dat tijdens de les Excel bijhoudt: `Projecten/AI-leerlab/Lesquiz/`.
+`inhoud/apps/lesquiz/`: studentpagina (`?les=CODE`), dashboard (`scherm/?s=<geheime sleutel>`), API in PHP (`api/`) en een PowerPoint-invoegtoepassing (`powerpoint/`). Er is geen online beheer: de Productiviteit-app stuurt lessen, vragen en open/dicht via `api/lessen.php`, met de sleutel van het postvak. Een inzending wordt gesplitst: met naam naar het postvak, naamloos (les en antwoorden) in `lq_antwoord` voor het dashboard. Database: MySQL/MariaDB op de hosting; de tabellen (`lq_...`, `pv_...`, `ap_rem`) maakt de site zelf bij het eerste gebruik. Het configbestand `lesquiz-config.php` staat buiten de webroot (in Plesk in de map `private` naast `httpdocs`) en nooit in deze repository. Handleiding: `Projecten/AI-leerlab/Leveringen/Lesquiz/Handleiding lesquiz.html`.
 
-Lokaal testen kan alleen met PHP en een database: `LESQUIZ_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public` (zie de handleiding). `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
+Lokaal testen kan alleen met PHP 8.1+ en een database: `LESQUIZ_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public`. `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
 
 ## De beginpagina
 

@@ -114,6 +114,6 @@
     if (e.key === 'q' || e.key === 'Q') { metQR = !metQR; qrVoor = ''; if (laatste) teken(laatste); }
   });
 
-  if (!/^[A-Za-z0-9]{20,48}$/.test(s)) { $('[data-titel]').textContent = 'Open het dashboard via de link in het beheer.'; return; }
+  if (!/^[A-Za-z0-9]{20,48}$/.test(s)) { $('[data-titel]').textContent = 'Open het dashboard via de link in de Productiviteit-app.'; return; }
   haal();
 })();

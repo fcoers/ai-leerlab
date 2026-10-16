@@ -97,8 +97,9 @@
       fs.appendChild(lijst);
       doos.appendChild(fs);
     });
-    $('[data-privacy]').textContent = 'Wat er wordt bewaard: je naam, je antwoorden en het tijdstip. Alleen je docent ziet ze, '
-      + 'het dashboard in de les toont alleen aantallen. Na ' + les.bewaar_dagen + ' dagen worden ze gewist.';
+    $('[data-privacy]').textContent = 'Wat er wordt bewaard: je naam, je antwoorden en het tijdstip. Ze gaan naar de computer van je docent '
+      + 'en staan hooguit ' + les.bewaar_dagen + ' dagen op deze site, meestal maar een paar minuten. Alleen je docent ziet ze; '
+      + 'het dashboard in de les toont alleen aantallen.';
     var vv = opslag('lesquiz:voornaam'), an = opslag('lesquiz:achternaam');
     if (vv) $('#voornaam').value = vv;
     if (an) $('#achternaam').value = an;

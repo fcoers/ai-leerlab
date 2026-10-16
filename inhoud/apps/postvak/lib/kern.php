@@ -7,7 +7,7 @@
  * postvak_bewaar_dagen (hooguit 3): toch weg. Koppelvlak: Projecten/AI-leerlab/Leveringen/_bron/Lesquiz/Koppelvlak postvak.md
  *
  * Geen wachtwoord of sleutel in dit bestand. De database-gegevens en de hash van de sleutel van de Mac staan in
- * lesquiz-config.php, buiten de webroot.
+ * apps-config.php, buiten de webroot.
  */
 if (!defined('AI_APPS')) {
     http_response_code(404);
@@ -33,9 +33,11 @@ set_exception_handler(function (Throwable $e) {
 function ap_config_plekken(): array
 {
     $plekken = [];
-    $env = getenv('LESQUIZ_CONFIG');
-    if (is_string($env) && $env !== '') {
-        $plekken[] = $env;
+    foreach (['APPS_CONFIG', 'LESQUIZ_CONFIG'] as $naam) {   // LESQUIZ_CONFIG: oude naam, nog voor bestaande testscripts
+        $env = getenv($naam);
+        if (is_string($env) && $env !== '') {
+            $plekken[] = $env;
+        }
     }
     $dir = dirname(__DIR__);          // .../apps/postvak
     for ($i = 0; $i < 6; $i++) {
@@ -44,8 +46,8 @@ function ap_config_plekken(): array
             break;
         }
         $dir = $hoger;
-        $plekken[] = $dir . '/private/lesquiz-config.php';
-        $plekken[] = $dir . '/lesquiz-config.php';
+        $plekken[] = $dir . '/private/apps-config.php';
+        $plekken[] = $dir . '/apps-config.php';
     }
     return $plekken;
 }
@@ -80,7 +82,7 @@ function ap_config(): array
             }
         }
     }
-    ap_fout(503, 'De apps zijn nog niet ingesteld: lesquiz-config.php is niet gevonden.', 'niet_ingesteld');
+    ap_fout(503, 'De apps zijn nog niet ingesteld: apps-config.php is niet gevonden.', 'niet_ingesteld');
 }
 
 /** Het adres van de site voor links (QR-code, dashboard): 'adres' uit de config, anders de host van dit verzoek. */
@@ -122,7 +124,7 @@ function ap_db(): PDO
         }
     } catch (Throwable $e) {
         $pdo = null;
-        ap_fout(503, 'Geen verbinding met de database. Controleer naam, gebruiker en wachtwoord in lesquiz-config.php.', 'database');
+        ap_fout(503, 'Geen verbinding met de database. Controleer naam, gebruiker en wachtwoord in apps-config.php.', 'database');
     }
     ap_tabellen($pdo);
     return $pdo;
@@ -295,14 +297,14 @@ function pv_controleer_sleutel(): void
 {
     $hash = strtolower(trim((string)ap_config()['postvak_sleutel_sha256']));
     if (!preg_match('/^[0-9a-f]{64}$/', $hash)) {
-        ap_fout(503, 'Er staat nog geen sleutel voor de Mac in lesquiz-config.php (postvak_sleutel_sha256).', 'niet_ingesteld');
+        ap_fout(503, 'Er staat nog geen sleutel voor de Mac in apps-config.php (postvak_sleutel_sha256).', 'niet_ingesteld');
     }
     $sleutel = (string)($_SERVER['HTTP_X_POSTVAK_SLEUTEL'] ?? '');
     if ($sleutel === '') {
         ap_fout(401, 'De sleutel ontbreekt.', 'geen_sleutel');
     }
     if (!hash_equals($hash, hash('sha256', $sleutel))) {
-        ap_fout(401, 'De sleutel klopt niet. Controleer de hash in lesquiz-config.php.', 'sleutel');
+        ap_fout(401, 'De sleutel klopt niet. Controleer de hash in apps-config.php.', 'sleutel');
     }
     if (!ap_rem('postvak', 240, 60)) {
         ap_fout(429, 'Te veel verzoeken. Wacht een minuut.', 'rem');

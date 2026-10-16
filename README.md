@@ -199,9 +199,9 @@ Een app is een map in `inhoud/apps/<naam>/` met een bestand `app.json` en de bes
 
 ### Lesquiz (aanwezigheid en drie vragen)
 
-`inhoud/apps/lesquiz/`: studentpagina (`?les=CODE`), dashboard (`scherm/?s=<geheime sleutel>`), API in PHP (`api/`) en een PowerPoint-invoegtoepassing (`powerpoint/`). Er is geen online beheer: de Productiviteit-app stuurt lessen, vragen en open/dicht via `api/lessen.php`, met de sleutel van het postvak. Een inzending wordt gesplitst: met naam naar het postvak, naamloos (les en antwoorden) in `lq_antwoord` voor het dashboard. Database: MySQL/MariaDB op de hosting; de tabellen (`lq_...`, `pv_...`, `ap_rem`) maakt de site zelf bij het eerste gebruik. Het configbestand `lesquiz-config.php` staat buiten de webroot (in Plesk in de map `private` naast `httpdocs`) en nooit in deze repository. Handleiding: `Projecten/AI-leerlab/Leveringen/Lesquiz/Handleiding lesquiz.html`.
+`inhoud/apps/lesquiz/`: studentpagina (`?les=CODE`), dashboard (`scherm/?s=<geheime sleutel>`), API in PHP (`api/`) en een PowerPoint-invoegtoepassing (`powerpoint/`). Er is geen online beheer: de Productiviteit-app stuurt lessen, vragen en open/dicht via `api/lessen.php`, met de sleutel van het postvak. Een inzending wordt gesplitst: met naam naar het postvak, naamloos (les en antwoorden) in `lq_antwoord` voor het dashboard. Database: MySQL/MariaDB op de hosting; de tabellen (`lq_...`, `pv_...`, `ap_rem`) maakt de site zelf bij het eerste gebruik. Het configbestand `apps-config.php` (één voor alle apps) staat buiten de webroot (in Plesk in de map `private` naast `httpdocs`) en nooit in deze repository. Handleiding: `Projecten/AI-leerlab/Leveringen/Lesquiz/Handleiding lesquiz.html`.
 
-Lokaal testen kan alleen met PHP 8.1+ en een database: `LESQUIZ_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public`. `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
+Lokaal testen kan alleen met PHP 8.1+ en een database: `APPS_CONFIG=/pad/naar/test-config.php php -S 127.0.0.1:8411 -t public`. `python3 bouw.py --bekijk` toont de pagina's, maar zonder PHP werkt de quiz daar niet.
 
 ## De beginpagina
 

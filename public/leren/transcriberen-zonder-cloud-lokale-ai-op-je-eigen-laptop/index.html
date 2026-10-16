@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="nl" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opnames uitschrijven met lokale AI, zonder cloud · AI-leerlab</title>
+  <meta name="description" content="Laat opnames uitschrijven en samenvatten op je eigen laptop met whisper.cpp en Ollama, op Mac en Windows. Met de instellingen en fouten uit mijn eigen app.">
+  
+  <link rel="canonical" href="https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="nl_NL">
+  <meta property="og:site_name" content="AI-leerlab">
+  <meta property="og:title" content="Opnames uitschrijven met lokale AI, zonder cloud">
+  <meta property="og:description" content="Laat opnames uitschrijven en samenvatten op je eigen laptop met whisper.cpp en Ollama, op Mac en Windows. Met de instellingen en fouten uit mijn eigen app.">
+  <meta property="og:url" content="https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/">
+  <meta property="og:image" content="https://ai-leerlab.nl/assets/img/deel/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Opnames uitschrijven met lokale AI, zonder cloud">
+  <meta name="twitter:description" content="Laat opnames uitschrijven en samenvatten op je eigen laptop met whisper.cpp en Ollama, op Mac en Windows. Met de instellingen en fouten uit mijn eigen app.">
+  <meta name="twitter:image" content="https://ai-leerlab.nl/assets/img/deel/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop.png">
+  <link rel="alternate" type="application/rss+xml" title="AI-leerlab" href="/feed.xml">
+  <meta property="article:published_time" content="2026-10-16">
+  <meta property="article:modified_time" content="2026-10-16">
+  <link rel="stylesheet" href="/assets/beweging.css?v=202610161235">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
+  <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css?v=202610161235">
+  <script>document.documentElement.className = 'js';</script>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Article",
+   "headline": "Transcriberen zonder cloud: lokale AI op je eigen laptop",
+   "description": "Laat opnames uitschrijven en samenvatten op je eigen laptop met whisper.cpp en Ollama, op Mac en Windows. Met de instellingen en fouten uit mijn eigen app.",
+   "inLanguage": "nl",
+   "datePublished": "2026-10-16",
+   "dateModified": "2026-10-16",
+   "author": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "image": "https://ai-leerlab.nl/assets/img/deel/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop.png",
+   "mainEntityOfPage": "https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/",
+   "articleSection": "Techniek",
+   "keywords": "agents, privacy",
+   "position": 5,
+   "isPartOf": [
+    {
+     "@id": "https://ai-leerlab.nl/#site"
+    },
+    {
+     "@type": "CreativeWorkSeries",
+     "@id": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/#serie",
+     "name": "Bouw je eigen productiviteitsapp",
+     "url": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/"
+    }
+   ]
+  },
+  {
+   "@type": "Person",
+   "@id": "https://ai-leerlab.nl/#frits",
+   "name": "Frits Coers",
+   "url": "https://ai-leerlab.nl/over/",
+   "jobTitle": "Docent bij Hogeschool Windesheim",
+   "sameAs": [
+    "https://www.linkedin.com/in/fritscoers/",
+    "https://www.instagram.com/ai_leerlab/"
+   ],
+   "worksFor": {
+    "@type": "CollegeOrUniversity",
+    "name": "Hogeschool Windesheim",
+    "url": "https://www.windesheim.nl/"
+   }
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://ai-leerlab.nl/#site",
+   "name": "AI-leerlab",
+   "url": "https://ai-leerlab.nl/",
+   "inLanguage": "nl",
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "AI-leerlab",
+     "item": "https://ai-leerlab.nl/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Series",
+     "item": "https://ai-leerlab.nl/series/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "Bouw je eigen productiviteitsapp",
+     "item": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "name": "Transcriberen zonder cloud: lokale AI op je eigen laptop"
+    }
+   ]
+  }
+ ]
+}
+</script>
+  <script src="/assets/toestemming.js?v=202610161235" data-meet-id="G-EYCDGPX6LG" defer></script>
+</head>
+<body>
+  <a class="skiplink" href="#inhoud">Naar de inhoud</a>
+
+  <header class="kop">
+    <div class="wrap">
+      <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+        <picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/logo-op-donker.svg"><img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt=""></picture>
+      </a>
+      <nav class="nav" aria-label="Hoofdmenu">
+        <a href="/leren/">Leren</a>
+        <a href="/tools/">Tools</a>
+        <a href="/series/" aria-current="page">Series</a>
+        <a href="/over/">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud" tabindex="-1">
+<section class="item-kop met-avatar labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      <nav aria-label="Kruimelpad"><p class="kruimel"><a href="/series/">Series</a><span class="sep" aria-hidden="true">/</span><a href="/series/bouw-je-eigen-productiviteitsapp/"><span class="lang">Bouw je eigen productiviteitsapp</span><span class="kort">Productiviteitsapp</span></a></p></nav>
+      <p class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg><span class="serie-deel">Deel 5</span></p>
+      <h1 id="titel">Transcriberen zonder cloud: lokale AI op je eigen laptop</h1>
+      
+      <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>Voor studenten en docenten</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>7 minuten lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><time datetime="2026-10-16">16 oktober 2026</time></li></ul>
+      <div class="serie-plek" role="navigation" aria-label="Plek in de serie">
+        <ol class="voortgang-balk"><li><a href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/"><span class="sr">Deel 1: Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt</span></a></li><li><a href="/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/"><span class="sr">Deel 2: Zo installeer je de basis van je app op Mac en Windows</span></a></li><li><a href="/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/"><span class="sr">Deel 3: Je eerste onderdeel: een taakbord dat je elke dag gebruikt</span></a></li><li><a href="/leren/journal-projecten-kennisbank-en-documenten-in-een-database/"><span class="sr">Deel 4: Journal, projecten, kennisbank en documenten in één database</span></a></li><li><a href="/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/" aria-current="step"><span class="sr">Deel 5, dit deel</span></a></li></ol>
+        <p>Deel 5 van de serie. Begin je hier? <a class="begin" href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/">Lees eerst deel 1</a></p>
+      </div>
+    </div>
+    <div class="kop-avatar"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/wouter-controleren.webp"><img class="" src="/assets/img/avatars/wouter-controleren.webp" width="546" height="573" alt="" style="--schaal: 1.023"></picture></div>
+  </div>
+</section>
+<div class="wrap">
+  <article class="artikel">
+    <p>Eind augustus wilde ik een opname van een vergadering laten uitschrijven, en dat mislukte. Toen het team ging zoeken, bleek het onderdeel dat het uitschrijven deed niet meer op mijn laptop te staan. Bij het opnieuw opbouwen van de Python-omgeving van mijn app was het niet meegekomen, omdat het niet op de lijst met benodigdheden stond die je in <a href="/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/">deel 2</a> maakte. Omdat ik in die tijd niets had opgenomen, was het niemand opgevallen. De laatste geslaagde transcriptie was van half juni.</p>
+<p>Het team heeft het opgelost, en daarbij is het uitschrijven ook nog een stuk sneller geworden. Hoe dat zat, vertel ik in dit deel. Aan het eind staat er op je eigen laptop een spraakmodel dat opnames uitschrijft en een taalmodel dat ze samenvat, en verlaat geen van beide je computer.</p>
+<h2 id="waarom-lokaal">Waarom lokaal</h2>
+<p>Ik neem soms gesprekken op waarvan ik heb beloofd dat ze niet naar een clouddienst gaan. Dan wil ik zeker weten dat dat ook zo is, en niet afhankelijk zijn van de voorwaarden van een leverancier. Een model dat op je eigen laptop draait, stuurt niets weg. Het werkt ook zonder internet.</p>
+<p>Daar hoort nog iets bij. Mijn app wordt gebouwd met Claude Code, en dat werkt wel via de cloud. Voor gesprekken waarvan ik heb beloofd dat ze lokaal blijven, geldt daarom een harde afspraak: de assistent opent de opnames en de uitgeschreven teksten niet. Hij mag wel aan de code werken die het uitschrijven regelt, maar niet aan de gesprekken zelf.</p>
+<h2 id="drie-programma-s-voor-hetzelfde-model">Drie programma&#x27;s voor hetzelfde model</h2>
+<p>Het spraakmodel heet Whisper. Het is gemaakt door OpenAI, maar het model zelf is vrij te gebruiken en draait gewoon op je laptop. Wat ik niet wist toen ik begon: er zijn verschillende programma&#x27;s die dat model laten draaien, en die verschillen flink.</p>
+<p>In mei begon mijn app met het programma van OpenAI zelf, zonder verdere instellingen. Zo blijft Whisper bij Nederlandse vergaderingen soms dezelfde zin herhalen, of verzint het tekst in een stilte. Eind mei stapte het team na onderzoek over naar faster-whisper, met drie instellingen die vooral bij Nederlandse vergaderingen verschil maken. De taal staat vast op Nederlands, zodat het model niet hoeft te raden. Stiltes worden overgeslagen. En het model bouwt niet voort op de vorige zin, waardoor het niet in een herhaling blijft hangen. Voordat we overstapten, is een eigen opname van bijna een uur met beide programma&#x27;s uitgeschreven en vergeleken. Vaktermen kwamen er duidelijk beter uit.</p>
+<p>Bij het herstel in augustus kwam de derde motor: whisper.cpp. Dat programma stond via Homebrew al op mijn Mac en gebruikt de grafische chip. Een vergadering van bijna een uur was voorheen in ruim twintig minuten uitgeschreven, en nu in een paar minuten. Omdat het om hetzelfde model gaat, bleef de kwaliteit gelijk; het team heeft de nieuwe tekst woord voor woord naast de oude gelegd. Opvallend was dat whisper.cpp zonder de grafische chip juist trager was dan de oude route. De snelheid zit dus niet in het programma alleen, maar ook in je laptop.</p>
+<p>Elke wissel had een reden die we konden meten, en dat raad ik je ook aan. Vraag je assistent bij een overstap om dezelfde opname met de oude en de nieuwe route uit te schrijven en de tijd en de tekst te vergelijken.</p>
+<h2 id="samenvatten-met-een-lokaal-taalmodel">Samenvatten met een lokaal taalmodel</h2>
+<p>Na het uitschrijven maakt de app een samenvatting en zet die onder de aantekening in de journal waar de opname bij hoort. Dat doet een taalmodel dat via Ollama op mijn laptop draait. Ollama is een gratis programma dat zulke modellen downloadt en beschikbaar maakt voor je eigen apps. Hetzelfde gebeurt bij nakijken: het lokale model stelt criteria en feedback voor, maar ik bevestig de criteria en schrijf mijn eigen feedback. Wat het model voorstelt en wat ik zelf vind, staan in de app bewust apart.</p>
+<p><img src="/assets/img/productiviteitsapp-transcriptie.webp" alt="Een uitgeschreven gesproken notitie in mijn app, met daarboven de samenvatting van het lokale taalmodel, met voorbeeldgegevens" loading="lazy"></p>
+<p>Eén ding wist ik niet. Ollama kan ook modellen aanbieden die niet op je laptop draaien maar in de cloud, en voor je app ziet dat er hetzelfde uit. Mijn team heeft daarom een controle ingebouwd: de app gebruikt alleen een model dat echt op mijn laptop staat en weigert een model met een verbinding naar buiten. Vraag je assistent om hetzelfde.</p>
+<blockquote><p>Ik wil opnames laten uitschrijven met whisper.cpp en samenvatten met een lokaal model via Ollama, alles op mijn eigen laptop. Zet de taal vast op Nederlands, sla stiltes over en voorkom herhalingen. Zet de samenvatting onder de aantekening waar de opname bij hoort. Gebruik alleen modellen die lokaal staan, en weiger modellen die naar de cloud gaan. Ik werk op [Mac of Windows].</p></blockquote>
+<h2 id="een-lokaal-model-maakt-zijn-fouten-ongemerkt">Een lokaal model maakt zijn fouten ongemerkt</h2>
+<p>In augustus heb ik ook geprobeerd om korte opdrachten aan mijn app, zoals &quot;zet een taak op mijn bord voor donderdag&quot;, door een lokaal model te laten uitvoeren. Dat werkte vaak, maar niet altijd. Bij dezelfde opdracht kwam er de ene keer een keurige taak uit, en de andere keer bleef &quot;donderdag&quot; in de titel staan of stond er een verkeerde datum. Eén keer meldde het model zelfs dat de taak was aangemaakt, terwijl er niets was opgeslagen.</p>
+<p>Zo&#x27;n fout zie je niet aan de buitenkant. Het antwoord ziet er net zo netjes uit als een goed antwoord. Daarom moest ik bij die proef elke schrijfactie zelf goedkeuren. De app liet in gewone taal zien wat hij ging opslaan, en pas na mijn ja kwam er iets in de database. Bij een samenvatting is dat minder nodig, want die lees ik toch. Bij alles wat in je database belandt, zou ik het altijd doen.</p>
+<p>Ik ben ook eerlijk over de snelheid. In de eerste proef kostte een vraag als &quot;wat staat er deze week op mijn bord?&quot; ongeveer een minuut. Met een nieuwere versie van Ollama, en door het model bij een gewone vraag niet eerst te laten nadenken, ging dat naar een paar seconden. Lokaal is dus niet vanzelf snel, maar het valt wel te verbeteren.</p>
+<h2 id="modellen-zijn-groot">Modellen zijn groot</h2>
+<p>Een spraakmodel is al snel een paar gigabyte, en de taalmodellen die ik gebruik zijn rond de twintig gigabyte. Mijn laptop heeft daar genoeg geheugen voor, maar dat geldt niet voor elke laptop. Begin daarom met een kleiner taalmodel van een paar gigabyte, zoals qwen3:8b, en kijk of de samenvattingen je bevallen.</p>
+<p>Zet modellen bovendien niet in een map die met OneDrive of iCloud synchroniseert. Ze veranderen nooit en kosten alleen maar ruimte in je cloud. Mijn spraakmodellen staan daarom in een eigen map buiten OneDrive. Ollama bewaart zijn modellen standaard al in je gebruikersmap, en niet in OneDrive.</p>
+<div class="os-paar">
+<details class="os os-mac">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 9V6.5A2.5 2.5 0 1 0 6.5 9H9zm0 0h6m-6 0v6m6-6V6.5A2.5 2.5 0 1 1 17.5 9H15zm0 0v6m0 0H9m6 0v2.5a2.5 2.5 0 1 0 2.5-2.5H15zm-6 0v2.5A2.5 2.5 0 1 1 6.5 15H9z"/></svg></span><span class="os-naam">Mac<span class="sr">: </span></span><span class="os-titel">whisper.cpp en Ollama installeren</span></summary>
+  <div class="os-inhoud">
+<ol><li>Open Terminal en installeer whisper.cpp en ffmpeg met Homebrew. ffmpeg zet je opname om naar het formaat dat whisper.cpp leest.</li></ol>
+<pre><code>brew install whisper.cpp ffmpeg</code></pre>
+<ol start="2"><li>Download Ollama van <a href="https://ollama.com/download">ollama.com/download</a>, sleep het naar Apps en open het. Ollama vraagt of het de opdracht <code>ollama</code> mag installeren; zeg ja.</li><li>Haal een taalmodel op met <code>ollama pull qwen3:8b</code>.</li><li>Maak een map voor spraakmodellen buiten OneDrive, bijvoorbeeld met <code>mkdir ~/whisper-modellen</code>, en download daarin een model van de <a href="https://huggingface.co/ggerganov/whisper.cpp/tree/main">modellenpagina van whisper.cpp</a>. <code>ggml-large-v3-turbo.bin</code> is een goed begin.</li><li>Probeer het met een korte opname:</li></ol>
+<pre><code>ffmpeg -i opname.m4a -ar 16000 -ac 1 -c:a pcm_s16le opname.wav
+whisper-cli -m ~/whisper-modellen/ggml-large-v3-turbo.bin -l nl -f opname.wav</code></pre>
+<p>Op een Mac met een M-chip gebruikt whisper.cpp vanzelf de grafische chip.</p>
+  </div>
+</details>
+<details class="os os-windows">
+  <summary><span class="os-teken" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M12 4v16M4 12h16"/></svg></span><span class="os-naam">Windows<span class="sr">: </span></span><span class="os-titel">whisper.cpp en Ollama installeren</span></summary>
+  <div class="os-inhoud">
+<ol><li>Open PowerShell en installeer ffmpeg en Ollama met winget. ffmpeg zet je opname om naar het formaat dat whisper.cpp leest.</li></ol>
+<pre><code>winget install --id Gyan.FFmpeg -e
+winget install --id Ollama.Ollama -e</code></pre>
+<ol start="2"><li>Sluit PowerShell, open hem opnieuw en haal een taalmodel op met <code>ollama pull qwen3:8b</code>.</li><li>Download whisper.cpp van de <a href="https://github.com/ggml-org/whisper.cpp/releases">releasepagina op GitHub</a>. Kies bij de nieuwste versie met bestanden <code>whisper-bin-x64.zip</code> en pak het uit, bijvoorbeeld naar <code>C:\whisper</code>. In de map <code>Release</code> staat <code>whisper-cli.exe</code>.</li><li>Maak een map voor spraakmodellen buiten OneDrive, bijvoorbeeld <code>C:\whisper-modellen</code>, en download daarin een model van de <a href="https://huggingface.co/ggerganov/whisper.cpp/tree/main">modellenpagina van whisper.cpp</a>. <code>ggml-large-v3-turbo.bin</code> is een goed begin.</li><li>Probeer het met een korte opname:</li></ol>
+<pre><code>ffmpeg -i opname.m4a -ar 16000 -ac 1 -c:a pcm_s16le opname.wav
+C:\whisper\Release\whisper-cli.exe -m C:\whisper-modellen\ggml-large-v3-turbo.bin -l nl -f opname.wav</code></pre>
+<p>Deze versie rekent op de processor, en dat is trager dan op een Mac met grafische chip. Heb je een NVIDIA-videokaart, dan is er ook een versie met <code>cublas</code> in de naam die die kaart gebruikt.</p>
+  </div>
+</details>
+</div>
+<h2 id="zo-ga-je-verder">Zo ga je verder</h2>
+<p>Mijn voorstel voor deze week: neem een kort overleg of een eigen gesproken notitie van een paar minuten op en laat die op je laptop uitschrijven. Lees de tekst daarna helemaal door en let op namen en vaktermen, want daar gaat het het vaakst mis. Lukt dat, vraag je assistent dan om de samenvatting onder een aantekening te zetten. In deel 6 gaan we van een app die werkt naar een app die je prettig vindt om te gebruiken.</p>
+    <p class="onderwerpen"><span class="label">Onderwerpen</span><span>agents</span><span>privacy</span></p>
+    <div class="deelrij" role="group" aria-label="Deel deze pagina">
+      <span class="label" aria-hidden="true">Delen</span>
+      <a class="deelknop" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fai-leerlab.nl%2Fleren%2Ftranscriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop%2F" target="_blank" rel="noopener" aria-label="Delen op LinkedIn (opent in een nieuw tabblad)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/></svg></a>
+      <a class="deelknop" href="mailto:?subject=Transcriberen%20zonder%20cloud%3A%20lokale%20AI%20op%20je%20eigen%20laptop&amp;body=Transcriberen%20zonder%20cloud%3A%20lokale%20AI%20op%20je%20eigen%20laptop%0A%0Ahttps%3A//ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/" aria-label="Delen per mail"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg></a>
+      <button class="deelknop" type="button" data-kopieer="https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/" aria-label="Link kopiëren" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+      <span class="gekopieerd" role="status" aria-live="polite"></span>
+    </div>
+    <nav class="serie-nav" aria-label="Andere delen van deze serie">
+        <p class="label">Serie · <a href="/series/bouw-je-eigen-productiviteitsapp/">Bouw je eigen productiviteitsapp</a></p>
+        <div class="paar">
+          <a class="stap vorige" href="/leren/journal-projecten-kennisbank-en-documenten-in-een-database/">
+            <span class="richting"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Deel 4</span>
+            <span class="titel">Journal, projecten, kennisbank en documenten in één database</span>
+          </a>
+          <span></span>
+        </div>
+        <a class="tekstlink alle" href="/series/bouw-je-eigen-productiviteitsapp/">Alle delen van deze serie</a>
+      </nav>
+    <div class="gemaakt">
+  <p class="gemaakt-zin">Geschreven met hulp van AI · label: <a href="/leren/human-ai-labels/">Creative Director</a></p>
+  <details class="gemaakt-meer">
+    <summary>Hoe AI is gebruikt</summary>
+    <p>Een AI-teamlid in Claude Code heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn eigen teksten, mijn feedback, het werklogboek van mijn team en de changelog van mijn app. De opnames en uitgeschreven gesprekken zelf heeft het niet gezien. De stappen voor Windows zijn opgezocht, niet getest. Ik heb onderwerp, opbouw en voorbeelden bepaald en de tekst gecontroleerd voordat hij online ging.</p><p>Labels-bron: Boetje, J., &amp; Baake, G. (2026). <em>Nine prototypical human-AI agency patterns</em> [Figuur]. figshare. <a href="https://doi.org/10.6084/m9.figshare.31706884">https://doi.org/10.6084/m9.figshare.31706884</a> (CC BY 4.0).</p>
+  </details>
+</div>
+  </article>
+  
+</div>
+  </main>
+
+  <footer class="voet">
+    <div class="wrap">
+      <div>
+        <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+          <img class="logo" src="/assets/img/logo-op-donker.svg" width="211" height="52" alt="">
+        </a>
+        <p>Een persoonlijke site van Frits Coers, docent bij Windesheim. Geen uitgave van Windesheim.</p>
+        <p>Met je toestemming telt Google Analytics hoeveel bezoekers er komen. Zonder toestemming geen cookies. © 2026 Frits Coers.</p>
+      </div>
+      <nav aria-label="Onderaan">
+        <a href="/leren/">Leren</a>
+        <a href="/tools/">Tools</a>
+        <a href="/series/">Series</a>
+        <a href="/over/">Over</a>
+        <a href="/over/#colofon">Privacy en colofon</a>
+        <a href="/over/#colofon" data-cookie-instellingen>Cookie-instellingen</a>
+        <a href="/feed.xml" type="application/rss+xml">RSS-feed</a>
+        <a class="profiel" href="https://www.linkedin.com/in/fritscoers/" aria-label="Frits Coers op LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/></svg></a><a class="profiel" href="https://www.instagram.com/ai_leerlab/" aria-label="AI-leerlab op Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/></svg></a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/delen.js?v=202610161235" defer></script>
+  <script src="/assets/beweging.js?v=202610161235" defer></script>
+</body>
+</html>

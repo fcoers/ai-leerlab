@@ -6,7 +6,15 @@
   <atom:link href="https://ai-leerlab.nl/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.</description>
   <language>nl</language>
-  <lastBuildDate>Fri, 09 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Fri, 16 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Deel 5: Transcriberen zonder cloud: lokale AI op je eigen laptop</title>
+    <link>https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/</guid>
+    <pubDate>Fri, 16 Oct 2026 07:00:00 +0000</pubDate>
+    <description>Laat opnames uitschrijven en samenvatten op je eigen laptop met whisper.cpp en Ollama, op Mac en Windows. Met de instellingen en fouten uit mijn eigen app.</description>
+    <category>Techniek</category>
+  </item>
   <item>
     <title>Deel 4: Journal, projecten, kennisbank en documenten in één database</title>
     <link>https://ai-leerlab.nl/leren/journal-projecten-kennisbank-en-documenten-in-een-database/</link>

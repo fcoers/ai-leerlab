@@ -686,12 +686,30 @@
     omhoog(voor);
   }
 
+  /** Welke regel van het rijtje bij dit item hoort: de persoon als die er is, anders de vorm, en als die bij meer
+      personen past (je parle, il parle) het voornaamwoord vlak voor het gat. Nooit meer dan één regel. */
+  function regelInRijtje(rj, it) {
+    if (it.persoon && rj.vormen[it.persoon] !== undefined) return it.persoon;
+    var gelijk = function (a) { return N.gelijkmaken(a).toLowerCase(); };
+    var kandidaten = Object.keys(rj.vormen).filter(function (p) { return gelijk(rj.vormen[p]) === gelijk(it.antwoord); });
+    if (kandidaten.length <= 1) return kandidaten[0] || null;
+    var m = it.vraag.match(/([A-Za-zÀ-ÿ']+)\s*\([^()]+\)/);
+    var vnw = m ? m[1].toLowerCase().replace(/'$/, '') : '';
+    if (vnw === 'j') vnw = 'je';
+    for (var i = 0; i < kandidaten.length; i++) {
+      var delen = kandidaten[i].toLowerCase().split('/');
+      if (delen.indexOf(vnw) >= 0) return kandidaten[i];
+    }
+    return null;
+  }
+
   function rijtjeTabel(rj, o) {
     var T = TALEN[P.taal];
     var tabel = maak('table');
     var tb = maak('tbody');
+    var regel = regelInRijtje(rj, o.item);
     Object.keys(rj.vormen).forEach(function (p) {
-      var dit = (o.item.persoon && o.item.persoon === p) || (!o.item.persoon && N.gelijkmaken(rj.vormen[p]).toLowerCase() === N.gelijkmaken(o.item.antwoord).toLowerCase());
+      var dit = p === regel;
       tb.appendChild(maak('tr', { klasse: dit ? 'dit' : null }, [maak('td', { tekst: p.replace(/\//g, ' / ') }), maak('td', { tekst: rj.vormen[p] })]));
     });
     tabel.appendChild(tb);

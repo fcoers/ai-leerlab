@@ -21,6 +21,7 @@
     "spreker": "",
     "nieuw_max": 8
   },
+  "apps": {"seotitel": "Apps voor in je les, van AI-leerlab", "beschrijving": "Kleine apps van AI-leerlab die je in je les of studie gebruikt, voor studenten en docenten in het hoger onderwijs.", "lede": "Kleine apps die je in je les of studie gebruikt. Ik bouw ze met mijn AI-team en zet ze hier neer zodra ze klaar zijn voor anderen.", "leeg": "Hier komen kleine apps die je in je les of studie gebruikt. De eerste staat nog in de proefles.", "transparantie": "**Transparantie GenAI.** De apps op deze pagina zijn gebouwd door een AI-team (Claude) op aanwijzing van Frits Coers, die de opdracht, de eisen en de keuzes bepaalt en het resultaat beoordeelt. Human-AI Agency Label: Creative Director."},
   "tools": {"seotitel": "Tools om bewust met AI te werken", "beschrijving": "Kleine hulpmiddelen van AI-leerlab om je eigen AI-gebruik te bekijken, voor studenten en docenten. Alles werkt in je browser.", "lede": "Kleine hulpmiddelen om je eigen AI-gebruik te bekijken. Alles werkt in je browser en er wordt niets opgeslagen."},
   "leren": {
     "seotitel": "Leren werken met AI: tutorials en uitleg",

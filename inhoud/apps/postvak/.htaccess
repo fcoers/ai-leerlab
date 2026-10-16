@@ -1,0 +1,5 @@
+# Postvak: alleen voor de Productiviteit-app op de Mac. Niet in Google, geen mappenlijst.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+Options -Indexes

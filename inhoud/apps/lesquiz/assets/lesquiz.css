@@ -1,0 +1,155 @@
+/* Lesquiz (ai-leerlab.nl/apps/lesquiz/). Bovenop site.css: dezelfde tokens, letters en knoppen.
+   Student: telefoonformaat, klikvlakken van minstens 56 px, invoer 18 px (geen inzoomen op iOS).
+   Beheer: rustige panelen op de breedte van de site. Dashboard: eigen blok onderaan, leesbaar achter in een lokaal.
+   Beweging alleen via transform/opacity, slow in/slow out, niets bij minder beweging. */
+
+/* ---------- gedeeld ---------- */
+.lq-kop { background: var(--vlak); border-bottom: 1px solid var(--lijn); }
+.lq-kop .wrap { display: flex; align-items: center; gap: 16px; min-height: 64px; }
+.lq-kop .merk .logo { height: 36px; width: auto; }
+.lq-kop .label { margin-left: auto; }
+.lq-kop form { margin: 0; }
+.lq-main { padding-top: 32px; padding-bottom: 72px; }
+.lq-main h1 { font: 800 clamp(30px, 6vw, 44px)/1.1 var(--sans); letter-spacing: -.015em; margin: 8px 0 16px; }
+.lq-main h2 { font: 700 24px/1.25 var(--sans); margin: 0 0 12px; }
+.knop svg, .lq-terug svg, .lq-klein-link svg, .lq-onder a svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.knop.lq-klein { min-height: 44px; padding: 8px 16px; font-size: 16px; }
+.lq-terug, .lq-klein-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500; }
+
+/* Formulieren */
+.lq-formulier label, .lq-veld > label { display: block; font-weight: 600; margin: 0 0 6px; }
+.lq-formulier input:not([type=radio]):not([type=checkbox]), .lq-formulier textarea, .lq-veld input {
+  width: 100%; min-height: 56px; padding: 12px 14px; font: 400 18px/1.4 var(--sans); color: var(--inkt);
+  background: var(--vlak); border: 1px solid var(--inkt-zacht); border-radius: 8px;
+}
+.lq-formulier textarea { min-height: 72px; resize: vertical; }
+.lq-formulier input:focus-visible, .lq-formulier textarea:focus-visible, .lq-veld input:focus-visible { outline: 3px solid var(--labgroen); outline-offset: 1px; }
+[aria-invalid="true"] { border-color: var(--inkt) !important; border-width: 2px !important; }
+.lq-fout { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; font-weight: 600; color: var(--inkt); }
+.lq-fout::before { content: "!"; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--inkt); color: var(--vlak); font: 700 16px/24px var(--sans); text-align: center; }
+.lq-fout[hidden] { display: none; }
+.lq-hint { color: var(--inkt-zacht); font-size: 16px; margin: 8px 0 0; }
+
+/* ---------- student ---------- */
+.lq-student main { max-width: 560px; margin: 0 auto; padding: 24px 20px 56px; }
+.lq-student h1 { font: 800 clamp(28px, 7.5vw, 36px)/1.12 var(--sans); letter-spacing: -.01em; margin: 6px 0 10px; }
+.lq-student .lede { font-size: 19px; color: var(--inkt-zacht); }
+.lq-staat[hidden] { display: none; }
+/* Binnenkomen: ease-out, zonder fill-mode, zodat de animatie na afloop de dekking niet vasthoudt.
+   Weggaan: .is-weg vervaagt met ease-in (200 ms); student.js verbergt het scherm pas daarna. */
+.lq-staat { animation: lq-in .45s var(--uit); }
+.lq-staat.is-weg { animation: none; opacity: 0; transform: translateY(-6px); transition: opacity .2s var(--in), transform .2s var(--in); }
+@keyframes lq-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.lq-namen { border: 0; padding: 0; margin: 28px 0 0; display: grid; gap: 16px; }
+.lq-namen legend { font: 700 22px/1.25 var(--sans); padding: 0; margin-bottom: 12px; }
+.lq-onthoud { display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 16px; color: var(--inkt-zacht); }
+.lq-onthoud input { width: 24px; height: 24px; accent-color: var(--labgroen); margin: 0; }
+.lq-vraag { border: 0; padding: 0; margin: 36px 0 0; }
+.lq-vraag legend { padding: 0; margin: 0 0 14px; }
+.lq-vraag legend .label { margin-bottom: 6px; }
+.lq-vraagtekst { display: block; font: 700 21px/1.35 var(--sans); color: var(--inkt); }
+.lq-keuzes { display: grid; gap: 10px; }
+.lq-keuze { position: relative; display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 12px 16px;
+  background: var(--vlak); border: 1px solid var(--inkt-zacht); border-radius: 8px; cursor: pointer; font-size: 18px; line-height: 1.35;
+  transition: border-color .2s var(--in-uit), background-color .2s var(--in-uit); }
+.lq-keuze input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.lq-rond { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--inkt-zacht); display: grid; place-items: center; }
+.lq-rond::after { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--labgroen); transform: scale(0); transition: transform .25s var(--uit); }
+.lq-keuze:has(input:checked) { border: 2px solid var(--labgroen); background: var(--munt); padding: 11px 15px; }
+.lq-keuze:has(input:checked) .lq-rond { border-color: var(--labgroen); }
+.lq-keuze:has(input:checked) .lq-rond::after { transform: scale(1); }
+.lq-keuze:has(input:focus-visible) { outline: 3px solid var(--labgroen); outline-offset: 3px; }
+.lq-vraag[aria-invalid="true"] .lq-keuze { border-color: var(--inkt); }
+.lq-verstuur { width: 100%; min-height: 60px; margin-top: 36px; font-size: 19px; }
+.lq-verstuur[disabled] { opacity: .7; cursor: progress; }
+.lq-privacy { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--lijn); font-size: 16px; color: var(--inkt-zacht); }
+.lq-gelukt { text-align: left; padding-top: 24px; }
+.lq-vink { width: 72px; height: 72px; border-radius: 50%; background: var(--labgroen); display: grid; place-items: center; margin-bottom: 20px; }
+.lq-vink svg { width: 40px; height: 40px; stroke: var(--op-groen); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.lq-vink path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: lq-vink .5s .15s var(--uit) forwards; }
+@keyframes lq-vink { to { stroke-dashoffset: 0; } }
+.lq-melding-blok { margin-top: 20px; padding: 16px 18px; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; }
+.lq-codeveld { display: flex; gap: 10px; margin-top: 8px; }
+.lq-codeveld input { text-transform: uppercase; letter-spacing: .12em; font-family: var(--mono) !important; }
+.lq-codeveld .knop { flex: none; }
+
+/* ---------- beheer ---------- */
+.lq-melding { display: flex; gap: 10px; align-items: center; padding: 12px 16px; margin: 0 0 16px; background: var(--munt); border-radius: 8px; font-weight: 500; animation: lq-in .45s var(--uit) both; }
+.lq-melding svg { width: 22px; height: 22px; flex: none; stroke: var(--labgroen); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.lq-let-op { padding: 12px 16px; border-left: 4px solid var(--inkt); background: var(--vlak); }
+.lq-smal { max-width: 460px; }
+.lq-formulier { display: grid; gap: 16px; }
+.lq-formulier .knop { justify-self: start; }
+.lq-rij3 { display: grid; gap: 16px; grid-template-columns: 1fr 1.6fr 1fr; }
+@media (max-width: 760px) { .lq-rij3 { grid-template-columns: 1fr; } }
+.lq-vraagblok { border: 1px solid var(--lijn); border-radius: 8px; background: var(--vlak); padding: 16px 20px 20px; margin: 0; }
+.lq-vraagblok legend { font: 700 20px/1.2 var(--sans); padding: 0 6px; }
+.lq-opties-invoer { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.lq-opties-invoer li { display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center; }
+.lq-opties-invoer input:not([type=radio]) { min-height: 48px !important; }
+.lq-letter { font: 500 16px/1 var(--mono); color: var(--inkt-zacht); text-align: center; }
+.lq-goedkeuze { display: inline-flex !important; align-items: center; gap: 8px; min-height: 48px; padding: 0 12px; margin: 0 !important; font-weight: 500 !important; border-radius: 8px; cursor: pointer; }
+.lq-goedkeuze input { width: 24px; height: 24px; accent-color: var(--labgroen); margin: 0; }
+.lq-goedkeuze:has(input:checked) { background: var(--munt); }
+.lq-leskop { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.lq-leskop h1 { margin-bottom: 0; }
+.lq-paneel { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; padding: 24px; margin-top: 24px; }
+.lq-paneel > p:first-of-type { margin-top: 0; }
+.lq-paneelkop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.lq-paneelkop h2 { margin: 0; }
+.lq-status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.lq-status p { margin: 4px 0 0; }
+.lq-status form { margin: 0; }
+.lq-status.is-open { background: var(--munt); border-color: var(--labgroen); }
+.lq-statuskop { display: flex; align-items: center; gap: 10px; margin: 0 !important; }
+.lq-statuskop svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lq-twee { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.lq-twee .lq-paneel { margin-top: 24px; }
+@media (max-width: 820px) { .lq-twee { grid-template-columns: 1fr; gap: 0; } }
+.lq-qr { width: 220px; max-width: 100%; aspect-ratio: 1; background: #fff; padding: 12px; border-radius: 8px; border: 1px solid var(--lijn); }
+.lq-qr svg { width: 100%; height: 100%; display: block; }
+.lq-code { display: flex; align-items: baseline; gap: 12px; margin: 16px 0 4px; }
+.lq-code strong { font: 500 28px/1.2 var(--mono); letter-spacing: .12em; }
+.lq-code .lq-sleutel { font-size: 18px; letter-spacing: .02em; word-break: break-all; }
+.lq-link { font: 500 16px/1.4 var(--mono); color: var(--inkt-zacht); word-break: break-all; margin: 0 0 8px; }
+.lq-aantal { font: 500 18px/1 var(--mono); color: var(--inkt-zacht); margin-left: 6px; }
+.lq-tabel-wrap { overflow-x: auto; }
+.lq-tabel { width: 100%; border-collapse: collapse; font-size: 17px; }
+.lq-tabel th { text-align: left; font: 500 14px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); padding: 8px 8px 8px 0; border-bottom: 1px solid var(--lijn); }
+.lq-tabel td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--lijn); }
+.lq-tabel form { margin: 0; text-align: right; }
+.lq-ikoonknop { width: 44px; height: 44px; display: inline-grid; place-items: center; background: none; border: 0; border-radius: 8px; color: var(--inkt-zacht); cursor: pointer; }
+.lq-ikoonknop:hover { background: var(--papier); color: var(--inkt); }
+.lq-ikoonknop svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lq-vragenlijst { margin: 0; padding-left: 24px; display: grid; gap: 16px; }
+.lq-vragenlijst > li > p { font-weight: 600; margin: 0 0 6px; }
+.lq-vragenlijst ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.lq-vragenlijst ul li { display: flex; gap: 10px; align-items: center; padding: 4px 8px; border-radius: 6px; }
+.lq-vragenlijst ul li.is-goed { background: var(--munt); font-weight: 600; }
+.lq-goedlabel { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; font: 500 14px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+.lq-goedlabel svg { width: 18px; height: 18px; stroke: var(--labgroen); fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.lq-gevaar { background: transparent; }
+.lq-vak { margin-top: 40px; }
+.lq-lessen { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--lijn); }
+.lq-lessen a { display: grid; grid-template-columns: 120px 1fr auto auto; gap: 16px; align-items: center; min-height: 60px; padding: 8px 4px; border-bottom: 1px solid var(--lijn); color: var(--inkt); text-decoration: none; }
+.lq-lessen a:hover { background: var(--vlak); }
+.lq-lessen a:hover .lq-lestitel { text-decoration: underline; text-decoration-thickness: 2px; color: var(--labgroen); }
+.lq-datum, .lq-n { font: 500 15px/1.2 var(--mono); color: var(--inkt-zacht); }
+.lq-lestitel { font-weight: 600; }
+@media (max-width: 640px) { .lq-lessen a { grid-template-columns: 1fr auto; } .lq-datum { grid-column: 1 / -1; } }
+.lq-pil { display: inline-flex; align-items: center; gap: 6px; font: 500 14px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--lijn); color: var(--inkt-zacht); }
+.lq-pil svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.lq-pil.is-open { background: var(--inkt); border-color: var(--inkt); color: var(--op-inkt); }
+.lq-onder { background: transparent; }
+.lq-onder p { margin: 0; }
+.lq-onder a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lq-staat, .lq-melding { animation: none; }
+  .lq-staat.is-weg { transition: none; }
+  .lq-vink path { animation: none; stroke-dashoffset: 0; }
+  .lq-keuze, .lq-rond::after { transition: none; }
+}
+
+/* Het attribuut hidden wint altijd: een eigen display (flex, grid, block) mag een verborgen element niet tonen. */
+[hidden] { display: none !important; }

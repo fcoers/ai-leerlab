@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Lesquiz-dashboard in PowerPoint</title>
+  <link rel="stylesheet" href="/apps/lesquiz/assets/powerpoint.css?v={{versie}}">
+  <!-- office.js van Microsoft: alleen nodig om de link per presentatie te bewaren. Zonder werkt het ook (link per Mac). -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="/apps/lesquiz/assets/powerpoint.js?v={{versie}}" defer></script>
+</head>
+<body>
+  <form class="pp-instellen" data-instellen hidden>
+    <h1>Lesquiz-dashboard</h1>
+    <label for="link">Plak de dashboardlink van deze les (uit de Productiviteit-app)</label>
+    <input id="link" type="url" required placeholder="https://ai-leerlab.nl/apps/lesquiz/scherm/?s=…">
+    <p class="pp-fout" data-fout hidden>Dit is geen dashboardlink van de lesquiz.</p>
+    <button>Tonen</button>
+  </form>
+  <iframe data-scherm title="Dashboard van de lesquiz" hidden></iframe>
+  <button class="pp-wijzig" type="button" data-wijzig hidden>Link wijzigen</button>
+</body>
+</html>

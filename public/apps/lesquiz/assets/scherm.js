@@ -150,9 +150,11 @@
     knop.setAttribute('aria-label', naar === 'uitslag' ? 'Toon de uitslag' : 'Toon de instructie');
   }
   // Op de uitslag gaat de knop mee in de opmaak (onder de code, of rechts in de kop zonder QR), zodat hij nooit een
-  // vraag afdekt en er geen ruimte voor vrijgehouden hoeft te worden. Op de instructie staat hij vast rechtsonder.
+  // vraag afdekt en er geen ruimte voor vrijgehouden hoeft te worden. Op de instructie staat hij vast rechtsonder,
+  // behalve in een smal venster: daar scrolt de instructie en staat de knop onderaan in de opmaak, na de teller.
   function plaatsKnop() {
-    var doel = weergave !== 'uitslag' ? document.body : (root.classList.contains('met-qr') ? $('[data-doe-mee]') : $('.sc-kop'));
+    var doel = weergave === 'uitslag' ? (root.classList.contains('met-qr') ? $('[data-doe-mee]') : $('.sc-kop'))
+      : (smal.matches ? instructie : document.body);
     if (knop.parentNode === doel) return;
     var focus = document.activeElement === knop;
     if (doel === document.body) document.body.insertBefore(knop, melding); else doel.appendChild(knop);
@@ -184,6 +186,7 @@
     knopZet();
     toonLaag(w, !stil());
   }
+  if (smal.addEventListener) smal.addEventListener('change', plaatsKnop); else if (smal.addListener) smal.addListener(plaatsKnop);
   knop.addEventListener('click', function () { wissel(weergave === 'uitslag' ? 'instructie' : 'uitslag'); });
   knopZet();
   toonLaag(weergave, false);

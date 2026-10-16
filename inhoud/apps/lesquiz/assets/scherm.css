@@ -45,8 +45,9 @@ html, body { margin: 0; height: 100%; background: var(--papier); color: var(--in
 .sc-adres span { display: block; }
 .sc-code { margin: 0; text-align: center; font-size: calc(2 * var(--u)); color: var(--inkt-zacht); }
 .sc-code strong { display: block; font: 500 calc(3.8 * var(--u))/1.1 var(--mono); letter-spacing: .14em; color: var(--inkt); }
-.sc-melding { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(1.6 * var(--u)); margin: 0; font: 500 calc(1.7 * var(--u))/1 var(--mono); color: var(--inkt-zacht);
-  background: var(--vlak); padding: calc(.8 * var(--u)) calc(1.2 * var(--u)); border-radius: 8px; border: 1px solid var(--lijn); }
+/* Midden onderaan, zodat de melding de knop rechtsonder niet raakt; gecentreerd met marge auto, zonder verschuiving. */
+.sc-melding { position: fixed; left: 0; right: 0; width: fit-content; bottom: calc(1.6 * var(--u)); margin: 0 auto; font: 500 calc(1.7 * var(--u))/1 var(--mono); color: var(--inkt-zacht);
+  background: var(--vlak); padding: var(--u); border-radius: 8px; border: 1px solid var(--lijn); }
 .sc-leeg { font-size: calc(2.6 * var(--u)); color: var(--inkt-zacht); margin: 0; }
 @media (prefers-reduced-motion: reduce) { .sc-balk, .sc-doe-mee { transition: none; } }
 
@@ -68,9 +69,10 @@ html, body { margin: 0; height: 100%; background: var(--papier); color: var(--in
 .kl-tekst { grid-column: 1; grid-row: 2; min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
 .kl-tekst h1 { font: 800 calc(5.6 * var(--u) * var(--fk, 1))/1.05 var(--sans); letter-spacing: -.02em; margin: 0 0 calc(3.2 * var(--u) * var(--fk, 1)); }
 .kl-stappen { list-style: none; margin: 0; padding: 0; counter-reset: stap; display: grid; gap: calc(2.2 * var(--u) * var(--fk, 1)); }
-.kl-stappen li { counter-increment: stap; display: flex; align-items: flex-start; gap: calc(2.2 * var(--u) * var(--fk, 1));
+/* Bolletje en tekst op dezelfde basislijn: het cijfer staat op de regel van de stap, zonder marge-correctie. */
+.kl-stappen li { counter-increment: stap; display: flex; align-items: baseline; gap: calc(2.2 * var(--u) * var(--fk, 1));
   font: 500 calc(2.7 * var(--u) * var(--fk, 1))/1.3 var(--sans); }
-.kl-stappen li::before { content: counter(stap); flex: none; display: grid; place-items: center; width: 1.75em; height: 1.75em; margin-top: -.22em;
+.kl-stappen li::before { content: counter(stap); flex: none; display: grid; place-items: center; width: 1.75em; height: 1.75em;
   border-radius: 50%; background: var(--inkt); color: var(--vlak); font-weight: 800; line-height: 1; }
 .kl-stappen li > span { min-width: 0; }
 .kl-waarom { margin: calc(3 * var(--u) * var(--fk, 1)) 0 0; padding-left: calc(1.75em * 1.17 + 2.2 * var(--u) * var(--fk, 1)); font-size: calc(2.3 * var(--u) * var(--fk, 1)); line-height: 1.4; color: var(--inkt-zacht); }
@@ -91,16 +93,17 @@ html, body { margin: 0; height: 100%; background: var(--papier); color: var(--in
   font: 600 max(16px, calc(2.2 * var(--u)))/1 var(--sans); transition: background-color .45s var(--in-uit), color .45s var(--in-uit); }
 .kl-wissel svg { width: max(20px, calc(2.6 * var(--u))); height: max(20px, calc(2.6 * var(--u))); fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 /* Op de uitslag staat de knop in de opmaak zelf, zodat hij geen vraag afdekt: onder de code als de QR-kolom er is,
-   anders rechts in de kop. scherm.js verplaatst hem (plaatsKnop). */
-.sc .kl-wissel { position: static; flex: none; }
+   anders rechts in de kop. In een smal venster staat hij ook op de instructie in de opmaak, onderaan na de teller.
+   scherm.js verplaatst hem (plaatsKnop). */
+.sc .kl-wissel, .kl .kl-wissel { position: static; flex: none; }
+.kl .kl-wissel { align-self: flex-start; }
 .sc-kop .kl-wissel { align-self: flex-end; }
 .sc-doe-mee .kl-wissel { align-self: center; margin-top: calc(1.6 * var(--u)); }
 .kl-wissel:hover { background: var(--inkt); color: var(--vlak); }
 .kl-wissel:focus-visible { outline: 3px solid var(--labgroen); outline-offset: 3px; }
 /* Smal venster (telefoon, staand): één kolom die scrolt. Niet voor de beamer bedoeld, wel bruikbaar. */
 @media (max-width: 700px) {
-  .kl { --u: 2.6vw; display: flex; flex-direction: column; gap: calc(3.2 * var(--u)); overflow-y: auto;
-    padding-bottom: calc(3.2 * var(--u) + max(44px, 5 * var(--u)) + 2.4 * var(--u)); }
+  .kl { --u: 2.6vw; display: flex; flex-direction: column; gap: calc(3.2 * var(--u)); overflow-y: auto; }
   .kl-kop { flex-wrap: wrap; }
   .kl-kop .sc-label { flex-wrap: wrap; gap: calc(.8 * var(--u)); }
   .kl-tekst { flex: none; overflow: visible; }

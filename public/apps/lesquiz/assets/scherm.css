@@ -6,7 +6,7 @@
 @font-face { font-family: "Roboto Mono"; src: url("/assets/fonts/roboto-mono-500-latin.woff2") format("woff2"); font-weight: 500; font-display: swap; }
 :root { --inkt: #17211C; --inkt-zacht: #4A5550; --papier: #F7F8F4; --vlak: #FFFFFF; --lijn: #DDE2DA; --labgroen: #1B6E4A; --munt: #E4F1E8;
   --sans: "Roboto Flex", Roboto, system-ui, -apple-system, sans-serif; --mono: "Roboto Mono", ui-monospace, Menlo, monospace;
-  --u: min(1vw, 1.78vh); --in-uit: cubic-bezier(0.45, 0, 0.25, 1); --uit: cubic-bezier(0.22, 1, 0.36, 1); color-scheme: light; }
+  --u: min(1vw, 1.78vh); --in-uit: cubic-bezier(0.45, 0, 0.25, 1); --in: cubic-bezier(0.55, 0, 0.85, 0.35); --uit: cubic-bezier(0.22, 1, 0.36, 1); color-scheme: light; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--papier); color: var(--inkt); font-family: var(--sans); overflow: hidden; }
 .sc { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: calc(2.4 * var(--u)) calc(4 * var(--u));
@@ -45,10 +45,72 @@ html, body { margin: 0; height: 100%; background: var(--papier); color: var(--in
 .sc-adres span { display: block; }
 .sc-code { margin: 0; text-align: center; font-size: calc(2 * var(--u)); color: var(--inkt-zacht); }
 .sc-code strong { display: block; font: 500 calc(3.8 * var(--u))/1.1 var(--mono); letter-spacing: .14em; color: var(--inkt); }
-.sc-melding { position: fixed; right: calc(2 * var(--u)); bottom: calc(1.6 * var(--u)); margin: 0; font: 500 calc(1.7 * var(--u))/1 var(--mono); color: var(--inkt-zacht);
-  background: var(--vlak); padding: calc(.8 * var(--u)) calc(1.2 * var(--u)); border-radius: 8px; border: 1px solid var(--lijn); }
+/* Midden onderaan, zodat de melding de knop rechtsonder niet raakt; gecentreerd met marge auto, zonder verschuiving. */
+.sc-melding { position: fixed; left: 0; right: 0; width: fit-content; bottom: calc(1.6 * var(--u)); margin: 0 auto; font: 500 calc(1.7 * var(--u))/1 var(--mono); color: var(--inkt-zacht);
+  background: var(--vlak); padding: var(--u); border-radius: 8px; border: 1px solid var(--lijn); }
 .sc-leeg { font-size: calc(2.6 * var(--u)); color: var(--inkt-zacht); margin: 0; }
 @media (prefers-reduced-motion: reduce) { .sc-balk, .sc-doe-mee { transition: none; } }
+
+/* Klasweergave (16-10-2026). Twee lagen op dezelfde plek: de instructie voor studenten (standaard) en de uitslag
+   (het dashboard hierboven). Wisselen met de knop rechtsonder, met U en I, of met de pijltjes en PageUp/PageDown van
+   een presenter. Op een beamer is een klein dashboard naast de instructie achterin niet te lezen; daarom staat naast
+   de instructie alleen het aantal inzendingen, en de volledige uitslag één klik verder.
+   Beweging: de oude laag vervaagt met ease-in (200 ms), de nieuwe komt op met ease-out (400 ms); bij minder beweging direct. */
+.kl, .sc { position: fixed; inset: 0; height: auto; opacity: 1; }
+.kl-weg { opacity: 0; transition: opacity .2s var(--in); }
+.kl-komt { opacity: 0; }
+.kl-op { transition: opacity .4s var(--uit); }
+.kl { display: grid; grid-template-columns: minmax(0, 1fr) calc(34 * var(--u)); grid-template-rows: auto minmax(0, 1fr) max(44px, 5 * var(--u));
+  column-gap: calc(5 * var(--u)); row-gap: calc(2.4 * var(--u)); padding: calc(3.2 * var(--u)) calc(4 * var(--u)); }
+.kl-kop { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: calc(2 * var(--u));
+  border-bottom: max(2px, calc(.5 * var(--u))) solid var(--inkt); padding-bottom: calc(1.6 * var(--u)); }
+.kl-kop .sc-label { margin: 0; min-width: 0; }
+/* De tekst past altijd: scherm.js maakt hem stap voor stap kleiner (--fk, nooit onder 60 procent), net als op de uitslag. */
+.kl-tekst { grid-column: 1; grid-row: 2; min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.kl-tekst h1 { font: 800 calc(5.6 * var(--u) * var(--fk, 1))/1.05 var(--sans); letter-spacing: -.02em; margin: 0 0 calc(3.2 * var(--u) * var(--fk, 1)); }
+.kl-stappen { list-style: none; margin: 0; padding: 0; counter-reset: stap; display: grid; gap: calc(2.2 * var(--u) * var(--fk, 1)); }
+/* Bolletje en tekst op dezelfde basislijn: het cijfer staat op de regel van de stap, zonder marge-correctie. */
+.kl-stappen li { counter-increment: stap; display: flex; align-items: baseline; gap: calc(2.2 * var(--u) * var(--fk, 1));
+  font: 500 calc(2.7 * var(--u) * var(--fk, 1))/1.3 var(--sans); }
+.kl-stappen li::before { content: counter(stap); flex: none; display: grid; place-items: center; width: 1.75em; height: 1.75em;
+  border-radius: 50%; background: var(--inkt); color: var(--vlak); font-weight: 800; line-height: 1; }
+.kl-stappen li > span { min-width: 0; }
+.kl-waarom { margin: calc(3 * var(--u) * var(--fk, 1)) 0 0; padding-left: calc(1.75em * 1.17 + 2.2 * var(--u) * var(--fk, 1)); font-size: calc(2.3 * var(--u) * var(--fk, 1)); line-height: 1.4; color: var(--inkt-zacht); }
+.kl-doe-mee { grid-column: 2; grid-row: 2; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(1 * var(--u)); }
+/* Zo groot als de kolom toelaat: scherm.js zet de maat (--qr) op wat er naast adres en code overblijft. */
+.kl-qr { flex: none; width: var(--qr, calc(24 * var(--u))); height: var(--qr, calc(24 * var(--u))); background: #fff; border: 1px solid var(--lijn); border-radius: calc(1.2 * var(--u)); padding: calc(.8 * var(--u)); }
+.kl-qr svg { width: 100%; height: 100%; display: block; }
+.kl-adres { margin: calc(.6 * var(--u)) 0 0; text-align: center; font: 500 calc(2.1 * var(--u))/1.2 var(--mono); color: var(--inkt); white-space: nowrap; }
+.kl-code { margin: 0; display: flex; align-items: baseline; justify-content: center; gap: calc(1.4 * var(--u)); font-size: calc(2.2 * var(--u)); color: var(--inkt-zacht); }
+.kl-code strong { font: 500 calc(5 * var(--u))/1.1 var(--mono); letter-spacing: .14em; color: var(--inkt); }
+.kl-teller { grid-column: 1; grid-row: 3; align-self: center; margin: 0; font-size: calc(2.4 * var(--u)); font-weight: 600; color: var(--inkt-zacht); white-space: nowrap; }
+.kl-teller strong { font: 800 calc(4 * var(--u))/1 var(--sans); color: var(--inkt); font-variant-numeric: tabular-nums; margin-right: calc(.4 * var(--u)); }
+/* Gesloten: geen QR en geen stappen, de tekst krijgt de hele breedte. */
+.kl.is-dicht .kl-tekst { grid-column: 1 / -1; }
+.kl.is-dicht .kl-waarom { padding-left: 0; }
+.kl-wissel { position: fixed; right: calc(4 * var(--u)); bottom: calc(3.2 * var(--u)); min-height: max(44px, 5 * var(--u)); display: inline-flex; align-items: center; gap: calc(1 * var(--u));
+  padding: 0 calc(2.2 * var(--u)); border: 2px solid var(--inkt); border-radius: 8px; background: var(--vlak); color: var(--inkt); cursor: pointer;
+  font: 600 max(16px, calc(2.2 * var(--u)))/1 var(--sans); transition: background-color .45s var(--in-uit), color .45s var(--in-uit); }
+.kl-wissel svg { width: max(20px, calc(2.6 * var(--u))); height: max(20px, calc(2.6 * var(--u))); fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+/* Op de uitslag staat de knop in de opmaak zelf, zodat hij geen vraag afdekt: onder de code als de QR-kolom er is,
+   anders rechts in de kop. In een smal venster staat hij ook op de instructie in de opmaak, onderaan na de teller.
+   scherm.js verplaatst hem (plaatsKnop). */
+.sc .kl-wissel, .kl .kl-wissel { position: static; flex: none; }
+.kl .kl-wissel { align-self: flex-start; }
+.sc-kop .kl-wissel { align-self: flex-end; }
+.sc-doe-mee .kl-wissel { align-self: center; margin-top: calc(1.6 * var(--u)); }
+.kl-wissel:hover { background: var(--inkt); color: var(--vlak); }
+.kl-wissel:focus-visible { outline: 3px solid var(--labgroen); outline-offset: 3px; }
+/* Smal venster (telefoon, staand): één kolom die scrolt. Niet voor de beamer bedoeld, wel bruikbaar. */
+@media (max-width: 700px) {
+  .kl { --u: 2.6vw; display: flex; flex-direction: column; gap: calc(3.2 * var(--u)); overflow-y: auto; }
+  .kl-kop { flex-wrap: wrap; }
+  .kl-kop .sc-label { flex-wrap: wrap; gap: calc(.8 * var(--u)); }
+  .kl-tekst { flex: none; overflow: visible; }
+  .kl-doe-mee { flex: none; }
+  .kl-qr { width: min(70vw, 50vh); height: min(70vw, 50vh); }
+}
+@media (prefers-reduced-motion: reduce) { .kl-weg, .kl-op, .kl-wissel { transition: none; } }
 .sc-doe-mee[hidden] { display: none; }
 
 /* Het attribuut hidden wint altijd: een eigen display (flex, grid, block) mag een verborgen element niet tonen. */

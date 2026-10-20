@@ -209,6 +209,18 @@ Lokaal testen kan alleen met PHP 8.1+ en een database: `APPS_CONFIG=/pad/naar/te
 
 `inhoud/apps/taaloefenen/`: woordjes, zinnen en vervoegingen oefenen en overhoren (16-10-2026). De pagina's zijn PHP (`index.php`, `thema.php`), omdat de thema's uit de database komen; de lede en de themalijst staan zo als echte HTML in de pagina. De Productiviteit-app stuurt thema's via `api/themas.php` met de sleutel van het postvak; de browser haalt de inhoud op via `api/inhoud.php`. Tabellen `to_thema` en `to_instelling` in dezelfde database. Een thema is openbaar (`/apps/taaloefenen/<taal>/<slug>/`) of privé (`/apps/taaloefenen/t/<code>/`, altijd noindex, niet in de lijst). De voortgang van leerlingen staat alleen in hun browser (localStorage); er gaat niets naar het postvak en er staan geen meetscripts op. Nakijken en bakjes staan los in `assets/nakijken.js`. Zolang `TO_INDEXEREN` in `lib/kern.php` false is, staat alles op noindex; Frits beslist wanneer de app in menu, sitemap en Google komt (dan ook `zichtbaar` in `app.json`). De mooie adressen komen uit `.htaccess` (mod_rewrite); lokaal doet een router dat. Koppelvlak: `Projecten/AI-leerlab/Leveringen/_bron/Taaloefen-app/Koppelvlak taaloefenen.md`.
 
+### Pico-simulator
+
+`inhoud/apps/pico-simulator/`: een Raspberry Pi Pico (RP2040) in de browser, met breadboard en echte MicroPython-firmware (20-10-2026). Gebouwd door Sil in Vite/TypeScript; de map bevat alleen het bouwresultaat. De bron staat in `Archief/2026/pico-simulator/source/` (node_modules buiten OneDrive via een symlink). Opnieuw bouwen voor de site, met relatieve paden zodat hij onder `/apps/pico-simulator/` werkt:
+
+```
+cd "…/Claude/Archief/2026/pico-simulator/source"
+node node_modules/typescript/bin/tsc --noEmit
+node node_modules/vite/bin/vite.js build --base=./ --outDir <tijdelijke map> --emptyOutDir
+```
+
+Zet daarna `assets/`, `firmware/` en `index.html` in de app-map. In `index.html` staan met de hand de robots-meta, de description, de favicons en een noscript-melding; die neem je na een nieuwe bouw weer over. Geen COOP/COEP-headers nodig (geen SharedArrayBuffer, geen WebAssembly). Zichtbaar maken: de X-Robots-Tag in `.htaccess` en de robots-meta in `index.html` weghalen en `zichtbaar` in `app.json` op true. In `app.json` staan `seotitel`, `beschrijving` en `transparantie` alvast klaar.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.

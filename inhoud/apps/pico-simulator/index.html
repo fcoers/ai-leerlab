@@ -9,8 +9,8 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <script type="module" crossorigin src="./assets/index-CpGtuJ5L.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-C1VgGbvQ.css">
+    <script type="module" crossorigin src="./assets/index-D6u0yPAT.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Ck9n_Ic6.css">
   </head>
   <body>
     <noscript><p style="padding:1rem;font-size:1rem">De Pico-simulator heeft JavaScript nodig. Zet JavaScript aan in je browser.</p></noscript>
@@ -18,9 +18,10 @@
       <div class="brand">
         <span class="brand-dot"></span>
         Pico-simulator
-        <span class="brand-sub">RP2040 · MicroPython · fase 1</span>
+        <span class="brand-sub">RP2040 · MicroPython</span>
       </div>
       <div class="topbar-right">
+        <a class="back-link" href="/">&larr; Terug naar ai-leerlab.nl</a>
         <span id="status" class="status status-loading">Firmware laden…</span>
       </div>
     </header>
@@ -32,8 +33,10 @@
     <main id="work" class="work">
       <div class="canvas-zone">
         <div class="canvas-wrap">
-          <canvas id="board"></canvas>
+          <canvas id="board" tabindex="0" role="application" aria-label="Bord met Raspberry Pi Pico" aria-describedby="canvas-hint"></canvas>
         </div>
+        <!-- Verborgen live-regel: zegt bij elke stap met het toetsenbord wat er gebeurt. -->
+        <div id="board-live" class="visually-label" aria-live="polite"></div>
         <!-- Aansluit-/bedradings-status. Inhoud wordt door main.ts gezet
              (updateCanvasHint). De "… sluit nog aan → …"-WAARSCHUWING krijgt een
              wegklik-kruisje en volgt de Aansluit-hulp-toggle; de informatieve
@@ -57,10 +60,10 @@
       <aside id="side" class="side" aria-label="Code en console">
         <div class="side-head">
           <div class="side-tabs" role="tablist">
-            <button id="tab-code" class="side-tab" role="tab" aria-selected="true">Code</button>
-            <button id="tab-console" class="side-tab" role="tab" aria-selected="false">Console</button>
+            <button id="tab-code" class="side-tab" role="tab" aria-selected="true" aria-controls="panel-code">Code</button>
+            <button id="tab-console" class="side-tab" role="tab" aria-selected="false" aria-controls="panel-console">Console</button>
           </div>
-          <div class="toggle-stack">
+          <div class="toggle-row">
             <label class="toggle" for="autogen-toggle" title="Aan: de simulator schrijft startcode bij je aangesloten onderdelen. Uit: lege editor, jij schrijft zelf.">
               <input type="checkbox" id="autogen-toggle" checked />
               <span>Code automatisch</span>
@@ -88,7 +91,7 @@
         </div>
 
         <!-- Run/Stop-rij, altijd onderaan het paneel. -->
-        <div class="run-row">
+        <div id="run-row" class="run-row">
           <button id="run-btn" class="btn btn-primary" disabled>Run</button>
           <button id="stop-btn" class="btn" disabled>Stop</button>
           <button id="download-btn" class="btn btn-ghost">Download main.py</button>
@@ -101,6 +104,12 @@
         <span class="rail-label">Code &amp; console</span>
       </button>
     </main>
+
+    <!-- Smal scherm (onder 760): vaste balk onderaan met Run, Stop en Code.
+         main.ts zet Run en Stop hierheen; "Code" schuift het paneel omhoog. -->
+    <div id="mbar" class="mbar">
+      <button id="code-btn" class="btn mbar-code" type="button" aria-expanded="false" aria-controls="side">Code ▲</button>
+    </div>
 
   </body>
 </html>

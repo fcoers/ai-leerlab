@@ -1,0 +1,10 @@
+{
+  "titel": "Pico-simulator",
+  "kaarttekst": "Een Raspberry Pi Pico in je browser. Sluit leds en knoppen aan op een breadboard en laat echte MicroPython-code draaien, zonder hardware.",
+  "seotitel": "Pico-simulator: Raspberry Pi Pico in je browser",
+  "beschrijving": "Oefen met een Raspberry Pi Pico zonder hardware: sluit onderdelen aan op een breadboard en draai echte MicroPython-code in je browser.",
+  "transparantie": "**Transparantie GenAI.** De Pico-simulator is gebouwd door een AI-team (Claude) op aanwijzing van Frits Coers, die de opdracht, de eisen en de keuzes bepaalde en het resultaat beoordeelt. De emulatie draait op de open-source bibliotheek rp2040js en de officiële MicroPython-firmware. Human-AI Agency Label: Creative Director.",
+  "zichtbaar": false,
+  "artikel": "",
+  "lesapp": false
+}

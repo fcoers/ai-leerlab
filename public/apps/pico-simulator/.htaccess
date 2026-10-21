@@ -1,0 +1,13 @@
+# Pico-simulator: statische Vite-bouw. Staat verborgen tot Frits hem zichtbaar maakt.
+# Zichtbaar maken: de X-Robots-Tag hieronder weghalen, de robots-meta in index.html ook, en "zichtbaar" in app.json op true.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+# Firmware en bootrom zijn binaire bestanden die de app met fetch() inlaadt.
+AddType application/octet-stream .uf2 .bin
+
+# Geen mappenlijst.
+Options -Indexes
+
+# Geen COOP/COEP nodig: de emulator gebruikt geen SharedArrayBuffer en geen WebAssembly.

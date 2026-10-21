@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Pico-simulator · AI-leerlab</title>
+    <meta name="description" content="Een Raspberry Pi Pico in je browser: sluit leds en knoppen aan op een breadboard en laat echte MicroPython-code draaien." />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script type="module" crossorigin src="./assets/index-D6u0yPAT.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Ck9n_Ic6.css">
+  </head>
+  <body>
+    <noscript><p style="padding:1rem;font-size:1rem">De Pico-simulator heeft JavaScript nodig. Zet JavaScript aan in je browser.</p></noscript>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        Pico-simulator
+        <span class="brand-sub">RP2040 · MicroPython</span>
+      </div>
+      <div class="topbar-right">
+        <a class="back-link" href="/">&larr; Terug naar ai-leerlab.nl</a>
+        <span id="status" class="status status-loading">Firmware laden…</span>
+      </div>
+    </header>
+
+    <!-- Component-toolbar: onderdelen toevoegen, gegroepeerd op Uitvoer/Invoer. -->
+    <div id="ctoolbar" class="ctoolbar" aria-label="Onderdelen toevoegen"></div>
+
+    <!-- Werkruimte: bijna-fullscreen canvas + inklapbaar code/console-paneel. -->
+    <main id="work" class="work">
+      <div class="canvas-zone">
+        <div class="canvas-wrap">
+          <canvas id="board" tabindex="0" role="application" aria-label="Bord met Raspberry Pi Pico" aria-describedby="canvas-hint"></canvas>
+        </div>
+        <!-- Verborgen live-regel: zegt bij elke stap met het toetsenbord wat er gebeurt. -->
+        <div id="board-live" class="visually-label" aria-live="polite"></div>
+        <!-- Aansluit-/bedradings-status. Inhoud wordt door main.ts gezet
+             (updateCanvasHint). De "… sluit nog aan → …"-WAARSCHUWING krijgt een
+             wegklik-kruisje en volgt de Aansluit-hulp-toggle; de informatieve
+             teksten (start / alles aangesloten) hebben geen kruisje. -->
+        <div id="canvas-hint" class="canvas-hint" hidden></div>
+        <!-- Drag-indicator: alleen zichtbaar TERWIJL je een draad sleept naar een
+             onjuiste pin (met aansluit-hulp aan). Verdwijnt zodra je loslaat — het
+             is feedback bij het slepen, geen blijvende melding, dus geen kruisje. -->
+        <div id="toast" class="toast" hidden role="status">
+          <span class="toast-ico" aria-hidden="true">⚠️</span>
+          <span id="toast-text"></span>
+        </div>
+      </div>
+
+      <!-- Inklap-greep op de grens (zichtbaar als het paneel uit is). -->
+      <button id="collapse-btn" class="collapse-btn" type="button" title="Code &amp; console inklappen" aria-label="Code en console inklappen">
+        <span class="chev">»</span>
+      </button>
+
+      <!-- Het editorpaneel (uitgeklapt). -->
+      <aside id="side" class="side" aria-label="Code en console">
+        <div class="side-head">
+          <div class="side-tabs" role="tablist">
+            <button id="tab-code" class="side-tab" role="tab" aria-selected="true" aria-controls="panel-code">Code</button>
+            <button id="tab-console" class="side-tab" role="tab" aria-selected="false" aria-controls="panel-console">Console</button>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle" for="autogen-toggle" title="Aan: de simulator schrijft startcode bij je aangesloten onderdelen. Uit: lege editor, jij schrijft zelf.">
+              <input type="checkbox" id="autogen-toggle" checked />
+              <span>Code automatisch</span>
+            </label>
+            <label class="toggle" for="hints-toggle" title="Aansluiten met indicatie: tijdens het slepen lichten geldige pinnen groen op en worden onjuiste rood/gedimd, met de reden erbij. Zonder hulp: je sluit blind aan en ziet pas bij Run of het werkt. Aansluiten mag in beide standen altijd.">
+              <input type="checkbox" id="hints-toggle" checked />
+              <span>Aansluit-hulp</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tab: Code -->
+        <div id="panel-code" class="side-panel">
+          <textarea id="editor" class="editor" spellcheck="false" autocomplete="off"></textarea>
+        </div>
+
+        <!-- Tab: Console -->
+        <div id="panel-console" class="side-panel" hidden>
+          <div class="console-head">
+            Console
+            <button id="clear-console" class="btn btn-tiny btn-ghost">Wissen</button>
+          </div>
+          <div id="console" class="console" aria-live="polite"></div>
+          <div id="hint" class="hint" hidden role="alert"></div>
+        </div>
+
+        <!-- Run/Stop-rij, altijd onderaan het paneel. -->
+        <div id="run-row" class="run-row">
+          <button id="run-btn" class="btn btn-primary" disabled>Run</button>
+          <button id="stop-btn" class="btn" disabled>Stop</button>
+          <button id="download-btn" class="btn btn-ghost">Download main.py</button>
+        </div>
+      </aside>
+
+      <!-- De ingeklapte rail (verschijnt i.p.v. het paneel). -->
+      <button id="rail" class="rail" type="button" hidden title="Code &amp; console uitklappen" aria-label="Code en console uitklappen">
+        <span class="rail-chev">«</span>
+        <span class="rail-label">Code &amp; console</span>
+      </button>
+    </main>
+
+    <!-- Smal scherm (onder 760): vaste balk onderaan met Run, Stop en Code.
+         main.ts zet Run en Stop hierheen; "Code" schuift het paneel omhoog. -->
+    <div id="mbar" class="mbar">
+      <button id="code-btn" class="btn mbar-code" type="button" aria-expanded="false" aria-controls="side">Code ▲</button>
+    </div>
+
+  </body>
+</html>

@@ -7,7 +7,13 @@ categorie: didactiek
 tags: toetsing, lesontwerp, verantwoording
 voor: docenten
 avatar: mark-nadenken
+cover: /assets/img/eindproduct-voor-en-na.webp
+cover_soort: vol
+cover_focus: 50% 55%
+cover_alt: Links het oude eindproduct: een lang verslag. Rechts het nieuwe: een advies dat je in één beeld kunt volgen. Dit is een illustratie, gemaakt door een AI-teamlid.
+cover_onderschrift: Illustratie, gemaakt door een AI-teamlid.
 datum: 2026-10-22
+bijgewerkt: 2026-10-24
 ---
 
 # Van AI verantwoorden naar een beter eindproduct met AI
@@ -29,10 +35,6 @@ De beoordelingscriteria zelf zijn gebleven. Wat ik heb veranderd, zijn de eisen 
 Daarvoor in de plaats zijn twee eisen over de inhoud gekomen. Elke bewering waarop het advies rust, moet je kunnen herleiden naar een bron, of er staat eerlijk bij dat het een aanname is. En bij elk advies moet je de stap kunnen volgen van de data, via een berekening of een argument, naar de conclusie. Wat ik voor ogen had, heb ik zo opgeschreven: "Ik vind inhoud belangrijker dan aantal woorden, de inhoud moet kloppen, de bronnen en redenering moet helder zijn."
 
 Dit betekent dat AI een groep niet meer verder helpt door meer tekst te maken. Het helpt alleen als het product er beter door wordt: een heldere grafiek, een berekening die je kunt narekenen, een website waarop de lezer in één keer ziet wat er moet gebeuren.
-
-![Links het oude eindproduct: een lang verslag. Rechts het nieuwe: een advies dat je in één beeld kunt volgen. Dit is een illustratie, gemaakt door een AI-teamlid.](/assets/img/eindproduct-voor-en-na.webp)
-
-*Illustratie, gemaakt door een AI-teamlid.*
 
 ## Een fictief bedrijf geeft ruimte om te maken
 

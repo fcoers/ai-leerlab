@@ -58,6 +58,7 @@ De kleuren voor donker staan onderaan in `statisch/assets/site.css` (blok "Donke
    - `avatar` is de naam van een bestand in `statisch/assets/img/avatars/` zonder `.webp`. Kies het teamlid dat bij het onderwerp past, in rustpose; een tutorial krijgt de rolpose. Bij een artikel of seriedeel mag een handeling (lezen, nadenken, controleren, uitleggen, overdragen, bouwen) als die de kern van het stuk is; oeps en vragend alleen als de titel erover gaat, blij nooit in een kop (regel in `Styleguides/AI-leerlab/DESIGN.md`). Nooit dezelfde figuur als het artikel waar je naar verwijst: `bouw.py` vergelijkt het deel vóór het eerste streepje, dus `james-overdragen` in de kop en `james-rust` in een verwijsblok telt als twee keer James, en het blok krijgt dan het icoon.
      De vorm is `<teamlid>-<versie>`, in kleine letters: `james-rust`, `james-rol`, en straks ook expressies als `james-blij` of `james-vragend`. In de contentkalender van de Productiviteit-app kiest Frits het figuur per artikel (teamlid, dan versie). De app leest de versies uit de bestandsnamen van Anouks stills (`Styleguides/Windesheim/Leveringen/Avatars 3D - set 2/Stills/` en `Avatars 3D - expressies/Stills/`, `<Naam> - <versie>.png`); `James - blij.png` wordt `avatar: james-blij`. Staat er nog geen `james-blij.webp` in `statisch/assets/img/avatars/`, dan waarschuwt `bouw.py` en blijft het figuur weg; de app zegt dat bij de keuze ("nog niet op de site").
      Alle negen expressies van de negentien teamleden staan er sinds 03-10-2026 als webp (Cor niet: hij hoort niet bij het team op de site). Ze staan op de schaal van de rustpose van dezelfde figuur: uit de still bijgesneden op de figuur en verkleind met dezelfde factor als rust (bij Job wordt 1635 px 560 px), niet passend gemaakt op 560 px. Daardoor verschillen de bestanden in hoogte; `bouw.py` zet de verhouding tot de rustpose als `--schaal` op het beeld en de css vermenigvuldigt de vaste hoogte (220 px in de kop) daarmee, zodat het lijf even groot blijft. Nieuwe versie erbij: zelfde werkwijze, webp kwaliteit 80.
+   - `cover`, `cover_soort`, `cover_focus` en `cover_alt` (optioneel): het beeld van het artikel. Zie "Covers" hieronder.
    - `datum` in de toekomst plant het artikel: het gaat op die dag online (zie Gepland publiceren).
    - `bijgewerkt: 2026-11-02` zet je erbij als je een artikel later aanpast.
    - `status: concept` zet het artikel op `/test/<naam>/`, met noindex, zonder dat het op de beginpagina of in de sitemap staat. Haal de regel weg als het live mag.
@@ -116,7 +117,7 @@ Vier velden in het kopje. De namen zijn vast; de contentkalender in de Productiv
 - Een artikel blijft altijd op `/leren/<naam>/`. De categorie zit niet in het adres, dus een artikel van categorie wisselen breekt geen link. Daarom mag een artikel niet `praktijk`, `didactiek`, `techniek` of `onderzoek` heten.
 - Elke categorie met artikelen krijgt een eigen pagina, `/leren/<categorie>/`, en een tab bovenaan Leren. Een categorie zonder artikelen verschijnt nergens: geen tab, geen pagina, niet in de sitemap.
 - Een onderwerp staat als tekst onder het artikel. Pas vanaf drie artikelen krijgt het een pagina `/onderwerp/<tag>/` en wordt het een link. Een nieuw onderwerp zet je in `site.json` als twee artikelen het nodig hebben. Nooit de naam van een categorie, soort of product.
-- "Verder in het lab" staat alleen onder een artikel dat in de tekst nergens naar een ander item verwijst: geen verwijsblok, geen "Lees ook" en geen gewone link naar een ander artikel. Onder een tutorial, tool of seriedeel staat het nooit (Frits, 01-10-2026: de onderkant was te druk). Verschijnt het wel, dan kiest het eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie.
+- "Verder in het lab" staat onder elke uitleg (klus 559, Bram): drie kaarten met cover, eerst uit dezelfde categorie (wat de meeste onderwerpen deelt eerst), aangevuld met items die onderwerpen delen. Wat de tekst zelf al noemt (verwijsblok, "Lees ook" of een gewone link) staat er niet in, en seriedelen ook niet. Onder een tutorial, tool of seriedeel staat het nooit (Frits, 01-10-2026: de onderkant was te druk).
 
 ### Series
 
@@ -143,6 +144,33 @@ Wat er dan komt:
 - Rechts daarnaast staan de profielen van Frits als icoon (03-10-2026): LinkedIn en Instagram (@ai_leerlab). Ze komen uit `sameAs` in `site.json`; zet je daar een adres met instagram.com bij, dan verschijnt het icoon bij de volgende bouw vanzelf. Iconen in lijnstijl, klikvlak 44 px, openen in hetzelfde tabblad zoals de andere links.
 - Per serie blijft er een eigen feed: `/series/<naam>/feed.xml`.
 - Beide feeds maakt `bouw.py` (`bouw_site_feed` en `bouw_feed`). Controleren kan met https://validator.w3.org/feed/.
+
+## Covers (klus 559)
+
+Elk item heeft één beeld in één vaste vorm: 16:9, haarlijn, 8 px afronding (4 px binnen een kaart, 14 px in de kop van een artikel). Ontwerp van Bram, regels in `Styleguides/AI-leerlab/DESIGN.md` (Cover). Het staat op de kaarten, in de lijst op Leren, op het uitgelichte item en op de grote kaart van een categorieblok (daar vervangt het de bel met het figuur). De serierij op de beginpagina krijgt geen beelden.
+
+In het kopje:
+
+```
+cover: /assets/img/eindproduct-voor-en-na.webp
+cover_soort: vol
+cover_focus: 50% 55%
+cover_alt: Wat erop staat, als het beeld informatie draagt
+```
+
+- `cover_soort` is `vol` (een 3D-scène of foto die zelf licht en rustig is; vult het kader), `plaat` (al het andere, zoals een schermbeeld: op munt, linksboven uitgesneden en aflopend over de onderrand) of `figuur` (een teamlid op de plaat; dan is `cover` de naam van een avatar, of laat je `cover` weg en neemt het script de `avatar`). Twijfel je: kies de plaat.
+- `cover_focus` is alleen voor vol: welk punt van het beeld in beeld blijft, als twee percentages (links-rechts, boven-onder).
+- Zonder `cover` neemt het script het eerste beeld uit de tekst op de plaat, en anders de avatar als figuur. Zo hebben alle bestaande artikelen nu een beeld.
+- Alleen een cover die in het kopje staat (vol of plaat) komt groot onder de kop van het artikel; de avatar in de kop vervalt dan. Een beeld dat het script zelf uit de tekst haalt, komt niet in de kop, anders staat het twee keer op de pagina.
+- `bouw.py` maakt van elke cover verkleinde versies (800 en 1600 px, voor `srcset`) en drie beelden zonder tekst voor Google (1200 × 675, 1200 × 900 en 1200 × 1200, in `image` van het schema), in `public/assets/img/cover/`. Daar is Pillow voor nodig (staat op de Mac). Een bestand dat er al was, gaat ongewijzigd mee: de naam bevat een vingerafdruk van bron en instelling. Zonder Pillow (de ochtendbouw) gebruikt de site wat er al was; ontbreekt iets, dan waarschuwt het script en valt het terug op het bronbeeld en de deelafbeelding.
+- Elke pagina die niet op noindex staat, heeft `<meta name="robots" content="max-image-preview:large">`.
+- `maak-deelafbeeldingen.py` maakt de deelafbeelding voor LinkedIn van dezelfde cover, met de titel ernaast. Een bestaande deelafbeelding blijft staan.
+
+## Leren
+
+Variant A uit Brams schetsen (Frits, 24-10-2026): bovenaan de categorieën als echte links naar de categoriepagina's, daaronder een filter op soort en voor wie, dan het item met `uitgelicht: ja` (anders het nieuwste) groot, en daaronder een lijst per maand met een klein beeld. Rechts staan de series en de onderwerpen met een eigen pagina. Het filter werkt in de pagina met `statisch/assets/filter.js`; alle items staan in de HTML, zonder JavaScript is de filterrij verborgen. De categoriepagina's houden het raster van kaarten.
+
+In de voetregel van kaart en rij staat na voor wie de leestijd ("8 min lezen", hele minuten naar boven), bij een tutorial de `duur` ("Vier stappen"), bij een tool niets. Op de telefoon staan voor wie en leestijd onder elkaar.
 
 ## Delen
 
@@ -295,7 +323,7 @@ git push -u origin main
 | `sjablonen/basis.html` | Wat op elke pagina staat: de kop, de voet en alles voor Google |
 | `statisch/` | Gaat ongewijzigd mee: opmaak (`assets/site.css`), letters, avatars, logo, favicons, downloads, `.htaccess` |
 | `bouw.py` | Het bouwscript |
-| `maak-deelafbeeldingen.py` | Maakt de afbeeldingen van 1200 × 630 voor delen op sociale media |
+| `maak-deelafbeeldingen.py` | Maakt de afbeeldingen van 1200 × 630 voor delen op sociale media, uit de cover |
 | `public/` | De gebouwde site. Nooit met de hand aanpassen: bij elke bouw wordt de map opnieuw gemaakt |
 
 ## Vindbaarheid
@@ -310,5 +338,4 @@ Statistieken via Google Analytics (meet-ID `analytics` in `site.json`), alleen n
 
 De opzet houdt hier rekening mee, zonder verbouwing:
 
-- Filters op voor wie en soort: pas zinvol vanaf een stuk of acht items. Soort en doelgroep staan al in elk kopje.
 - Zoeken en een nieuwsbrief.

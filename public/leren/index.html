@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Leren werken met AI: tutorials en uitleg · AI-leerlab</title>
   <meta name="description" content="Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.">
-  
+  <meta name="robots" content="max-image-preview:large">
   <link rel="canonical" href="https://ai-leerlab.nl/leren/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="nl_NL">
@@ -30,7 +30,7 @@
   <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
   <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/assets/site.css?v=202610241053">
+  <link rel="stylesheet" href="/assets/site.css?v=202610241637">
   <script>document.documentElement.className = 'js';</script>
   <script type="application/ld+json">
 {
@@ -40,8 +40,86 @@
    "@type": "CollectionPage",
    "name": "Leren",
    "url": "https://ai-leerlab.nl/leren/",
+   "description": "Alle tutorials en artikelen van AI-leerlab over leren en werken met AI, voor studenten en docenten in het hoger onderwijs.",
    "isPartOf": {
     "@id": "https://ai-leerlab.nl/#site"
+   },
+   "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+     {
+      "@type": "ListItem",
+      "position": 1,
+      "url": "https://ai-leerlab.nl/leren/van-ai-verantwoorden-naar-een-beter-eindproduct-met-ai/",
+      "name": "Van AI verantwoorden naar een beter eindproduct met AI"
+     },
+     {
+      "@type": "ListItem",
+      "position": 2,
+      "url": "https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/",
+      "name": "Transcriberen zonder cloud: lokale AI op je eigen laptop"
+     },
+     {
+      "@type": "ListItem",
+      "position": 3,
+      "url": "https://ai-leerlab.nl/leren/journal-projecten-kennisbank-en-documenten-in-een-database/",
+      "name": "Journal, projecten, kennisbank en documenten in één database"
+     },
+     {
+      "@type": "ListItem",
+      "position": 4,
+      "url": "https://ai-leerlab.nl/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/",
+      "name": "Je eerste onderdeel: een taakbord dat je elke dag gebruikt"
+     },
+     {
+      "@type": "ListItem",
+      "position": 5,
+      "url": "https://ai-leerlab.nl/leren/verantwoord-je-ai-gebruik-als-docent/",
+      "name": "Vraag je studenten om een AI-verklaring? Schrijf er dan zelf ook een"
+     },
+     {
+      "@type": "ListItem",
+      "position": 6,
+      "url": "https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/",
+      "name": "Zo installeer je de basis van je app op Mac en Windows"
+     },
+     {
+      "@type": "ListItem",
+      "position": 7,
+      "url": "https://ai-leerlab.nl/tools/zelftest-human-ai-label/",
+      "name": "Welk Human-AI-label past bij jou?"
+     },
+     {
+      "@type": "ListItem",
+      "position": 8,
+      "url": "https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/",
+      "name": "Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt"
+     },
+     {
+      "@type": "ListItem",
+      "position": 9,
+      "url": "https://ai-leerlab.nl/leren/bouw-je-eigen-ai-team/",
+      "name": "Bouw je eigen AI-team in ChatGPT"
+     },
+     {
+      "@type": "ListItem",
+      "position": 10,
+      "url": "https://ai-leerlab.nl/leren/een-les-ontwerpen-met-ai/",
+      "name": "Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet"
+     },
+     {
+      "@type": "ListItem",
+      "position": 11,
+      "url": "https://ai-leerlab.nl/leren/human-ai-labels/",
+      "name": "Hoe heb jij met AI samengewerkt? Negen labels die het zichtbaar maken"
+     },
+     {
+      "@type": "ListItem",
+      "position": 12,
+      "url": "https://ai-leerlab.nl/leren/je-eigen-agentteam/",
+      "name": "Je eigen agentteam: zo begin je, en hier is het bij mij misgegaan"
+     }
+    ]
    }
   },
   {
@@ -89,7 +167,7 @@
  ]
 }
 </script>
-  <script src="/assets/toestemming.js?v=202610241053" data-meet-id="G-EYCDGPX6LG" defer></script>
+  <script src="/assets/toestemming.js?v=202610241637" data-meet-id="G-EYCDGPX6LG" defer></script>
 </head>
 <body>
   <a class="skiplink" href="#inhoud">Naar de inhoud</a>
@@ -115,86 +193,149 @@
     <p class="lede">Tutorials en korte uitleg over werken met AI. Het nieuwste staat bovenaan.</p>
   </div>
 </section>
-<nav class="tabrij" aria-label="Categorieën">
-  <div class="wrap">
-    <ul><li><a href="/leren/" aria-current="page">Alles <span class="aantal">12</span></a></li><li><a href="/leren/praktijk/">AI in de praktijk <span class="aantal">2</span></a></li><li><a href="/leren/didactiek/">Didactiek <span class="aantal">5</span></a></li><li><a href="/leren/techniek/">Techniek <span class="aantal">5</span></a></li></ul>
+<div class="wrap archief-pagina">
+  <div class="filter">
+    <nav class="tabrij" aria-label="Categorieën">
+      <ul><li><a href="/leren/" aria-current="page">Alles <span class="aantal">12</span></a></li><li><a href="/leren/praktijk/">AI in de praktijk <span class="aantal">2</span></a></li><li><a href="/leren/didactiek/">Didactiek <span class="aantal">5</span></a></li><li><a href="/leren/techniek/">Techniek <span class="aantal">5</span></a></li></ul>
+    </nav>
+    <div class="subfilter" data-filter hidden><div class="groep" role="group" aria-labelledby="f-soort"><span id="f-soort">Soort</span><button type="button" aria-pressed="true" data-soort="">Alle</button><button type="button" aria-pressed="false" data-soort="uitleg">Uitleg <span class="aantal">5</span></button><button type="button" aria-pressed="false" data-soort="serie">Serie <span class="aantal">5</span></button><button type="button" aria-pressed="false" data-soort="tutorial">Tutorial <span class="aantal">1</span></button><button type="button" aria-pressed="false" data-soort="tool">Tool <span class="aantal">1</span></button></div><div class="groep" role="group" aria-labelledby="f-voor"><span id="f-voor">Voor wie</span><button type="button" aria-pressed="true" data-voor="">Iedereen</button><button type="button" aria-pressed="false" data-voor="studenten">Studenten</button><button type="button" aria-pressed="false" data-voor="docenten">Docenten</button></div></div><p class="filter-stand sr" role="status" aria-live="polite"></p>
   </div>
-</nav>
-<div class="wrap lijst">
-  <ul class="raster">
-<li class="kaart">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-10-22">22 okt 2026</time></p>
-  <h2><a href="/leren/van-ai-verantwoorden-naar-een-beter-eindproduct-met-ai/">Van AI verantwoorden naar een beter eindproduct met AI</a></h2>
-  <p class="uitleg">Van een AI-verklaring onder een lang verslag naar een vrij eindproduct met AI: wat ik in mijn rubric heb veranderd, en hoe vibecoden in de les daarbij helpt.</p>
-  <p class="voor"><span class="v-tekst">Voor docenten</span></p>
-</li>
-<li class="kaart past-300">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 5</span></span><time class="datum-pill" datetime="2026-10-16">16 okt 2026</time></p>
-  <h2><a href="/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/"><span class="nr"><span class="sr">Deel </span>5<span class="sr">: </span></span><span class="nr-titel">Transcriberen zonder cloud: lokale AI op je eigen laptop</span></a></h2>
-  <p class="uitleg">Opnames uitschrijven en samenvatten op je eigen laptop, zodat niets naar een clouddienst gaat.</p>
-  <p class="voor"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span></p>
-</li>
-<li class="kaart past-300">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 4</span></span><time class="datum-pill" datetime="2026-10-09">9 okt 2026</time></p>
-  <h2><a href="/leren/journal-projecten-kennisbank-en-documenten-in-een-database/"><span class="nr"><span class="sr">Deel </span>4<span class="sr">: </span></span><span class="nr-titel">Journal, projecten, kennisbank en documenten in één database</span></a></h2>
-  <p class="uitleg">Aantekeningen, bronnen en documenten die aan je projecten en taken hangen, en één zoekveld dat alles terugvindt.</p>
-  <p class="voor"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span></p>
-</li>
-<li class="kaart past-300">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 3</span></span><time class="datum-pill" datetime="2026-10-05">5 okt 2026</time></p>
-  <h2><a href="/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/"><span class="nr"><span class="sr">Deel </span>3<span class="sr">: </span></span><span class="nr-titel">Je eerste onderdeel: een taakbord dat je elke dag gebruikt</span></a></h2>
-  <p class="uitleg">Een bord met jouw eigen kolommen, dat elke ochtend vanzelf klaarstaat en dat je ook weer uit kunt zetten.</p>
-  <p class="voor"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span></p>
-</li>
-<li class="kaart">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
-  <h2><a href="/leren/verantwoord-je-ai-gebruik-als-docent/">Vraag je studenten om een AI-verklaring? Schrijf er dan zelf ook een</a></h2>
-  <p class="uitleg">Wie studenten om een AI-verklaring vraagt, schrijft er zelf ook een. Zo doe ik dat onder alles wat ik met AI maak.</p>
-  <p class="voor"><span class="v-tekst">Voor docenten</span></p>
-</li>
-<li class="kaart past-300">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 2</span></span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
-  <h2><a href="/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/"><span class="nr"><span class="sr">Deel </span>2<span class="sr">: </span></span><span class="nr-titel">Zo installeer je de basis van je app op Mac en Windows</span></a></h2>
-  <p class="uitleg">Een lege app in je browser die je volgende week net zo makkelijk weer start: wat je zelf installeert en wat je je AI-assistent vraagt.</p>
-  <p class="voor"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span></p>
-</li>
-<li class="kaart past-240">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Tool</span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
-  <h2><a href="/tools/zelftest-human-ai-label/">Welk Human-AI-label past bij jou?</a></h2>
-  <p class="uitleg">Tien vragen over hoe je bij één taak met AI hebt gewerkt. Je krijgt een van de negen Human-AI labels van Boetje en Baake, met een tip om bewuster te kiezen.</p>
-  <p class="voor"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span></p>
-</li>
-<li class="kaart past-300">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 1</span></span><time class="datum-pill" datetime="2026-10-01">1 okt 2026</time></p>
-  <h2><a href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/"><span class="nr"><span class="sr">Deel </span>1<span class="sr">: </span></span><span class="nr-titel">Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt</span></a></h2>
-  <p class="uitleg">Waarom ik een eigen app heb gebouwd voor mijn taken en kennis, wat het kost en wat je nodig hebt om zelf te beginnen.</p>
-  <p class="voor"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span></p>
-</li>
-<li class="kaart past-240">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2M4 12h2M4 18h2M10 6h10M10 12h10M10 18h10"/></svg>Tutorial</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
-  <h2><a href="/leren/bouw-je-eigen-ai-team/">Bouw je eigen AI-team in ChatGPT</a></h2>
-  <p class="uitleg">Maak in vier stappen een klein team van AI-hulpjes: één coördinator die het werk verdeelt over twee rollen die jij bedenkt. Met een sjabloon om te downloaden.</p>
-  <p class="voor"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span></p>
-</li>
-<li class="kaart">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
-  <h2><a href="/leren/een-les-ontwerpen-met-ai/">Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet</a></h2>
-  <p class="uitleg">Van leerdoel tot rubric: welke stappen ik aan AI heb gegeven bij een oefenset voor Power BI, en wat ik zelf ben blijven doen.</p>
-  <p class="voor"><span class="v-tekst">Voor docenten</span></p>
-</li>
-<li class="kaart past-240">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
-  <h2><a href="/leren/human-ai-labels/">Hoe heb jij met AI samengewerkt? Negen labels die het zichtbaar maken</a></h2>
-  <p class="uitleg">Negen labels die laten zien wie het denkwerk heeft gedaan, jij of de AI. Met tips voor je les en je GenAI-verklaring.</p>
-  <p class="voor"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span></p>
-</li>
-<li class="kaart past-240">
-  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
-  <h2><a href="/leren/je-eigen-agentteam/">Je eigen agentteam: zo begin je, en hier is het bij mij misgegaan</a></h2>
-  <p class="uitleg">Hoe ik werk met een team van AI-agents, welke afspraken daarbij horen en waar het is misgegaan.</p>
-  <p class="voor"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span></p>
-</li>
-</ul>
+  <article class="uitgelicht met-cover past-360" data-soort="tutorial" data-voor="docenten studenten">
+  <div class="cover plaat"><img src="/assets/img/stap1-work-gekozen.webp" srcset="/assets/img/cover/bouw-je-eigen-ai-team-800w-555bb6f21a.webp 800w, /assets/img/stap1-work-gekozen.webp 1000w" sizes="(max-width: 820px) calc(100vw - 64px), 620px" width="1000" height="788" alt="" fetchpriority="high"></div>
+  <div class="tekst">
+    <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2M4 12h2M4 18h2M10 6h10M10 12h10M10 18h10"/></svg>Tutorial</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
+    <h2><a href="/leren/bouw-je-eigen-ai-team/">Bouw je eigen AI-team in ChatGPT</a></h2>
+    <p>Maak in vier stappen een klein team van AI-hulpjes: één coördinator die het werk verdeelt over twee rollen die jij bedenkt. Met een sjabloon om te downloaden.</p>
+    <p class="voor met-tijd"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span><span class="v-tijd">Vier stappen</span></p>
+  </div>
+</article>
+  <div class="archief">
+    <div class="maanden">
+      <section class="maand" aria-labelledby="m-2026-10">
+        <h2 id="m-2026-10">Oktober 2026 <span class="aantal" data-aantal="8">8 artikelen</span></h2>
+        <ul class="maand-lijst">
+        <li class="rij-li" data-soort="uitleg" data-voor="docenten">
+          <article class="rij met-cover">
+            <div class="cover vol" style="--focus: 50% 55%"><img src="/assets/img/eindproduct-voor-en-na.webp" srcset="/assets/img/cover/van-ai-verantwoorden-naar-een-beter-eindproduct-met-ai-800w-52b8787f76.webp 800w, /assets/img/eindproduct-voor-en-na.webp 1600w" sizes="(max-width: 640px) 112px, 224px" width="1600" height="900" alt="" loading="lazy" decoding="async"></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-10-22">22 okt 2026</time></p>
+              <h3><a href="/leren/van-ai-verantwoorden-naar-een-beter-eindproduct-met-ai/">Van AI verantwoorden naar een beter eindproduct met AI</a></h3>
+              <p class="uitleg">Van een AI-verklaring onder een lang verslag naar een vrij eindproduct met AI: wat ik in mijn rubric heb veranderd, en hoe vibecoden in de les daarbij helpt.</p>
+              <p class="voor met-tijd"><span class="v-tekst">Voor docenten</span><span class="v-tijd">6 min lezen</span><span class="nieuw-icoon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8"/><path class="blad" d="M12 14C7.6 14 5 11.4 5 7c4.4 0 7 2.6 7 7z"/><path class="blad" d="M12 12c0-4.2 2.4-6.8 7-6.8 0 4.2-2.4 6.8-7 6.8z"/></svg><span>Nieuw</span></span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="serie" data-voor="docenten studenten">
+          <article class="rij met-cover past-400">
+            <div class="cover plaat"><img src="/assets/img/cover/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop-1600w-3598f91c59.webp" srcset="/assets/img/cover/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop-800w-890353ebb4.webp 800w, /assets/img/cover/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop-1600w-3598f91c59.webp 1600w" sizes="(max-width: 640px) 112px, 224px" width="1600" height="900" alt="" loading="lazy" decoding="async"></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 5</span></span><time class="datum-pill" datetime="2026-10-16">16 okt 2026</time></p>
+              <h3><a href="/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/"><span class="nr"><span class="sr">Deel </span>5<span class="sr">: </span></span><span class="nr-titel">Transcriberen zonder cloud: lokale AI op je eigen laptop</span></a></h3>
+              <p class="uitleg">Opnames uitschrijven en samenvatten op je eigen laptop, zodat niets naar een clouddienst gaat.</p>
+              <p class="voor met-tijd"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span><span class="v-tijd">8 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="serie" data-voor="docenten studenten">
+          <article class="rij met-cover past-400">
+            <div class="cover plaat"><img src="/assets/img/cover/journal-projecten-kennisbank-en-documenten-in-een-database-1600w-2273a6dece.webp" srcset="/assets/img/cover/journal-projecten-kennisbank-en-documenten-in-een-database-800w-b9e9f2449a.webp 800w, /assets/img/cover/journal-projecten-kennisbank-en-documenten-in-een-database-1600w-2273a6dece.webp 1600w" sizes="(max-width: 640px) 112px, 224px" width="1600" height="900" alt="" loading="lazy" decoding="async"></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 4</span></span><time class="datum-pill" datetime="2026-10-09">9 okt 2026</time></p>
+              <h3><a href="/leren/journal-projecten-kennisbank-en-documenten-in-een-database/"><span class="nr"><span class="sr">Deel </span>4<span class="sr">: </span></span><span class="nr-titel">Journal, projecten, kennisbank en documenten in één database</span></a></h3>
+              <p class="uitleg">Aantekeningen, bronnen en documenten die aan je projecten en taken hangen, en één zoekveld dat alles terugvindt.</p>
+              <p class="voor met-tijd"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span><span class="v-tijd">8 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="serie" data-voor="docenten studenten">
+          <article class="rij met-cover past-400">
+            <div class="cover plaat"><img src="/assets/img/cover/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt-1600w-d7061b6a33.webp" srcset="/assets/img/cover/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt-800w-dae506e046.webp 800w, /assets/img/cover/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt-1600w-d7061b6a33.webp 1600w" sizes="(max-width: 640px) 112px, 224px" width="1600" height="900" alt="" loading="lazy" decoding="async"></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 3</span></span><time class="datum-pill" datetime="2026-10-05">5 okt 2026</time></p>
+              <h3><a href="/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/"><span class="nr"><span class="sr">Deel </span>3<span class="sr">: </span></span><span class="nr-titel">Je eerste onderdeel: een taakbord dat je elke dag gebruikt</span></a></h3>
+              <p class="uitleg">Een bord met jouw eigen kolommen, dat elke ochtend vanzelf klaarstaat en dat je ook weer uit kunt zetten.</p>
+              <p class="voor met-tijd"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span><span class="v-tijd">7 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="uitleg" data-voor="docenten">
+          <article class="rij met-cover">
+            <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/dide-uitleggen.webp"><img src="/assets/img/avatars/dide-uitleggen.webp" width="976" height="604" alt="" loading="lazy" decoding="async" style="--schaal: 1.079"></picture></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
+              <h3><a href="/leren/verantwoord-je-ai-gebruik-als-docent/">Vraag je studenten om een AI-verklaring? Schrijf er dan zelf ook een</a></h3>
+              <p class="uitleg">Wie studenten om een AI-verklaring vraagt, schrijft er zelf ook een. Zo doe ik dat onder alles wat ik met AI maak.</p>
+              <p class="voor met-tijd"><span class="v-tekst">Voor docenten</span><span class="v-tijd">4 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="serie" data-voor="docenten studenten">
+          <article class="rij met-cover past-400">
+            <div class="cover plaat"><img src="/assets/img/cover/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows-1600w-98ecb82128.webp" srcset="/assets/img/cover/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows-800w-2ee4b4ed22.webp 800w, /assets/img/cover/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows-1600w-98ecb82128.webp 1600w" sizes="(max-width: 640px) 112px, 224px" width="1600" height="600" alt="" loading="lazy" decoding="async"></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 2</span></span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
+              <h3><a href="/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/"><span class="nr"><span class="sr">Deel </span>2<span class="sr">: </span></span><span class="nr-titel">Zo installeer je de basis van je app op Mac en Windows</span></a></h3>
+              <p class="uitleg">Een lege app in je browser die je volgende week net zo makkelijk weer start: wat je zelf installeert en wat je je AI-assistent vraagt.</p>
+              <p class="voor met-tijd"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span><span class="v-tijd">7 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="tool" data-voor="docenten studenten">
+          <article class="rij met-cover past-240">
+            <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/dide-nadenken.webp"><img src="/assets/img/avatars/dide-nadenken.webp" width="400" height="564" alt="" loading="lazy" decoding="async" style="--schaal: 1.007"></picture></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Tool</span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
+              <h3><a href="/tools/zelftest-human-ai-label/">Welk Human-AI-label past bij jou?</a></h3>
+              <p class="uitleg">Tien vragen over hoe je bij één taak met AI hebt gewerkt. Je krijgt een van de negen Human-AI labels van Boetje en Baake, met een tip om bewuster te kiezen.</p>
+              <p class="voor"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="serie" data-voor="docenten studenten">
+          <article class="rij met-cover past-400">
+            <div class="cover plaat"><img src="/assets/img/cover/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt-1600w-62652cb4e1.webp" srcset="/assets/img/cover/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt-800w-95fa6b3765.webp 800w, /assets/img/cover/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt-1600w-62652cb4e1.webp 1600w" sizes="(max-width: 640px) 112px, 224px" width="1600" height="900" alt="" loading="lazy" decoding="async"></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie<span aria-hidden="true">· deel 1</span></span><time class="datum-pill" datetime="2026-10-01">1 okt 2026</time></p>
+              <h3><a href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/"><span class="nr"><span class="sr">Deel </span>1<span class="sr">: </span></span><span class="nr-titel">Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt</span></a></h3>
+              <p class="uitleg">Waarom ik een eigen app heb gebouwd voor mijn taken en kennis, wat het kost en wat je nodig hebt om zelf te beginnen.</p>
+              <p class="voor met-tijd"><span class="v-tekst serie-voet"><span class="v-lang">Bouw je eigen productiviteitsapp</span><span class="v-kort">Productiviteitsapp</span></span><span class="v-tijd">7 min lezen</span></p>
+            </div>
+          </article>
+        </li>
+        </ul>
+      </section><section class="maand" aria-labelledby="m-2026-09">
+        <h2 id="m-2026-09">September 2026 <span class="aantal" data-aantal="3">3 artikelen</span></h2>
+        <ul class="maand-lijst">
+        <li class="rij-li" data-soort="uitleg" data-voor="docenten">
+          <article class="rij met-cover">
+            <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/dide-nadenken.webp"><img src="/assets/img/avatars/dide-nadenken.webp" width="400" height="564" alt="" loading="lazy" decoding="async" style="--schaal: 1.007"></picture></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
+              <h3><a href="/leren/een-les-ontwerpen-met-ai/">Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet</a></h3>
+              <p class="uitleg">Van leerdoel tot rubric: welke stappen ik aan AI heb gegeven bij een oefenset voor Power BI, en wat ik zelf ben blijven doen.</p>
+              <p class="voor met-tijd"><span class="v-tekst">Voor docenten</span><span class="v-tijd">6 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="uitleg" data-voor="docenten studenten">
+          <article class="rij met-cover past-360">
+            <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/mark-controleren.webp"><img src="/assets/img/avatars/mark-controleren.webp" width="535" height="570" alt="" loading="lazy" decoding="async" style="--schaal: 1.018"></picture></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
+              <h3><a href="/leren/human-ai-labels/">Hoe heb jij met AI samengewerkt? Negen labels die het zichtbaar maken</a></h3>
+              <p class="uitleg">Negen labels die laten zien wie het denkwerk heeft gedaan, jij of de AI. Met tips voor je les en je GenAI-verklaring.</p>
+              <p class="voor met-tijd"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span><span class="v-tijd">6 min lezen</span></p>
+            </div>
+          </article>
+        </li><li class="rij-li" data-soort="uitleg" data-voor="docenten studenten">
+          <article class="rij met-cover past-360">
+            <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/james-overdragen.webp"><img src="/assets/img/avatars/james-overdragen.webp" width="506" height="566" alt="" loading="lazy" decoding="async" style="--schaal: 1.011"></picture></div>
+            <div class="rij-tekst">
+              <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Uitleg</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
+              <h3><a href="/leren/je-eigen-agentteam/">Je eigen agentteam: zo begin je, en hier is het bij mij misgegaan</a></h3>
+              <p class="uitleg">Hoe ik werk met een team van AI-agents, welke afspraken daarbij horen en waar het is misgegaan.</p>
+              <p class="voor met-tijd"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span><span class="v-tijd">6 min lezen</span></p>
+            </div>
+          </article>
+        </li>
+        </ul>
+      </section>
+      <p class="filter-leeg" hidden>Hier staat nog niets bij deze keuze. <button type="button" class="link-knop" data-wis>Toon alles</button></p>
+    </div>
+    <aside class="rail" aria-label="Verder zoeken"><section aria-labelledby="r-series"><h2 id="r-series">Series</h2><ul><li><a class="serie-a" href="/series/bouw-je-eigen-productiviteitsapp/"><strong>Bouw je eigen productiviteitsapp</strong><span>5 delen, loopt nog</span></a></li><li><a class="serie-a" href="/series/"><strong>Alle series</strong><span>Op volgorde lezen</span></a></li></ul></section><section aria-labelledby="r-onderwerpen"><h2 id="r-onderwerpen">Onderwerpen</h2><ul><li><a href="/onderwerp/agents/"><span>Agents</span><span class="aantal">8</span></a></li><li><a href="/onderwerp/verantwoording/"><span>Verantwoording</span><span class="aantal">5</span></a></li><li><a href="/onderwerp/toetsing/"><span>Toetsing</span><span class="aantal">3</span></a></li></ul></section></aside>
+  </div>
 </div>
   </main>
 
@@ -219,6 +360,6 @@
       </nav>
     </div>
   </footer>
-  
+  <script src="/assets/filter.js?v=202610241637" defer></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ public/ wordt bij elke bouw helemaal opnieuw gemaakt. Pas daar dus nooit iets me
 wijzig de bron in inhoud/, sjablonen/ of statisch/ en bouw opnieuw.
 """
 import datetime
+import hashlib
 import html
 import json
 import os
@@ -17,6 +18,7 @@ import re
 import shutil
 import struct
 import sys
+import tempfile
 import types
 import urllib.parse
 
@@ -143,11 +145,14 @@ def voet_breedte(tekst, vet=False):
     return len(tekst) * (8.1 if vet else 7.7) + 28
 
 
-def voet_html(item, lang, kort, vet=False, nieuw=False):
-    """Voetregel van een kaart: tekst links (lang en kort), Nieuw-icoon rechts. Geeft (html, klasse)."""
+def voet_html(item, lang, kort, vet=False, nieuw=False, tijd=""):
+    """Voetregel van een kaart: tekst links (lang en kort), de leestijd erachter (klus 559), Nieuw-icoon rechts.
+    Op de telefoon staat de leestijd op een eigen regel (css), dus die telt niet mee voor de smalste kaart.
+    Geeft (html, klasse)."""
     klasse = ""
+    extra = (len(tijd) * 7.7 + 20) if tijd else 0
     if kort and kort != lang:
-        nodig = voet_breedte(lang, vet) + 8 + (50 if nieuw else 0)
+        nodig = voet_breedte(lang, vet) + 8 + (50 if nieuw else 0) + extra
         drempel = next((d for d in DREMPELS if d >= nodig), None)
         if drempel is None:
             klasse = " altijd-kort"            # te lang voor elke kaart: altijd de korte vorm
@@ -161,7 +166,8 @@ def voet_html(item, lang, kort, vet=False, nieuw=False):
         waar = f"series/{item.serie}.md: kaartnaam" if item.is_deel else os.path.basename(item.pad)
         let_op(f"{waar}: '{kort}' past op een smalle kaart niet op één regel")
     span = f'<span class="v-tekst{" serie-voet" if vet else ""}">{tekst}</span>' if lang else ""
-    return f'<p class="voor">{span}{NIEUW_ICOON if nieuw else ""}</p>', klasse
+    tijd_html = f'<span class="v-tijd">{esc(tijd)}</span>' if tijd else ""
+    return f'<p class="voor{" met-tijd" if tijd else ""}">{span}{tijd_html}{NIEUW_ICOON if nieuw else ""}</p>', klasse
 
 
 def beeldmaat(pad):
@@ -332,6 +338,261 @@ def os_blok(soort, titel, tekst):
 </details>"""
 
 
+# ---------------------------------------------------------------- covers (klus 559, ontwerp Bram)
+# Elk item heeft een beeld in één vaste vorm: 16:9, afronding 8 px (14 px in de kop van een artikel), een haarlijn.
+# Twee behandelingen houden wisselend beeld rustig (Styleguides/AI-leerlab/DESIGN.md):
+#   vol     een 3D-scène of foto die zelf licht en rustig is: vult het kader, met een focuspunt per artikel;
+#   plaat   al het andere (schermbeeld, diagram): op munt, linksboven uitgesneden en aflopend over de onderrand;
+#   figuur  een teamlid op de plaat, staand op de onderrand, op 86% van de hoogte.
+# Kopje: cover (pad onder /assets/img/, of bij figuur de naam van een avatar), cover_soort, cover_focus ("50% 30%"),
+# cover_alt en cover_onderschrift (optioneel). Zonder cover neemt het script het eerste beeld uit de tekst op de plaat, en anders de
+# avatar als figuur. Alleen een cover die in het kopje staat, komt groot in de kop van het artikel; een beeld
+# dat al in de tekst staat, zou daar anders twee keer te zien zijn.
+COVER_SOORTEN = ("vol", "plaat", "figuur")
+COVER_MAP = "assets/img/cover"      # afgeleide beelden; alleen in public/ (zie maak_coverbeelden)
+COVER_VERSIE = 1                    # ophogen als de samenstelling verandert: dan komen er nieuwe bestanden
+BEELD_MD = re.compile(r"!\[([^\]]*)\]\((/assets/img/(?!avatars/)[^)\s]+\.(?:webp|png|jpe?g))\)")
+BEELD_HTML = re.compile(r'<img\b[^>]*?\bsrc="(/assets/img/(?!avatars/)[^"]+\.(?:webp|png|jpe?g))"[^>]*>')
+SCHEMA_MATEN = (("16x9", 1200, 675), ("4x3", 1200, 900), ("1x1", 1200, 1200))   # voor Google, zonder tekst
+BEELD_BREEDTES = (800, 1600)        # verkleinde versies voor srcset; een schermbeeld van 3200 px is te zwaar
+
+
+class Cover:
+    def __init__(self, soort, url, pad, alt="", focus="", expliciet=False, avatar_naam=""):
+        self.soort = soort
+        self.url = url              # /assets/img/... of /assets/img/avatars/...
+        self.pad = pad
+        self.alt = alt
+        self.focus = focus or "50% 50%"
+        self.expliciet = expliciet
+        self.avatar_naam = avatar_naam
+        self.maat = beeldmaat(pad) or (1600, 900)
+        self.varianten = []         # [(url, breedte, hoogte)], van klein naar groot (maak_coverbeelden)
+        self.schema = {}            # "16x9" -> url
+
+    @property
+    def focus_xy(self):
+        x, y = (float(v.rstrip("%")) / 100 for v in self.focus.split())
+        return min(max(x, 0), 1), min(max(y, 0), 1)
+
+    @property
+    def schaal(self):
+        return avatar_schaal(self.avatar_naam, self.maat[1]) if self.avatar_naam else 1.0
+
+
+def lees_focus(t, naam):
+    """'50% 30%', '50 30' of '50%' wordt '50% 30%'. Fout: een waarschuwing en het midden."""
+    delen = t.replace(",", " ").split()
+    try:
+        getallen = [float(d.rstrip("%")) for d in delen][:2]
+    except ValueError:
+        getallen = []
+    if not getallen or any(not 0 <= g <= 100 for g in getallen):
+        let_op(f"{naam}: cover_focus '{t}' begrijp ik niet; schrijf twee percentages, bv. '50% 30%'")
+        return "50% 50%"
+    if len(getallen) == 1:
+        getallen.append(50.0)
+    return " ".join(f"{g:g}%" for g in getallen)
+
+
+def beelden_in_tekst(item):
+    """[(alt, url)] van de beelden in de tekst, in volgorde (geen avatars)."""
+    if item.vorm == "md":
+        return BEELD_MD.findall(item.tekst)
+    uit = []
+    for m in BEELD_HTML.finditer(item.tekst):
+        alt = re.search(r'\balt="([^"]*)"', m.group(0))
+        uit.append((html.unescape(alt.group(1)) if alt else "", m.group(1)))
+    return uit
+
+
+def figuur_cover(naam, expliciet=False):
+    a = avatar(naam) if naam else None
+    if not a:
+        return None
+    return Cover("figuur", a[0], os.path.join(STATISCH, a[0].lstrip("/")), expliciet=expliciet, avatar_naam=naam)
+
+
+def lees_cover(item):
+    m = item.meta
+    naam = os.path.basename(item.pad)
+    soort = m.get("cover_soort", "").strip().lower()
+    bron = m.get("cover", "").strip()
+    if soort and soort not in COVER_SOORTEN:
+        let_op(f"{naam}: cover_soort '{soort}' bestaat niet (kies vol, plaat of figuur)")
+        soort = ""
+    focus = lees_focus(m["cover_focus"], naam) if m.get("cover_focus", "").strip() else ""
+    beelden = beelden_in_tekst(item)
+    in_tekst = {u: a for a, u in beelden}
+    if bron:
+        if soort == "figuur" or ("/" not in bron and "." not in bron):
+            c = figuur_cover(bron, expliciet=True)
+            if c:
+                return c
+        else:
+            url = bron if bron.startswith("/") else f"/assets/img/{bron}"
+            pad = os.path.join(STATISCH, url.lstrip("/"))
+            if os.path.exists(pad) and beeldmaat(pad):
+                return Cover(soort or "plaat", url, pad, alt=m.get("cover_alt", "").strip() or in_tekst.get(url, ""),
+                             focus=focus, expliciet=True)
+            let_op(f"{naam}: cover {bron} niet gevonden in statisch/ (of geen webp/png)")
+    elif soort == "figuur":
+        return figuur_cover(item.avatar)
+    # Zonder eigen cover (de bestaande artikelen, klus 559): het eerste beeld uit de tekst op de plaat, anders het figuur.
+    for alt, url in beelden:
+        pad = os.path.join(STATISCH, url.lstrip("/"))
+        if os.path.exists(pad) and beeldmaat(pad):
+            return Cover(soort if soort in ("vol", "plaat") else "plaat", url, pad, alt=alt, focus=focus)
+    return figuur_cover(item.avatar)
+
+
+# Waar een cover staat en hoe breed hij daar ongeveer wordt: voor sizes, zodat de browser het lichtste bestand kiest.
+COVER_SIZES = {
+    "kop": "(max-width: 640px) 100vw, 880px",
+    "uitgelicht": "(max-width: 820px) calc(100vw - 64px), 620px",
+    "groot": "(max-width: 1000px) calc(100vw - 64px), 560px",
+    "kaart": "(max-width: 640px) 80vw, 360px",
+    "rij": "(max-width: 640px) 112px, 224px",
+}
+
+
+def cover_html(item, plek, lui=True):
+    """De cover als echte img met breedte en hoogte (vindbaar, geen verspringende opmaak). In een kaart of rij
+    staat de titel ernaast, dus alt is leeg; in de kop van een artikel de beschrijving van het beeld.
+    De cover onder de kop laadt meteen (lui=False), alle andere pas als ze in beeld komen."""
+    c = item.cover
+    if not c:
+        if plek in ("kaart", "rij", "uitgelicht", "groot"):
+            # Zonder beeld en zonder figuur: het soort-icoon groot op de plaat, mos op inkt (DESIGN.md).
+            return f'<div class="cover icoon"><span>{icoon("serie" if item.is_deel else item.soort if item.soort in SOORTEN else "uitleg")}</span></div>'
+        return ""
+    laden = ' loading="lazy" decoding="async"' if lui else ' fetchpriority="high"'
+    if c.soort == "figuur":
+        w, h = c.maat
+        stijl = f' style="--schaal: {c.schaal:.3f}"' if abs(c.schaal - 1) > 0.005 else ""
+        img = per_stand(f'<img src="{c.url}" width="{w}" height="{h}" alt=""{laden}{stijl}>', avatar_donker(c.avatar_naam))
+        return f'<div class="cover figuur">{img}</div>'
+    url, w, h = c.varianten[-1] if c.varianten else (c.url, *c.maat)
+    srcset = ""
+    if len(c.varianten) > 1:
+        srcset = (' srcset="' + ", ".join(f"{u} {b}w" for u, b, _ in c.varianten)
+                  + f'" sizes="{COVER_SIZES.get(plek, "100vw")}"')
+    alt = esc(c.alt) if plek == "kop" else ""
+    stijl = f' style="--focus: {c.focus}"' if c.soort == "vol" and c.focus != "50% 50%" else ""
+    return f'<div class="cover {c.soort}"{stijl}><img src="{url}"{srcset} width="{w}" height="{h}" alt="{alt}"{laden}></div>'
+
+
+def schema_beeld(item):
+    """image voor schema.org: de cover zonder tekst in 16:9, 4:3 en 1:1 (Google kiest), anders de deelafbeelding."""
+    c = item.cover
+    if c and len(c.schema) == len(SCHEMA_MATEN):
+        return [ADRES + c.schema[k] for k, _, _ in SCHEMA_MATEN]
+    return ADRES + deelbeeld(item.slug)
+
+
+def _pil():
+    try:
+        from PIL import Image, ImageDraw
+        return Image, ImageDraw
+    except Exception:   # noqa: BLE001  geen Pillow (bijvoorbeeld de ochtendbouw): dan de vorige bestanden
+        return None
+
+
+def _open_rgb(pad):
+    Image, _ = _pil()
+    im = Image.open(pad)
+    if im.mode in ("RGBA", "LA", "P"):
+        im = im.convert("RGBA")
+        grond = Image.new("RGB", im.size, (255, 255, 255))
+        grond.paste(im, mask=im.split()[-1])
+        return grond
+    return im.convert("RGB")
+
+
+def _vul(im, b, h, fx=0.5, fy=0.5):
+    """object-fit: cover met object-position fx fy, zoals de css."""
+    Image, _ = _pil()
+    s = max(b / im.width, h / im.height)
+    nb, nh = max(b, round(im.width * s)), max(h, round(im.height * s))
+    im = im.resize((nb, nh), Image.LANCZOS)
+    x, y = round((nb - b) * fx), round((nh - h) * fy)
+    return im.crop((x, y, x + b, y + h))
+
+
+def _componeer(c, b, h):
+    """De cover zonder tekst als los beeld, in de behandeling van de site (voor schema.org)."""
+    Image, ImageDraw = _pil()
+    munt, lijn = (0xE4, 0xF1, 0xE8), (0xDD, 0xE2, 0xDA)
+    if c.soort == "vol":
+        return _vul(_open_rgb(c.pad), b, h, *c.focus_xy)
+    doek = Image.new("RGB", (b, h), munt)
+    if c.soort == "plaat":
+        # css: padding 7% boven en 9% opzij; percentages van padding rekenen altijd met de breedte
+        zij, boven = round(b * .09), round(b * .07)
+        bb, bh = b - 2 * zij, h - boven
+        r = max(4, round(b * .012))
+        beeld = _vul(_open_rgb(c.pad), bb, bh, 0, 0)
+        masker = Image.new("L", (bb, bh), 0)
+        ImageDraw.Draw(masker).rounded_rectangle((0, 0, bb - 1, bh + 2 * r), radius=r, fill=255)
+        doek.paste(beeld, (zij, boven), masker)
+        ImageDraw.Draw(doek).rounded_rectangle((zij - 1, boven - 1, zij + bb, h + 2 * r), radius=r + 1, outline=lijn, width=2)
+        return doek
+    av = Image.open(c.pad).convert("RGBA")
+    hoogte = round(h * min(.98, .86 * c.schaal))
+    breedte = round(av.width * hoogte / av.height)
+    av = av.resize((breedte, hoogte), Image.LANCZOS)
+    doek.paste(av, ((b - breedte) // 2, h - hoogte), av)
+    return doek
+
+
+def maak_coverbeelden(items, oud):
+    """Verkleinde versies (srcset) en de drie beelden voor schema.org, naar public/assets/img/cover/.
+    De naam bevat een vingerafdruk van bron en instelling: een bestand dat er al was (uit de vorige bouw, map oud),
+    gaat ongewijzigd mee. Pillow is alleen nodig voor een nieuw of gewijzigd beeld; zonder Pillow (de ochtendbouw
+    op GitHub) gebruikt de site wat er al was, en anders het bronbestand en de deelafbeelding."""
+    doel = os.path.join(UIT, COVER_MAP)
+    os.makedirs(doel, exist_ok=True)
+    pil = _pil()
+    ontbreekt = 0
+    for item in items:
+        c = item.cover
+        if not c:
+            continue
+        with open(c.pad, "rb") as f:
+            vinger = hashlib.sha1(f.read()).hexdigest()
+
+        def bestand(sleutel, maak):
+            nonlocal ontbreekt
+            h = hashlib.sha1(f"{vinger}|{c.soort}|{c.focus}|{sleutel}|{COVER_VERSIE}".encode()).hexdigest()[:10]
+            naam = f"{item.slug}-{sleutel}-{h}.webp"
+            pad = os.path.join(doel, naam)
+            if oud and os.path.exists(os.path.join(oud, naam)):
+                shutil.copy2(os.path.join(oud, naam), pad)
+            elif pil:
+                maak().save(pad, "WEBP", quality=82, method=6)
+            else:
+                ontbreekt += 1
+                return None
+            return f"/{COVER_MAP}/{naam}"
+
+        if c.soort != "figuur":
+            w, h = c.maat
+            for b in BEELD_BREEDTES:
+                if w > b:
+                    nh = round(h * b / w)
+                    u = bestand(f"{b}w", lambda b=b, nh=nh: _open_rgb(c.pad).resize((b, nh), pil[0].LANCZOS))
+                    if u:
+                        c.varianten.append((u, b, nh))
+            if c.varianten and w <= BEELD_BREEDTES[-1]:
+                c.varianten.append((c.url, w, h))      # kleiner dan de grootste maat: het bronbestand zelf
+        for sleutel, b, h in SCHEMA_MATEN:
+            u = bestand(sleutel, lambda b=b, h=h: _componeer(c, b, h))
+            if u:
+                c.schema[sleutel] = u
+    if ontbreekt:
+        let_op(f"{ontbreekt} coverbeelden ontbreken en Pillow staat er niet: bouw op de Mac (python3 bouw.py)")
+
+
 # ---------------------------------------------------------------- items
 class Item:
     """Eén pagina onder /leren/ (of later /tools/): een artikel, tutorial of tool."""
@@ -369,8 +630,10 @@ class Item:
         self.map = map_
         self.titel = m.get("titel", "")
         self.transparantie = m.get("transparantie", "")
+        self.woorden = 0
         if self.vorm == "md":
             self._lees_markdown()
+        self.cover = lees_cover(self)
         self.seotitel = m.get("seotitel", self.titel)
         self.beschrijving = m.get("beschrijving", "")
         self.kaarttekst = m.get("kaarttekst", self.beschrijving)
@@ -408,6 +671,21 @@ class Item:
     @property
     def soortlabel(self):
         return SOORTEN.get(self.soort, (self.soort.capitalize(),))[0]
+
+    @property
+    def minuten(self):
+        """Leestijd van een artikel in minuten: 220 woorden per minuut, minstens één."""
+        return max(1, -(-self.woorden // 220)) if self.woorden else 0    # hele minuten, naar boven (DESIGN.md)
+
+    @property
+    def leestijd(self):
+        """Wat er in de voetregel achter voor wie staat (Bram, klus 559): "8 min lezen" bij een artikel,
+        bij een tutorial het aantal stappen uit het kopje ("Vier stappen"), bij een tool niets (DESIGN.md)."""
+        if self.vorm == "md":
+            return f"{self.minuten} min lezen"
+        if self.soort == "tutorial":
+            return self.meta.get("duur", "").strip()
+        return ""
 
     @property
     def is_deel(self):
@@ -601,18 +879,17 @@ def titel_html(item):
     return esc(item.titel)
 
 
-def kaart(item, nieuw=False, tag="li", kop=3):
-    """Een kaart: labelregel met de datum als pill rechts, titel, uitleg, en onderaan de serienaam of voor
-    wie, met rechts het Nieuw-icoon (Frits, 01-10-2026). Op de plank is de kaart een article in een li."""
-    if item.is_deel:
-        s = STAAT["series"][item.serie]
-        voet, klasse = voet_html(item, s.titel, s.kaartnaam, vet=True, nieuw=nieuw)
-    else:
-        voet, klasse = voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw)
-    return f"""<{tag} class="kaart{klasse}">
+def kaart(item, nieuw=False, tag="li", kop=3, uitleg=True):
+    """Een kaart: de cover bovenaan (klus 559), labelregel met de datum als pill rechts, titel, uitleg, en onderaan
+    de serienaam of voor wie met de leestijd, met rechts het Nieuw-icoon (Frits, 01-10-2026). Op de plank is de
+    kaart een article in een li. uitleg=False: zonder de twee regels uitleg (plank en Verder in het lab, Bram)."""
+    voet, klasse = voet_van(item, nieuw)
+    cover = cover_html(item, "kaart")
+    tekst = f'\n  <p class="uitleg">{esc(item.kaarttekst)}</p>' if uitleg else ""
+    return f"""<{tag} class="kaart{' met-cover' if cover else ''}{klasse}">
+  {cover}
   <p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>
-  <h{kop}><a href="{item.url}">{titel_html(item)}</a></h{kop}>
-  <p class="uitleg">{esc(item.kaarttekst)}</p>
+  <h{kop}><a href="{item.url}">{titel_html(item)}</a></h{kop}>{tekst}
   {voet}
 </{tag}>"""
 
@@ -850,7 +1127,8 @@ def pagina(pad, *, titel, beschrijving, inhoud, url, menu="", ogtype="website", 
         "ogtitel": esc(titel),
         "beschrijving": esc(beschrijving),
         "canonical": ADRES + url,
-        "robots": '<meta name="robots" content="noindex, nofollow">' if noindex else "",
+        # Grote beelden mogen groot in Google staan (Bram, klus 559); noindex-pagina's houden alleen noindex.
+        "robots": '<meta name="robots" content="noindex, nofollow">' if noindex else '<meta name="robots" content="max-image-preview:large">',
         "ogtype": ogtype,
         "deelafbeelding": ADRES + deel,
         "schema": schema,
@@ -918,6 +1196,20 @@ def item_kruimelpad_schema(item):
     return kruimelpad(*stappen, (item.titel, None))
 
 
+def kop_cover(item):
+    """Komt de cover groot in de kop? Alleen bij een artikel (geen tutorial of tool: daar staat de start bovenaan),
+    alleen een beeld (vol of plaat; een figuur staat al als avatar in de kop) en alleen als hij in het kopje staat."""
+    c = item.cover
+    return bool(item.vorm == "md" and c and c.expliciet and c.soort in ("vol", "plaat"))
+
+
+def kop_onderschrift(item):
+    """Optioneel cover_onderschrift onder de cover in de kop, bijvoorbeeld "Illustratie, gemaakt door een AI-teamlid."
+    Een AI-beeld staat er als illustratie bij; dat label verdwijnt niet als het beeld van de tekst naar de kop gaat."""
+    t = item.meta.get("cover_onderschrift", "").strip()
+    return f'<p class="kop-onderschrift">{esc(t)}</p>' if t else ""
+
+
 def item_kop(item, lede_html="", feiten_extra=()):
     feiten = []
     if item.voor:
@@ -927,6 +1219,22 @@ def item_kop(item, lede_html="", feiten_extra=()):
     datumtekst = (f"Bijgewerkt {datum_nl(item.bijgewerkt)}" if item.bijgewerkt != item.datum
                   else datum_nl(item.datum))
     feiten.append(f'<li>{icoon("klok")}<time datetime="{item.bijgewerkt.isoformat()}">{datumtekst}</time></li>')
+    if kop_cover(item):
+        # Met een cover vervalt de avatar: één beeld per kop (Bram, klus 559). Volgorde: kruimelpad, label, titel,
+        # lede, feiten, dan de cover, zodat titel en lede eerst gelezen worden. Geen lazy loading op dit beeld.
+        return f"""<section class="item-kop met-cover" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      {kruimel_html(*item_stappen(item))}
+      <p class="label">{soort_label(item)}</p>
+      <h1 id="titel">{esc(item.titel)}</h1>
+      {lede_html}
+      <ul class="feiten">{"".join(feiten)}</ul>
+      {serie_plek_html(item)}
+    </div>
+    <div class="kop-cover">{cover_html(item, "kop", lui=False)}{kop_onderschrift(item)}</div>
+  </div>
+</section>"""
     a = avatar_img(item.avatar, "")
     klasse = "item-kop met-avatar labpapier" if a else "item-kop labpapier"
     return f"""<section class="{klasse}" aria-labelledby="titel">
@@ -1088,30 +1396,39 @@ def serie_nav_html(item):
       </nav>"""
 
 
+VERDER_MAX = 3
+
+
 def verder(item, alle):
-    """Verder lezen, alleen onder een artikel zonder eigen verwijzing naar een ander item.
-    Volgorde: eerst artikelen met dezelfde onderwerpen, dan dezelfde categorie, dan de nieuwste.
-    Niet op een seriedeel, en geen seriedelen in de lijst (Bram, 01-10-2026)."""
-    if item.is_deel or item.vorm != "md":
-        return ""   # tutorials en tools: de focus blijft op het item zelf (Frits, 01-10-2026)
-    # Alleen als het artikel zelf nergens naar een ander item verwijst (Frits, 01-10-2026):
-    # een verwijsblok of een gewone link in de tekst is genoeg, dan geen tweede blok onderaan.
-    if re.search(r"^>\s*\[!(tutorial|tool|lees-ook)\]", item.tekst, re.M):
+    """Verder in het lab, onder elke uitleg (Bram, klus 559; eerder alleen onder een artikel zonder eigen verwijzing).
+    Eerst items uit dezelfde categorie, aangevuld met items die onderwerpen delen; wat de tekst zelf al noemt
+    (verwijsblok, Lees ook of een gewone link) staat er niet in. Niet onder een tutorial, tool of seriedeel
+    (Frits, 01-10-2026: de onderkant was te druk), en geen seriedelen in de lijst (Bram, 01-10-2026)."""
+    if item.is_deel or item.vorm != "md" or item.soort not in ("uitleg", "verhaal"):
         return ""
-    if any(f"]({x.url}" in item.tekst for x in alle if x is not item):
-        return ""
-    kandidaten = [x for x in alle if x is not item and not x.concept and not x.is_deel]
-
-    def score(x):
-        gedeeld = len(set(x.tags) & set(item.tags))
-        return (gedeeld, x.categorie == item.categorie and bool(item.categorie), x.datum)
-
-    anderen = sorted(kandidaten, key=score, reverse=True)[:3]
+    genoemd = {x.url for x in alle if x is not item and (f"]({x.url}" in item.tekst or f"]({live_url(x)}" in item.tekst)}
+    kandidaten = [x for x in leren_items(alle) if x is not item and not x.is_deel and x.url not in genoemd]
+    # binnen de categorie: wat de meeste onderwerpen deelt eerst, dan het nieuwste
+    zelfde = sorted((x for x in kandidaten if item.categorie and x.categorie == item.categorie),
+                    key=lambda x: (len(set(x.tags) & set(item.tags)), x.datum), reverse=True)
+    aanvulling = sorted((x for x in kandidaten if x not in zelfde and set(x.tags) & set(item.tags)),
+                        key=lambda x: (len(set(x.tags) & set(item.tags)), x.datum), reverse=True)
+    anderen = (zelfde + aanvulling)[:VERDER_MAX]
     if not anderen:
         return ""
-    return f"""<section class="verder" aria-labelledby="verder-titel">
-  <h2 id="verder-titel">Verder in het lab</h2>
-  {raster(anderen)}
+    c = item.categorie_info
+    alles = ""
+    if c and c["slug"] in STAAT["categorieen"] and not item.concept:
+        alles = f'<a class="cat-alles" href="/leren/{c["slug"]}/">Alles in {esc(c["naam"])}{icoon("pijl")}</a>'
+    kaarten = "\n".join(kaart(x, uitleg=False) for x in anderen)
+    return f"""<section class="verder sectie" aria-labelledby="verder-titel">
+  <div class="sectie-kop">
+    <h2 id="verder-titel">Verder in het lab</h2>
+    {alles}
+  </div>
+  <ul class="raster">
+{kaarten}
+  </ul>
 </section>"""
 
 
@@ -1134,8 +1451,7 @@ def schema_extra(item):
 
 def bouw_artikel(item, alle):
     lijf = markdown(item.tekst, maak_verwijzing(item, alle))
-    minuten = max(1, round(item.woorden / 220))
-    inhoud = f"""{item_kop(item, feiten_extra=[("uitleg", f"{minuten} minuten lezen")])}
+    inhoud = f"""{item_kop(item, feiten_extra=[("klok", item.leestijd)])}
 <div class="wrap">
   <article class="artikel">
     {lijf}
@@ -1150,7 +1466,7 @@ def bouw_artikel(item, alle):
         {"@type": "Article", "headline": item.titel, "description": item.beschrijving,
          "inLanguage": "nl", "datePublished": item.datum.isoformat(), "dateModified": item.bijgewerkt.isoformat(),
          "author": {"@id": f"{ADRES}/#frits"}, "publisher": {"@id": f"{ADRES}/#frits"},
-         "image": ADRES + deelbeeld(item.slug), "mainEntityOfPage": ADRES + item.url,
+         "image": schema_beeld(item), "mainEntityOfPage": ADRES + item.url,
          **schema_extra(item)},
         PERSOON, WEBSITE,
         item_kruimelpad_schema(item))
@@ -1207,7 +1523,7 @@ def bouw_html_item(item, alle):
              "name": item.titel, "description": item.beschrijving, "inLanguage": "nl",
              "learningResourceType": item.soortlabel, "url": ADRES + item.url,
              "datePublished": item.datum.isoformat(), "dateModified": item.bijgewerkt.isoformat(),
-             "image": ADRES + deelbeeld(item.slug),
+             "image": schema_beeld(item),
              "author": {"@id": f"{ADRES}/#frits"},
              "audience": [{"@type": "EducationalAudience",
                            "educationalRole": "student" if v.startswith("student") else "teacher"} for v in item.voor]}
@@ -1267,19 +1583,31 @@ def categorie_keuze(slug, live, uit, ook_niet=frozenset()):
 def voet_van(item, nieuw):
     if item.is_deel:
         s = STAAT["series"][item.serie]
-        return voet_html(item, s.titel, s.kaartnaam, vet=True, nieuw=nieuw)
-    return voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw)
+        return voet_html(item, s.titel, s.kaartnaam, vet=True, nieuw=nieuw, tijd=item.leestijd)
+    return voet_html(item, voor_tekst(item.voor), voor_kort(item.voor), nieuw=nieuw, tijd=item.leestijd)
 
 
 def groot_kaart(item, slug, breed):
     """De grote kaart links in een categorieblok, met rechtsonder de belletjes en het figuur van de categorie.
     Breed (bij een categorie met alleen dit artikel): titel links, uitleg rechts, over de hele breedte."""
     voet, klasse = voet_van(item, is_nieuw(item))
-    sfeer = ('<span class="bel-kaart" aria-hidden="true"></span><span class="bel-kaart klein" aria-hidden="true"></span>'
-             + kaart_figuur(slug))
     label = f'<p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>'
     titel = f'<h3><a href="{item.url}">{titel_html(item)}</a></h3>'
     uitleg = f'<p class="uitleg">{esc(item.kaarttekst)}</p>'
+    cover = cover_html(item, "groot")
+    if cover:
+        # Het beeld van het artikel vervangt het figuur in de bel (Frits, klus 559): cover links, tekst rechts.
+        return f"""<article class="kaart kaart-groot met-cover{klasse}">
+        {cover}
+        <div class="kaart-tekst">
+          {label}
+          {titel}
+          {uitleg}
+          {voet}
+        </div>
+      </article>"""
+    sfeer = ('<span class="bel-kaart" aria-hidden="true"></span><span class="bel-kaart klein" aria-hidden="true"></span>'
+             + kaart_figuur(slug))
     if breed:
         return f"""<article class="kaart kaart-groot kaart-breed met-figuur{klasse}">
         {sfeer}
@@ -1313,7 +1641,7 @@ def categorie_blok(slug, groot, totaal, rest=()):
     if c.get("plank") and rest:
         weinig = len(rest) <= PLANK_DREMPEL
         id_ = f"{slug}-baan"
-        kaarten = "\n".join(f"<li>{kaart(x, is_nieuw(x), tag='article')}</li>" for x in rest)
+        kaarten = "\n".join(f"<li>{kaart(x, is_nieuw(x), tag='article', uitleg=False)}</li>" for x in rest)
         eind = ""
         if not weinig:
             pijlen = pijlen_html(id_, "artikelen")
@@ -1355,7 +1683,7 @@ def plank_nieuw(items, alle_leren):
     aantal = len(alle_leren)
     wat = "artikelen en tools" if STAAT["tools"] else "artikelen"
     alles = f'<a class="cat-alles" href="/leren/">Alles op Leren <span class="aantal">{aantal}</span>{icoon("pijl")}</a>'
-    kaarten = "\n".join(f"<li>{kaart(x, is_nieuw(x), tag='article')}</li>" for x in items)
+    kaarten = "\n".join(f"<li>{kaart(x, is_nieuw(x), tag='article', uitleg=False)}</li>" for x in items)
     weinig = len(items) <= PLANK_DREMPEL
     if weinig:
         pijlen = eind = onder = ""
@@ -1431,6 +1759,43 @@ def serie_blok(s):
   </section>"""
 
 
+def filter_attr(item):
+    """data-soort en data-voor voor het filter op Leren en de categoriepagina's (filter.js)."""
+    soort = "serie" if item.is_deel else item.soort
+    voor = " ".join(sorted({"studenten" if v.startswith("student") else "docenten" if v.startswith("docent") else v
+                            for v in item.voor}))
+    return f' data-soort="{esc(soort)}" data-voor="{esc(voor)}"'
+
+
+def uitgelicht_html(uit, attr=""):
+    """Het grote item bovenaan de beginpagina, Leren en een categoriepagina. Met een cover: beeld links, tekst
+    rechts, op een wit vlak (Bram, klus 559). Zonder beeld de oude vorm met het figuur op munt."""
+    if uit.is_deel:
+        s = STAAT["series"][uit.serie]
+        voet, klasse = voet_html(uit, s.titel, s.kaartnaam, vet=True, nieuw=is_nieuw(uit), tijd=uit.leestijd)
+    else:
+        voet, klasse = voet_html(uit, voor_tekst(uit.voor), voor_kort(uit.voor), nieuw=is_nieuw(uit), tijd=uit.leestijd)
+    tekst = f"""<div class="tekst">
+    <p class="label"><span class="soort">{kaart_label(uit)}</span>{datum_pill(uit)}</p>
+    <h2><a href="{uit.url}">{titel_html(uit)}</a></h2>
+    <p>{esc(uit.kaarttekst)}</p>
+    {voet}"""
+    # Het uitgelichte item staat bovenaan in beeld: niet lui laden (Kurt, klus 559).
+    cover = cover_html(uit, "uitgelicht", lui=False)
+    if cover:
+        return f"""<article class="uitgelicht met-cover{klasse}"{attr}>
+  {cover}
+  {tekst}
+  </div>
+</article>"""
+    return f"""<article class="uitgelicht{klasse}"{attr}>
+  {tekst}
+    <div class="knoppen"><a class="knop knop-primair" href="{uit.url}" tabindex="-1" aria-hidden="true">{esc(SOORTEN.get(uit.soort, ('', '', 'Bekijk'))[2])}{icoon("pijl")}</a></div>
+  </div>
+  <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
+</article>"""
+
+
 def bouw_home(items):
     live = [x for x in items if not x.concept]
     live.sort(key=lambda x: x.datum, reverse=True)
@@ -1440,26 +1805,7 @@ def bouw_home(items):
                + f"); de beginpagina neemt de nieuwste: {os.path.basename(gemarkeerd[0].pad)}")
     uit = gemarkeerd[0] if gemarkeerd else (live[0] if live else None)
     h = SITE["home"]
-    uitgelicht = ""
-    if uit:
-        duur = uit.meta.get("duur", "")
-        if uit.is_deel:
-            s = STAAT["series"][uit.serie]
-            lang, kort = s.titel, s.kaartnaam
-        else:
-            lang = " · ".join(f for f in (voor_tekst(uit.voor), duur) if f)
-            kort = voor_tekst(uit.voor) or duur    # smal: alleen voor wie, de duur staat ook op het item zelf
-        voet, klasse = voet_html(uit, lang, kort, vet=uit.is_deel, nieuw=is_nieuw(uit))
-        uitgelicht = f"""<article class="uitgelicht{klasse}">
-  <div class="tekst">
-    <p class="label"><span class="soort">{kaart_label(uit)}</span>{datum_pill(uit)}</p>
-    <h2><a href="{uit.url}">{titel_html(uit)}</a></h2>
-    <p>{esc(uit.kaarttekst)}</p>
-    {voet}
-    <div class="knoppen"><a class="knop knop-primair" href="{uit.url}" tabindex="-1" aria-hidden="true">{esc(SOORTEN.get(uit.soort, ('', '', 'Bekijk'))[2])}{icoon("pijl")}</a></div>
-  </div>
-  <div class="uitgelicht-avatar">{avatar_img(uit.avatar, "")}</div>
-</article>"""
+    uitgelicht = uitgelicht_html(uit) if uit else ""
     # Drie lagen onder het uitgelichte item, elk met één vraag (Bram, 08-10-2026): wat is er bijgekomen (de plank
     # Nieuw), wat lees ik op volgorde (de lopende series), wat is er per vak (de categorieblokken). Elke laag opent
     # met dezelfde dikke lijn in inkt.
@@ -1574,7 +1920,8 @@ def leren_items(items):
 
 
 def tabrij(items, actief=""):
-    """De categorieën als tabrij op /leren/ en /leren/<categorie>/. Een lege categorie verschijnt niet."""
+    """De categorieën als echte links op /leren/ en /leren/<categorie>/ (vindbaar, werkt zonder JavaScript).
+    Op de telefoon één rij die je opzij schuift (Bram, klus 559). Een lege categorie verschijnt niet."""
     if not STAAT["categorieen"]:
         return ""
     def tab(naam, url, n, aan):
@@ -1584,30 +1931,134 @@ def tabrij(items, actief=""):
     for slug, c in CATEGORIEEN.items():
         if slug in STAAT["categorieen"]:
             tabs.append(tab(c["naam"], f"/leren/{slug}/", len(STAAT["categorieen"][slug]), actief == slug))
-    return f"""<nav class="tabrij" aria-label="Categorieën">
-  <div class="wrap">
-    <ul>{"".join(tabs)}</ul>
+    return f'''<nav class="tabrij" aria-label="Categorieën">
+      <ul>{"".join(tabs)}</ul>
+    </nav>'''
+
+
+def subfilter_html(leden):
+    """Soort en voor wie: filteren in de pagina (filter.js); alle items staan in de HTML. Zonder JavaScript is
+    de rij verborgen (hidden), want dan doen de knoppen niets. Een groep met maar één keuze staat er niet."""
+    soorten = {}
+    for x in leden:
+        s = "serie" if x.is_deel else x.soort
+        soorten[s] = soorten.get(s, 0) + 1
+    namen = {"uitleg": "Uitleg", "serie": "Serie", "tutorial": "Tutorial", "tool": "Tool", "verhaal": "Verhaal"}
+    groepen = []
+    if len(soorten) > 1:
+        knoppen = ['<button type="button" aria-pressed="true" data-soort="">Alle</button>'] + [
+            f'<button type="button" aria-pressed="false" data-soort="{s}">{namen.get(s, s.capitalize())} <span class="aantal">{n}</span></button>'
+            for s, n in sorted(soorten.items(), key=lambda kv: list(namen).index(kv[0]) if kv[0] in namen else 9)]
+        groepen.append(f'<div class="groep" role="group" aria-labelledby="f-soort"><span id="f-soort">Soort</span>{"".join(knoppen)}</div>')
+    voor = [x.voor for x in leden]
+    if any(set(v) != set(voor[0]) for v in voor):
+        knoppen = ('<button type="button" aria-pressed="true" data-voor="">Iedereen</button>'
+                   '<button type="button" aria-pressed="false" data-voor="studenten">Studenten</button>'
+                   '<button type="button" aria-pressed="false" data-voor="docenten">Docenten</button>')
+        groepen.append(f'<div class="groep" role="group" aria-labelledby="f-voor"><span id="f-voor">Voor wie</span>{knoppen}</div>')
+    if not groepen:
+        return ""
+    return (f'<div class="subfilter" data-filter hidden>{"".join(groepen)}</div>'
+            '<p class="filter-stand sr" role="status" aria-live="polite"></p>')
+
+
+def rij_html(item):
+    """Een regel in de lijst per maand (variant A, Bram): klein beeld, label met datum, titel, twee regels uitleg,
+    voor wie en leestijd. Op de telefoon staat het beeld rechts op 112 px en vervalt de uitleg."""
+    voet, klasse = voet_van(item, is_nieuw(item))
+    return f'''<li class="rij-li"{filter_attr(item)}>
+          <article class="rij{' met-cover' if item.cover else ''}{klasse}">
+            {cover_html(item, "rij")}
+            <div class="rij-tekst">
+              <p class="label"><span class="soort">{kaart_label(item)}</span>{datum_pill(item)}</p>
+              <h3><a href="{item.url}">{titel_html(item)}</a></h3>
+              <p class="uitleg">{esc(item.kaarttekst)}</p>
+              {voet}
+            </div>
+          </article>
+        </li>'''
+
+
+def rail_html(leden):
+    """Rechts naast de lijst (onder de lijst op een smal scherm): de series en de onderwerpen met een eigen pagina."""
+    delen = []
+    series = sorted(STAAT["series"].values(), key=lambda s: s.nieuwste.datum, reverse=True)
+    if series:
+        regels = "".join(
+            f'<li><a class="serie-a" href="{s.url}"><strong>{esc(s.titel)}</strong>'
+            f'<span>{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"}, {"loopt nog" if s.lopend else "afgerond"}</span></a></li>'
+            for s in series)
+        delen.append(f'<section aria-labelledby="r-series"><h2 id="r-series">Series</h2><ul>{regels}'
+                     f'<li><a class="serie-a" href="/series/"><strong>Alle series</strong><span>Op volgorde lezen</span></a></li></ul></section>')
+    tags = sorted(STAAT["onderwerpen"].items(), key=lambda kv: (-len(kv[1]), kv[0]))
+    if tags:
+        regels = "".join(f'<li><a href="/onderwerp/{t}/"><span>{esc(t[0].upper() + t[1:])}</span><span class="aantal">{len(l)}</span></a></li>'
+                         for t, l in tags)
+        delen.append(f'<section aria-labelledby="r-onderwerpen"><h2 id="r-onderwerpen">Onderwerpen</h2><ul>{regels}</ul></section>')
+    return f'<aside class="rail" aria-label="Verder zoeken">{"".join(delen)}</aside>' if delen else ""
+
+
+def archief_html(items, leden, actief, uit):
+    """Leren, variant A (Frits, klus 559): één item groot bovenaan, daaronder een lijst per
+    maand, nieuwste eerst, met een filter. Het grote item staat niet nog eens in de lijst."""
+    rest = [x for x in leden if x is not uit]
+    maanden = []
+    for x in rest:
+        sleutel = (x.datum.year, x.datum.month)
+        if not maanden or maanden[-1][0] != sleutel:
+            maanden.append((sleutel, []))
+        maanden[-1][1].append(x)
+    secties = []
+    for (j, m), lijst in maanden:
+        id_ = f"m-{j}-{m:02d}"
+        n = len(lijst)
+        secties.append(f'''<section class="maand" aria-labelledby="{id_}">
+        <h2 id="{id_}">{MAANDEN[m - 1].capitalize()} {j} <span class="aantal" data-aantal="{n}">{n} {"artikel" if n == 1 else "artikelen"}</span></h2>
+        <ul class="maand-lijst">
+        {"".join(rij_html(x) for x in lijst)}
+        </ul>
+      </section>''')
+    groot = uitgelicht_html(uit, filter_attr(uit)) if uit else ""
+    return f'''<div class="wrap archief-pagina">
+  <div class="filter">
+    {tabrij(items, actief)}
+    {subfilter_html(leden)}
   </div>
-</nav>"""
+  {groot}
+  <div class="archief">
+    <div class="maanden">
+      {"".join(secties)}
+      <p class="filter-leeg" hidden>Hier staat nog niets bij deze keuze. <button type="button" class="link-knop" data-wis>Toon alles</button></p>
+    </div>
+    {rail_html(leden)}
+  </div>
+</div>'''
+
+
+def grote_keuze(leden, veld):
+    """Het item dat groot bovenaan staat: de keuze van Frits (veld uitgelicht of uitgelicht_categorie), anders het nieuwste."""
+    gekozen = [x for x in leden if getattr(x, veld)]
+    return gekozen[0] if gekozen else (leden[0] if leden else None)
+
+
+FILTER_JS = "/assets/filter.js"
 
 
 def bouw_leren(items):
     live = leren_items(items)
+    uit = grote_keuze(live, "uitgelicht")
     inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
   <div class="wrap">
     <h1 id="titel">Leren</h1>
     <p class="lede">{esc(SITE["leren"]["lede"])}</p>
   </div>
 </section>
-{tabrij(items)}
-<div class="wrap lijst">
-  {raster(live, niveau=2)}
-</div>"""
+{archief_html(items, live, "", uit)}"""
     pagina("/leren/", titel=SITE["leren"]["seotitel"], beschrijving=SITE["leren"]["beschrijving"], inhoud=inhoud,
            url="/leren/", menu="leren",
-           schema=jsonld({"@type": "CollectionPage", "name": "Leren", "url": f"{ADRES}/leren/",
-                          "isPartOf": {"@id": f"{ADRES}/#site"}}, WEBSITE, PERSOON,
-                         kruimelpad(("AI-leerlab", "/"), ("Leren", None))))
+           schema=lijst_schema("Leren", "/leren/", SITE["leren"]["beschrijving"], live,
+                               ("AI-leerlab", "/"), ("Leren", None)),
+           extra_voet=f'<script src="{FILTER_JS}?v={VERSIE}" defer></script>')
 
 
 def bouw_tools(items):
@@ -1645,6 +2096,8 @@ def bouw_categorieen(items):
         c = CATEGORIEEN[slug]
         # Het item met 'uitgelicht: categorie' staat ook op de categoriepagina vooraan (Frits, 03-10-2026);
         # daarna de rest, nieuwste eerst.
+        # Het item met 'uitgelicht: categorie' staat vooraan (Frits, 03-10-2026). Hier blijft het raster van kaarten
+        # (DESIGN.md, klus 559: de lijst per maand is alleen voor Leren).
         leden = sorted(leden, key=lambda x: not x.uitgelicht_categorie)
         url = f"/leren/{slug}/"
         inhoud = f"""<section class="item-kop labpapier" aria-labelledby="titel">
@@ -1657,8 +2110,8 @@ def bouw_categorieen(items):
     <div class="kop-avatar">{avatar_img(c.get("avatar", ""), "")}</div>
   </div>
 </section>
-{tabrij(items, slug)}
 <div class="wrap lijst">
+  <div class="filter">{tabrij(items, slug)}</div>
   {raster(leden, niveau=2)}
 </div>"""
         pagina(url, titel=c["seotitel"], beschrijving=c["beschrijving"], inhoud=inhoud, url=url, menu="leren",
@@ -2049,10 +2502,18 @@ VERSIE = datetime.datetime.now().strftime("%Y%m%d%H%M")
 
 
 def bouw():
+    # De coverbeelden van de vorige bouw bewaren: wat niet veranderde, gaat ongewijzigd mee (maak_coverbeelden).
+    tijdelijk = tempfile.mkdtemp(prefix="covers-")
+    oud = os.path.join(tijdelijk, "c")
+    if os.path.isdir(os.path.join(UIT, COVER_MAP)):
+        shutil.copytree(os.path.join(UIT, COVER_MAP), oud)
     if os.path.isdir(UIT):
         shutil.rmtree(UIT)
     shutil.copytree(STATISCH, UIT)
     items = lees_items()
+    # Ook geplande artikelen, zodat de ochtendbouw (zonder Pillow) hun beelden al vindt op de dag dat ze uitkomen.
+    maak_coverbeelden(items + GEPLAND, oud if os.path.isdir(oud) else None)
+    shutil.rmtree(tijdelijk, ignore_errors=True)
     urls = [x.url for x in items]
     if len(urls) != len(set(urls)):
         let_op("twee items hebben hetzelfde adres")

@@ -66,9 +66,7 @@ We zien dat een aantal studenten dit advies oppakt en zelf gaat experimenteren m
 
 ## Zelf proberen
 
-Kijk eens naar de eisen in je eigen beoordeling waarop een student direct kan zakken. Welke gaan over de vorm, en welke over de inhoud? Vervang er één, bijvoorbeeld een woordengrens, door de eis dat je de redenering kunt volgen van bron naar conclusie. Werk je met een verzonnen case, laat studenten dan AI gebruiken voor beeld, met de afspraak dat een gemaakt beeld geen data is. En probeer vibecoden een keer in je les, met een som uit je eigen vak waarvan je het antwoord kent. Het narekenen is daarbij belangrijker dan de app.
-
-[Vul aan: jouw volgende stap met het vak, in één of twee zinnen.]
+Kijk eens naar de eisen in je eigen beoordeling en vraag je bij elke eis af wat je ermee wilt bereiken. Welke gaan over de vorm, en welke over de inhoud? Vervang er één, bijvoorbeeld een woordengrens, door de eis dat je de redenering kunt volgen van bron naar conclusie. Werk je met een verzonnen case, laat studenten dan AI gebruiken voor beeld, met de afspraak dat een gemaakt beeld geen data is. En probeer vibecoden een keer in je les, met een som uit je eigen vak waarvan je het antwoord kent. Het narekenen is daarbij belangrijker dan de app.
 
 > [!lees-ook]
 > **Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet**

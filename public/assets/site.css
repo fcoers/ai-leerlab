@@ -1185,6 +1185,11 @@ picture.per-stand { display: contents; }
   /* smalle tekstkolom: het label op één regel; het deelnummer staat al in het vierkantje voor de titel */
   .rij .label .soort { white-space: nowrap; }
   .rij .label .soort > span[aria-hidden] { display: none; }
+  /* Past het label niet naast de datum, dan zakt de datum naar de volgende regel; het label krimpt nooit onder
+     de datum (Kurt, klus 402). Op één regel blijft het als voorheen: label links, datum rechts. */
+  .rij .label { flex-wrap: wrap; justify-content: space-between; row-gap: 14px; }
+  .rij .label .soort { flex: none; }
+  .rij .label .datum-pill { margin-left: 0; }
   .rail { grid-template-columns: 1fr; }
 }
 

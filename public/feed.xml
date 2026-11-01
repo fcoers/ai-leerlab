@@ -6,7 +6,15 @@
   <atom:link href="https://ai-leerlab.nl/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.</description>
   <language>nl</language>
-  <lastBuildDate>Sat, 24 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Sun, 01 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Deel 6: Van werkt naar prettig: een eigen design system voor je app</title>
+    <link>https://ai-leerlab.nl/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/</guid>
+    <pubDate>Sun, 01 Nov 2026 07:00:00 +0000</pubDate>
+    <description>Geef je app één huisstijl met een DESIGN.md die je AI-assistent steeds leest, en zet die stijl in Claude Design. Met prompts, op Mac en Windows.</description>
+    <category>Techniek</category>
+  </item>
   <item>
     <title>Van AI verantwoorden naar een beter eindproduct met AI</title>
     <link>https://ai-leerlab.nl/leren/van-ai-verantwoorden-naar-een-beter-eindproduct-met-ai/</link>

@@ -6,7 +6,14 @@
   <atom:link href="https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.</description>
   <language>nl</language>
-  <lastBuildDate>Fri, 16 Oct 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Sun, 01 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Deel 6: Van werkt naar prettig: een eigen design system voor je app</title>
+    <link>https://ai-leerlab.nl/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/</link>
+    <guid>https://ai-leerlab.nl/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/</guid>
+    <pubDate>Sun, 01 Nov 2026 07:00:00 +0000</pubDate>
+    <description>Geef je app één huisstijl met een DESIGN.md die je AI-assistent steeds leest, en zet die stijl in Claude Design. Met prompts, op Mac en Windows.</description>
+  </item>
   <item>
     <title>Deel 5: Transcriberen zonder cloud: lokale AI op je eigen laptop</title>
     <link>https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/</link>

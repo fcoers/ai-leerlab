@@ -673,6 +673,16 @@ class Item:
         return SOORTEN.get(self.soort, (self.soort.capitalize(),))[0]
 
     @property
+    def kaartlabel(self):
+        """Het woord in de labelregel: de categorie, met de korte vorm uit site.json ("label", bijvoorbeeld
+        "Praktijk"). Een tool houdt "Tool"; zonder categorie blijft de soort staan (Frits, klus 402). Het veld
+        soort blijft voor het filter op Leren en voor learningResourceType in de JSON-LD."""
+        c = CATEGORIEEN.get(self.categorie)
+        if self.soort == "tool" or not c:
+            return self.soortlabel
+        return c.get("label") or c["naam"]
+
+    @property
     def minuten(self):
         """Leestijd van een artikel in minuten: 220 woorden per minuut, minstens één."""
         return max(1, -(-self.woorden // 220)) if self.woorden else 0    # hele minuten, naar boven (DESIGN.md)
@@ -845,7 +855,7 @@ def soort_label(item):
     """Het label boven een kaart of titel: soort, of bij een seriedeel "Deel 3" met het serie-icoon."""
     if item.is_deel:
         return f'{icoon("serie")}<span class="serie-deel">Deel {item.deel}</span>'
-    return f"{icoon(item.soort)}{esc(item.soortlabel)}"
+    return f"{icoon(item.soort)}{esc(item.kaartlabel)}"
 
 
 # "Nieuw" is een klein icoon rechts in de voetregel (Frits, 01-10-2026: minder nadruk dan het blokje in de
@@ -860,13 +870,14 @@ def datum_pill(item):
 
 
 def kaart_label(item):
-    """Labelregel van een kaart. Een seriedeel krijgt alleen "Serie", net als "Uitleg" of "Tutorial";
+    """Labelregel van een kaart: de categorie ("Didactiek", "Praktijk"), een tool "Tool" (klus 402). Een seriedeel
+    krijgt "<categorie> · deel 3";
     het deelnummer staat vóór de titel en de serienaam onderaan (Bram, 01-10-2026)."""
     if item.is_deel:
         # "deel 3" erbij, zodat het cijfer in het vakje een betekenis heeft (expertscan 11-10-2026). Voor een
         # schermlezer verborgen: die hoort "Deel 3:" al in de titel.
-        return f"{icoon('serie')}Serie<span aria-hidden=\"true\">· deel {item.deel}</span>"
-    return f"{icoon(item.soort)}{esc(item.soortlabel)}"
+        return f"{icoon('serie')}{esc(item.kaartlabel)}<span aria-hidden=\"true\">· deel {item.deel}</span>"
+    return f"{icoon(item.soort)}{esc(item.kaartlabel)}"
 
 
 def titel_html(item):

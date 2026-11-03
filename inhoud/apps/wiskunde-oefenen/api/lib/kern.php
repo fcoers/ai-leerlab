@@ -178,3 +178,67 @@ function wo_geldige_poging($p): ?array
     }
     return ['datum' => $datum, 'onderdeel' => $onderdeel, 'goed' => $p['goed'] ? 1 : 0, 'foutcode' => $foutcode, 'hulp' => $hulp];
 }
+
+/**
+ * Klasoverzicht: klastotalen per onderdeel voor één klas. Gedeeld door overzicht.php (docentcode) en klassen.php
+ * (actie overzicht, beheersleutel), zodat beide precies hetzelfde antwoord geven. Getallen pas vanaf
+ * WO_DREMPEL_STUDENTEN aanmeldingen; daaronder alleen de klas en genoeg = false. Een onbekende periode wordt week.
+ */
+function wo_klasoverzicht(array $klas, $periode): array
+{
+    $periode = in_array($periode, ['week', '4weken', 'alles'], true) ? $periode : 'week';
+    $maandag = date('Y-m-d', strtotime('monday this week'));
+    $vanaf = ['week' => $maandag, '4weken' => wo_vandaag(-27), 'alles' => '0000-01-01'][$periode];
+
+    $uit = [
+        'ok' => true,
+        'klas' => ['naam' => $klas['naam'], 'aanmeldingen' => (int)$klas['aanmeldingen'], 'status' => $klas['status']],
+        'drempel' => WO_DREMPEL_STUDENTEN,
+        'min_pogingen' => WO_MIN_POGINGEN,
+        'periode' => $periode,
+        'vanaf' => $periode === 'alles' ? null : $vanaf,
+    ];
+    if ((int)$klas['aanmeldingen'] < WO_DREMPEL_STUDENTEN) {
+        $uit['genoeg'] = false;
+        return $uit;
+    }
+    $uit['genoeg'] = true;
+
+    $pdo = wo_db();
+    $st = $pdo->prepare('SELECT onderdeel, COUNT(*) AS pogingen, SUM(goed) AS goed, AVG(hulp) AS hulp_gem,
+            SUM(CASE WHEN hulp >= 4 THEN 1 ELSE 0 END) AS tot_uitleg
+        FROM wo_poging WHERE klas_id = ? AND datum >= ? GROUP BY onderdeel');
+    $st->execute([$klas['id'], $vanaf]);
+    $per = [];
+    foreach ($st->fetchAll() as $r) {
+        $per[$r['onderdeel']] = $r;
+    }
+    $st = $pdo->prepare('SELECT onderdeel, COUNT(*) AS n FROM wo_poging WHERE klas_id = ? AND datum >= ? GROUP BY onderdeel');
+    $st->execute([$klas['id'], $maandag]);
+    $week = [];
+    foreach ($st->fetchAll() as $r) {
+        $week[$r['onderdeel']] = (int)$r['n'];
+    }
+    $st = $pdo->prepare('SELECT onderdeel, foutcode, COUNT(*) AS n FROM wo_poging
+        WHERE klas_id = ? AND datum >= ? AND goed = 0 AND foutcode IS NOT NULL GROUP BY onderdeel, foutcode ORDER BY n DESC, foutcode');
+    $st->execute([$klas['id'], $vanaf]);
+    $fouten = [];
+    foreach ($st->fetchAll() as $r) {
+        $fouten[$r['onderdeel']][] = ['foutcode' => $r['foutcode'], 'aantal' => (int)$r['n']];
+    }
+
+    $uit['onderdelen'] = [];
+    foreach (wo_bank()['onderdelen'] as $o) {
+        $r = $per[$o] ?? null;
+        $uit['onderdelen'][] = [
+            'onderdeel' => $o,
+            'pogingen' => $r ? (int)$r['pogingen'] : 0,
+            'goed' => $r ? (int)$r['goed'] : 0,
+            'hulp_gem' => $r ? round((float)$r['hulp_gem'], 1) : 0,
+            'tot_uitleg' => $r ? (int)$r['tot_uitleg'] : 0,
+            'deze_week' => $week[$o] ?? 0,
+            'foutcodes' => array_slice($fouten[$o] ?? [], 0, 3),
+        ];
+    }
+    return $uit;
+}

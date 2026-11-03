@@ -7,6 +7,8 @@
  * POST {actie: intrekken, id}                ->  docentcode vervalt en de klas neemt geen pogingen meer aan
  * POST {actie: heractiveren, id}             ->  klas neemt weer pogingen aan (een docentcode maak je opnieuw)
  * POST {actie: verwijder, id}                ->  klas en al haar pogingen weg
+ * POST {actie: overzicht, id, periode}       ->  klasoverzicht, precies als overzicht.php maar zonder docentcode;
+ *                                                werkt ook voor een ingetrokken klas of een klas zonder docentcode
  */
 define('WISKUNDE', true);
 require __DIR__ . '/lib/kern.php';
@@ -97,5 +99,8 @@ if ($actie === 'verwijder') {
     $pdo->prepare('DELETE FROM wo_klas WHERE id = ?')->execute([$k['id']]);
     $pdo->commit();
     ap_json(['ok' => true]);
+}
+if ($actie === 'overzicht') {
+    ap_json(wo_klasoverzicht(wo_klas_op_id($in['id'] ?? null), $in['periode'] ?? null));
 }
 ap_fout(400, 'Onbekende actie.', 'verzoek');

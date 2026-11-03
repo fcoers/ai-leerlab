@@ -1,0 +1,10 @@
+# Alleen de PHP-bestanden in deze map zijn bereikbaar; lib/ niet.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^lib/ - [F,L]
+</IfModule>
+<IfModule !mod_rewrite.c>
+  <IfModule mod_alias.c>
+    RedirectMatch 403 ^.*/api/lib/
+  </IfModule>
+</IfModule>

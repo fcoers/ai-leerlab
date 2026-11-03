@@ -1,0 +1,11 @@
+# Wiskunde oefenen: proef, verborgen tot Frits hem zichtbaar maakt.
+# Zichtbaar maken: de X-Robots-Tag hieronder weghalen, de robots-meta in index.html ook, en "zichtbaar" in app.json op true.
+# Het klasoverzicht (docent/) en de api blijven altijd op noindex.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "same-origin"
+</IfModule>
+
+# Geen mappenlijst.
+Options -Indexes

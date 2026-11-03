@@ -249,6 +249,10 @@ node node_modules/vite/bin/vite.js build --base=./ --outDir <tijdelijke map> --e
 
 Zet daarna `assets/`, `firmware/` en `index.html` in de app-map. In `index.html` staan met de hand de robots-meta, de description, de favicons en een noscript-melding; die neem je na een nieuwe bouw weer over. Geen COOP/COEP-headers nodig (geen SharedArrayBuffer, geen WebAssembly). Zichtbaar maken: de X-Robots-Tag in `.htaccess` en de robots-meta in `index.html` weghalen en `zichtbaar` in `app.json` op true. In `app.json` staan `seotitel`, `beschrijving` en `transparantie` alvast klaar.
 
+### Wiskunde oefenen
+
+`inhoud/apps/wiskunde-oefenen/`: oefenapp haakjes wegwerken en ontbinden voor eerstejaars TBK, proef zonder inlog (03-11-2026, klus 402). Vite + React/TS; de map bevat alleen het bouwresultaat, de bron staat in `Projecten/AI-leerlab/app-bron/wiskunde-oefenen/` (daar ook de opgavenbank en de bouwinstructie). Voortgang in localStorage. Met een klascode stuurt de browser naamloze pogingen (onderdeel, goed of fout, foutcode, hulpstappen, datum) naar `api/pogingen.php`; tabellen `wo_klas` en `wo_poging` in dezelfde database als de andere apps, gemaakt bij het eerste gebruik. Klasoverzicht voor de docent op `docent/` met een geheime docentcode per klas, alleen totalen, getallen vanaf drie aanmeldingen. Klassen en docentcodes beheer je vanaf de Mac met `app-bron/wiskunde-oefenen/beheer/klassen.py` (sleutel van het postvak). Verborgen: X-Robots-Tag in `.htaccess`, robots-meta, `zichtbaar: false`.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.

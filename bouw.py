@@ -77,6 +77,16 @@ def icoon(naam, klasse=""):
         "mail": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/>',
         "link": '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
         "pijl-terug": '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+        # Cursus (Leerpad, klus 402, naar Brams mockup): lezen en doen apart, wat je nodig hebt, klaar en het eind.
+        "boek": '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
+        "hand": '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+        "laptop": '<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',
+        "terminal": '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/>',
+        "assistent": '<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-4 3v-3H6a2 2 0 0 1-2-2z"/><path d="M9 10.5h.01M15 10.5h.01"/>',
+        "slot": '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+        "vink": '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+        "doel": '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+        "vlag": '<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
         # Nieuw: een kiemplantje, twee blaadjes in mos met een lijn in inkt.
         "nieuw": '<path d="M12 21v-8"/><path class="blad" d="M12 14C7.6 14 5 11.4 5 7c4.4 0 7 2.6 7 7z"/>'
                  '<path class="blad" d="M12 12c0-4.2 2.4-6.8 7-6.8 0 4.2-2.4 6.8-7 6.8z"/>',
@@ -453,6 +463,7 @@ COVER_SIZES = {
     "groot": "(max-width: 1000px) calc(100vw - 64px), 560px",
     "kaart": "(max-width: 640px) 80vw, 360px",
     "rij": "(max-width: 640px) 112px, 224px",
+    "cursus": "(max-width: 640px) 100vw, 480px",
 }
 
 
@@ -477,7 +488,7 @@ def cover_html(item, plek, lui=True):
     if len(c.varianten) > 1:
         srcset = (' srcset="' + ", ".join(f"{u} {b}w" for u, b, _ in c.varianten)
                   + f'" sizes="{COVER_SIZES.get(plek, "100vw")}"')
-    alt = esc(c.alt) if plek == "kop" else ""
+    alt = esc(c.alt) if plek in ("kop", "cursus") else ""
     stijl = f' style="--focus: {c.focus}"' if c.soort == "vol" and c.focus != "50% 50%" else ""
     return f'<div class="cover {c.soort}"{stijl}><img src="{url}"{srcset} width="{w}" height="{h}" alt="{alt}"{laden}></div>'
 
@@ -627,6 +638,11 @@ class Item:
                 self.deel = int(m["deel"])
             except ValueError:
                 let_op(f"{os.path.basename(pad)}: deel '{m['deel']}' is geen getal")
+        # Een stap in een cursus (soort: cursus in het seriebestand, klus 402). Staptitel, resultaat, doetijd
+        # en klaar_als staan in het seriebestand, niet hier: de artikelen komen uit de contentkalender.
+        # lees_series vult ze in (Serie.zet_stap).
+        self.staptitel = self.resultaat = self.klaar_als = ""
+        self.doetijd = None
         self.map = map_
         self.titel = m.get("titel", "")
         self.transparantie = m.get("transparantie", "")
@@ -703,6 +719,16 @@ class Item:
         return bool(self.serie and self.deel and self.serie in STAAT["series"])
 
     @property
+    def is_stap(self):
+        """Een deel van een zichtbare cursus: dan krijgt de kop "Stap 3 van 6", Klaar als en vorige/volgende."""
+        return self.is_deel and STAAT["series"][self.serie].cursus
+
+    @property
+    def stap_titel(self):
+        """De titel in de cursusweergave: de staptitel van Kamiel, anders de titel van het artikel."""
+        return self.staptitel or self.titel
+
+    @property
     def categorie_info(self):
         return CATEGORIEEN.get(self.categorie)
 
@@ -734,6 +760,9 @@ def lees_items():
 
 
 # ---------------------------------------------------------------- series
+STAPVELDEN = ("staptitel", "resultaat", "doetijd", "klaar_als")   # per stap in het seriebestand (klus 402)
+
+
 class Serie:
     """Een serie: inhoud/series/<naam>.md met een kopje en de tekst voor "Over deze serie".
     De delen zijn gewone artikelen met 'serie: <naam>' en 'deel: <nummer>' in hun kopje."""
@@ -765,10 +794,69 @@ class Serie:
         self.over = tekst.strip()
         self.delen = []      # gepubliceerd, op volgorde
         self.gepland = []    # datum in de toekomst, op volgorde
+        # Cursus (Leerpad, Frits 08-11-2026, klus 402; DESIGN.md Cursuspagina). Een serie waarin je iets bouwt.
+        # Alle teksten staan hier en in de delen, niet in het script: belofte (lede), voor_wie, voorkennis_geen,
+        # voorkennis (regels gescheiden door |, elk eventueel met [icoon] ervoor), route_intro, eind_titel,
+        # eind_tekst, beeld met beeld_alt en beeld_onderschrift, doelgroep (educationalRole voor schema.org).
+        self.cursus = m.get("soort", "").strip().lower() == "cursus"
+        self.voor_wie = m.get("voor_wie", "").strip()
+        self.voorkennis_geen = m.get("voorkennis_geen", "").strip()
+        self.voorkennis = []
+        for regel in (x.strip() for x in m.get("voorkennis", "").split("|")):
+            r = re.match(r"\[(\w+)\]\s*(.+)", regel)
+            if r:
+                self.voorkennis.append((r.group(1), r.group(2)))
+            elif regel:
+                self.voorkennis.append(("vink", regel))
+        self.route_intro = m.get("route_intro", "").strip()
+        self.eind_titel = m.get("eind_titel", "").strip()
+        self.eind_tekst = m.get("eind_tekst", "").strip()
+        self.beeld_onderschrift = m.get("beeld_onderschrift", "").strip()
+        self.doelgroep = m.get("doelgroep", "").strip()
+        self.cover = SERIE_COVERS.get(self.slug)
+        # Hooguit één zijpad (DESIGN.md, Route): een stap die niet nodig is voor de stappen erna.
+        self.zijpad = self.zijpad_na = None
+        z = m.get("zijpad", "").strip()
+        if z:
+            if not z.isdigit():
+                let_op(f"series/{self.slug}.md: zijpad '{z}' is geen stapnummer (hooguit één zijpad per cursus)")
+            else:
+                self.zijpad = int(z)
+                na = m.get("zijpad_na", "").strip()
+                self.zijpad_na = int(na) if na.isdigit() else None
+        # Per stap, gekoppeld aan het adres van het artikel (de bestandsnaam zonder .md):
+        #   <adres>.staptitel, <adres>.resultaat, <adres>.doetijd (minuten, een schatting) en optioneel
+        #   <adres>.klaar_als, als "Klaar als" iets anders moet zeggen dan het resultaat. De teksten zijn van Kamiel.
+        # Ze staan hier en niet in het artikel: een artikel verandert alleen via de contentkalender.
+        self.stapvelden = {}
+        for k, v in m.items():
+            adres, punt, veld = k.rpartition(".")
+            if punt and veld in STAPVELDEN:
+                self.stapvelden.setdefault(adres, {})[veld] = v.strip()
+            elif punt:
+                let_op(f"series/{self.slug}.md: onbekend stapveld '{veld}' bij {adres}")
+        # Eén veld om de staptitels ook als kop van de artikelen te gebruiken (Frits, 08-11-2026: ja).
+        self.staptitel_als_kop = m.get("staptitel_als_kop", "nee").strip().lower() in ("ja", "yes", "true")
+        if len(self.seotitel) + len(" · AI-leerlab") > 65:
+            let_op(f"series/{self.slug}.md: seotitel is lang ({len(self.seotitel)} tekens), Google kort hem af; "
+                   "zet een eigen seotitel")
         if self.categorie and self.categorie not in CATEGORIEEN:
             let_op(f"series/{self.slug}.md: onbekende categorie '{self.categorie}'")
         if not self.beschrijving:
             let_op(f"series/{self.slug}.md: geen beschrijving (meta description)")
+
+    def zet_stap(self, item):
+        """Staptitel, resultaat, doetijd en klaar_als uit dit seriebestand op het artikel."""
+        v = self.stapvelden.get(item.slug, {})
+        item.staptitel = v.get("staptitel", "")
+        item.resultaat = v.get("resultaat", "")
+        item.klaar_als = v.get("klaar_als", "") or item.resultaat
+        item.doetijd = None
+        if v.get("doetijd"):
+            try:
+                item.doetijd = int(v["doetijd"])
+            except ValueError:
+                let_op(f"series/{self.slug}.md: doetijd '{v['doetijd']}' bij {item.slug} is geen aantal minuten")
 
     @property
     def label(self):
@@ -788,6 +876,22 @@ class Serie:
     def nieuwste(self):
         """Het deel dat het laatst verscheen (datum), niet per se het hoogste nummer."""
         return max(self.delen, key=lambda x: (x.datum, x.deel))
+
+    @property
+    def stappen(self):
+        """Alle stappen van een cursus in volgorde: verschenen en (bij een lopende serie) gepland."""
+        return sorted(self.delen + (self.gepland if self.lopend else []), key=lambda x: x.deel)
+
+    @property
+    def aantal_stappen(self):
+        return max(len(self.stappen), self.aantal or 0)
+
+    def na(self, x):
+        """De stap waarop x voortbouwt: bij het zijpad zijpad_na, anders de vorige stap van de hoofdlijn."""
+        if x.deel == self.zijpad:
+            return self.zijpad_na
+        eerder = [y.deel for y in self.stappen if y.deel < x.deel and y.deel != self.zijpad]
+        return max(eerder) if eerder else None
 
     def buren(self, item):
         """(vorige, volgende, gepland) rond een deel; gepland alleen als er geen volgende uit is."""
@@ -818,18 +922,77 @@ def lees_series(items):
         if item.deel and not item.serie:
             let_op(f"{os.path.basename(item.pad)}: deel {item.deel} zonder serie")
             continue
+        if item.serie:
+            alle[item.serie].zet_stap(item)
         if not item.serie or item.concept:
             continue
         s = alle[item.serie]
         (s.gepland if item in GEPLAND else s.delen).append(item)
+    adressen = {x.slug for x in items + GEPLAND}
     for s in alle.values():
+        for adres in s.stapvelden:
+            if adres not in adressen:
+                let_op(f"series/{s.slug}.md: stapvelden voor '{adres}', maar dat artikel bestaat niet")
         s.delen.sort(key=lambda x: x.deel)
         s.gepland.sort(key=lambda x: (x.deel, x.datum))
         nummers = [x.deel for x in s.delen + s.gepland]
         for n in sorted(set(nummers)):
             if nummers.count(n) > 1:
                 let_op(f"serie '{s.slug}': deel {n} komt twee keer voor")
+        if s.cursus:
+            controleer_cursus(s)
     return {k: s for k, s in alle.items() if s.delen}
+
+
+def controleer_cursus(s):
+    """Waarschuwingen voor een cursus, en de schakelaar staptitel_als_kop."""
+    for x in s.delen + s.gepland:
+        naam = os.path.basename(x.pad)
+        for veld in ("staptitel", "resultaat", "doetijd"):
+            if not getattr(x, veld):
+                let_op(f"{naam}: stap in de cursus '{s.slug}' zonder {veld}")
+        if s.staptitel_als_kop and x.staptitel:
+            x.titel = x.staptitel
+    nummers = {x.deel for x in s.delen + s.gepland}
+    if s.zijpad and s.zijpad not in nummers:
+        let_op(f"series/{s.slug}.md: zijpad {s.zijpad} is geen stap van deze cursus")
+    if s.zijpad and not s.zijpad_na:
+        let_op(f"series/{s.slug}.md: zijpad zonder zijpad_na (na welke stap kan het?)")
+    if not s.cover:
+        let_op(f"series/{s.slug}.md: cursus zonder beeld (het eindresultaat in de kop)")
+    for veld in ("voor_wie", "eind_titel"):
+        if not getattr(s, veld):
+            let_op(f"series/{s.slug}.md: cursus zonder {veld}")
+
+
+SERIE_COVERS = {}   # slug -> Cover: het beeld in de kop van een cursus, gelezen vóór maak_coverbeelden
+
+
+def lees_serie_covers():
+    """Het beeld van een cursus (beeld: in het seriebestand) als Cover, zodat maak_coverbeelden er net als bij een
+    artikel kleinere versies en de beelden voor schema.org van maakt. Geeft nepitems voor maak_coverbeelden."""
+    SERIE_COVERS.clear()
+    d = os.path.join(INHOUD, "series")
+    nep = []
+    if not os.path.isdir(d):
+        return nep
+    for naam in sorted(os.listdir(d)):
+        if not naam.endswith(".md") or naam.startswith((".", "_")):
+            continue
+        m, _ = lees_bestand(os.path.join(d, naam))
+        bron = m.get("beeld", "").strip()
+        if not bron:
+            continue
+        slug = naam[:-3]
+        url = bron if bron.startswith("/") else f"/assets/img/{bron}"
+        pad = os.path.join(STATISCH, url.lstrip("/"))
+        if not (os.path.exists(pad) and beeldmaat(pad)):
+            let_op(f"series/{naam}: beeld {bron} niet gevonden in statisch/ (of geen webp/png)")
+            continue
+        c = Cover("plaat", url, pad, alt=m.get("beeld_alt", "").strip(), expliciet=True)
+        SERIE_COVERS[slug] = c
+        nep.append(types.SimpleNamespace(cover=c, slug=f"serie-{slug}"))
+    return nep
 
 
 def controleer_kopje(item):
@@ -873,6 +1036,9 @@ def kaart_label(item):
     """Labelregel van een kaart: de categorie ("Didactiek", "Praktijk"), een tool "Tool" (klus 402). Een seriedeel
     krijgt "<categorie> · deel 3";
     het deelnummer staat vóór de titel en de serienaam onderaan (Bram, 01-10-2026)."""
+    if item.is_stap:
+        # Een stap uit een cursus: het label "Cursus" met het serie-icoon (DESIGN.md, Kop van een stap).
+        return f"{icoon('serie')}Cursus<span aria-hidden=\"true\">· stap {item.deel}</span>"
     if item.is_deel:
         # "deel 3" erbij, zodat het cijfer in het vakje een betekenis heeft (expertscan 11-10-2026). Voor een
         # schermlezer verborgen: die hoort "Deel 3:" al in de titel.
@@ -1221,6 +1387,13 @@ def kop_onderschrift(item):
     return f'<p class="kop-onderschrift">{esc(t)}</p>' if t else ""
 
 
+def kop_label(item):
+    """De regel boven de titel: het soortlabel, of in een cursus "Stap 3 van 6" met de stapbalk."""
+    if item.is_stap and not item.concept:
+        return cursus_plek_html(item)
+    return f'<p class="label">{soort_label(item)}</p>'
+
+
 def item_kop(item, lede_html="", feiten_extra=()):
     feiten = []
     if item.voor:
@@ -1237,7 +1410,7 @@ def item_kop(item, lede_html="", feiten_extra=()):
   <div class="wrap">
     <div class="tekst">
       {kruimel_html(*item_stappen(item))}
-      <p class="label">{soort_label(item)}</p>
+      {kop_label(item)}
       <h1 id="titel">{esc(item.titel)}</h1>
       {lede_html}
       <ul class="feiten">{"".join(feiten)}</ul>
@@ -1252,7 +1425,7 @@ def item_kop(item, lede_html="", feiten_extra=()):
   <div class="wrap">
     <div class="tekst">
       {kruimel_html(*item_stappen(item))}
-      <p class="label">{soort_label(item)}</p>
+      {kop_label(item)}
       <h1 id="titel">{esc(item.titel)}</h1>
       {lede_html}
       <ul class="feiten">{"".join(feiten)}</ul>
@@ -1341,7 +1514,7 @@ def serie_plek_html(item):
     delen (dezelfde vorm als de voortgang in een tutorial) en voor wie halverwege binnenkomt één zin met
     een link naar het begin. Deel 1 krijgt die zin niet. Een deel dat nog niet uit is, heeft geen link
     en geen titel; alleen het eerstvolgende noemt zijn datum. Geen balk als er maar één deel is."""
-    if not item.is_deel or item.concept:
+    if not item.is_deel or item.concept or item.is_stap:   # in een cursus vervangt de stapbalk dit blok
         return ""
     s = STAAT["series"][item.serie]
     uit = {x.deel: x for x in s.delen}
@@ -1407,6 +1580,319 @@ def serie_nav_html(item):
       </nav>"""
 
 
+# ---------------------------------------------------------------- cursus (Leerpad, klus 402)
+# Een serie met 'soort: cursus' (DESIGN.md: Cursuspagina, Route, Cursusrij, Kop van een stap). Alle tekst staat als
+# gewone HTML in de pagina; zonder JavaScript staat er "Begin bij stap 1". Voortgang bestaat alleen in de browser
+# van de lezer: localStorage, één sleutel per cursus (CURSUS_SLEUTEL + slug) met de stappen die klaar zijn.
+# Een functionele voorkeur, net als spreker.js: geen account, niets wordt gemeten. cursus.js vult de stand in.
+CURSUS_JS = "/assets/cursus.js"
+CURSUS_SLEUTEL = "ail-cursus:"
+
+
+def doen_tekst(minuten):
+    """Doetijd is een schatting (DESIGN.md): onder het uur in minuten zoals opgegeven, daarboven in halve uren."""
+    if minuten < 60:
+        return f"{minuten} min"
+    uren = round(minuten / 30) / 2
+    return f"{uren:g}".replace(".", ",") + " uur"
+
+
+def iso_duur(minuten):
+    """timeRequired voor schema.org, met dezelfde afronding als de tekst."""
+    if minuten >= 60:
+        minuten = round(minuten / 30) * 30
+    u, m = divmod(minuten, 60)
+    return "PT" + (f"{u}H" if u else "") + (f"{m}M" if m or not u else "")
+
+
+def cursus_lezen(s):
+    return sum(x.minuten for x in s.stappen)
+
+
+def cursus_doen(s):
+    return sum(x.doetijd or 0 for x in s.stappen)
+
+
+def cursus_feiten(s, account=False):
+    """Lezen en doen staan altijd apart, elk met een eigen icoon; doen draagt het woord "ongeveer"."""
+    feiten = [f'<li>{icoon("boek")}{cursus_lezen(s)} min lezen</li>']
+    if cursus_doen(s):
+        feiten.append(f'<li>{icoon("hand")}ongeveer {doen_tekst(cursus_doen(s))} doen</li>')
+    if account:
+        feiten.append(f'<li>{icoon("slot")}zonder account</li>')
+    return f'<ul class="feiten">{"".join(feiten)}</ul>'
+
+
+def stap_feiten(x, na=None):
+    feiten = [f'<li>{icoon("boek")}{x.minuten} min lezen</li>']
+    if x.doetijd:
+        feiten.append(f'<li>{icoon("hand")}ongeveer {doen_tekst(x.doetijd)} doen</li>')
+    if na:
+        feiten.append(f"<li>na stap {na}</li>")
+    return f'<ul class="feiten">{"".join(feiten)}</ul>'
+
+
+def cursus_label(s):
+    return f'{icoon("serie")}Cursus · {s.aantal_stappen} stappen'
+
+
+def cursus_gegevens(s):
+    """De stappen voor cursus.js, één keer per pagina per cursus. Alleen verschenen stappen hebben een adres."""
+    stappen = [{"nr": x.deel, "titel": x.stap_titel, "url": x.url if x in s.delen else "",
+                "zijpad": x.deel == s.zijpad, "doen": doen_tekst(x.doetijd) if x.doetijd else ""} for x in s.stappen]
+    data = json.dumps({"stappen": stappen}, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/json" data-cursus-gegevens="{esc(s.slug)}">{data}</script>'
+
+
+def cursus_kop_script(slugs):
+    """In de head, vóór de eerste weergave: staat er voortgang in deze browser, dan zet dit een attribuut op <html>,
+    zodat "Ga verder" en "Begin bij stap 1" niet verspringen (DESIGN.md, Cursuspagina). Een attribuut en geen
+    klasse: basis.html zet de klasse van <html> daarna op 'js'."""
+    lijst = json.dumps([CURSUS_SLEUTEL + s for s in slugs])
+    return ("<script>try{" + lijst + ".some(function(k){var c=JSON.parse(localStorage.getItem(k)||'null');"
+            "return c&&c.klaar&&c.klaar.length})&&document.documentElement.setAttribute('data-cursus-terug','')}"
+            "catch(e){}</script>")
+
+
+def cursus_extra(slugs):
+    """(extra_kop, extra_voet) voor een pagina met een cursus. cursus.js staat onderaan zonder defer, zodat hij
+    draait vóór de eerste weergave (net als spreker.js op de beginpagina)."""
+    if not slugs:
+        return "", ""
+    return cursus_kop_script(slugs), f'<script src="{CURSUS_JS}?v={VERSIE}"></script>'
+
+
+def halte_html(nr):
+    return (f'<span class="c-halte" aria-hidden="true"><span class="nr">{nr}</span>'
+            f'{icoon("vink", "vink")}</span>')
+
+
+def volgende_knop(s, eerste):
+    """De ene primaire knop: eerste bezoek "Begin bij stap 1", daarna "Ga verder met stap 3"."""
+    return (f'<a class="knop knop-primair" href="{eerste.url}" data-volgende-link>'
+            f'<span data-als-nieuw>Begin bij stap {eerste.deel}</span>'
+            f'<span data-als-terug>Ga verder met stap <span data-volgende-nr></span></span>'
+            f'<span data-als-af hidden>Lees stap {eerste.deel} terug</span>{icoon("pijl")}</a>')
+
+
+def route_html(s):
+    """De route op de cursuspagina: een genummerde lijst met haltes op één lijn, het zijpad takt af."""
+    li = []
+    eerste = s.delen[0].deel     # zonder JavaScript en bij een eerste bezoek is stap 1 de volgende stap
+    for x in s.stappen:
+        zij = x.deel == s.zijpad
+        uit = x in s.delen
+        hier = x.deel == eerste
+        titel = (f'<a href="{x.url}">{esc(x.stap_titel)}</a>' if uit
+                 else f'{esc(x.stap_titel)} <span class="c-volgt">verschijnt op {datum_dag(x.datum)}</span>')
+        zijlabel = f'<span class="label">· Zijpad, kan na stap {s.zijpad_na}</span>' if zij and s.zijpad_na else ""
+        resultaat = (f'<p class="c-klaar-als">{icoon("doel")}<span><span class="sr">Klaar als: </span>'
+                     f'{esc(x.resultaat)}</span></p>') if x.resultaat else ""
+        li.append(f"""<li class="c-stapitem{' zijpad' if zij else ''}{' is-hier' if hier else ''}" data-stap="{x.deel}">
+      {halte_html(x.deel)}
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap {x.deel}</span>{zijlabel}<span class="c-hier"{'' if hier else ' hidden'}>Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3>{titel}</h3>
+        {resultaat}
+        {stap_feiten(x)}
+      </div>
+    </li>""")
+    if s.eind_titel:
+        tekst = f"<p>{esc(s.eind_tekst)}</p>" if s.eind_tekst else ""
+        li.append(f"""<li class="c-eind">
+      <span class="c-halte" aria-hidden="true">{icoon("vlag")}</span>
+      <div class="c-stap"><h3>{esc(s.eind_titel)}</h3>{tekst}</div>
+    </li>""")
+    return f'<ol class="c-route" aria-labelledby="route-titel">\n    ' + "\n    ".join(li) + "\n  </ol>"
+
+
+def mini_route_html(s):
+    """De haltes op één lijn, elk een link van 44px; het zijpad staat erboven (DESIGN.md, Cursusrij)."""
+    hoofd = [x for x in s.stappen if x.deel != s.zijpad]
+    kolom = {x.deel: i + 1 for i, x in enumerate(hoofd)}
+    met_zij = any(x.deel == s.zijpad for x in s.stappen)
+    li = []
+    for x in s.stappen:
+        zij = x.deel == s.zijpad
+        if zij:
+            k = kolom.get(s.zijpad_na, 1)
+            stijl = f' style="grid-column: {k} / {k + 2}"'
+        else:
+            stijl = f' style="grid-column: {kolom[x.deel]}"'
+        naam = f"Stap {x.deel}{' (zijpad)' if zij else ''}: {x.stap_titel}"
+        if x in s.delen:
+            binnen = f'<a href="{x.url}" aria-label="{esc(naam)}">{halte_html(x.deel)}</a>'
+        else:
+            binnen = f'<span class="c-mini-nog" role="img" aria-label="{esc(naam)}, verschijnt op {datum_dag(x.datum)}">{halte_html(x.deel)}</span>'
+        extra = '<span class="c-zijlabel" aria-hidden="true">Zijpad</span>' if zij else ""
+        hier = " is-hier" if x is s.delen[0] else ""
+        li.append(f'<li class="{"zijpad" if zij else "hoofd"}{hier}" data-stap="{x.deel}"{stijl}>{binnen}{extra}</li>')
+    klasse = "c-mini" + (" met-zijpad" if met_zij else "")
+    return (f'<ol class="{klasse}" style="--kolommen: {len(hoofd)}" aria-label="De {len(s.stappen)} stappen">'
+            + "".join(li) + "</ol>")
+
+
+def cursus_rij(s, kop=3):
+    """De cursus op een overzicht (beginpagina en /series/), op beide plekken gelijk (DESIGN.md, Cursusrij)."""
+    eerste = s.delen[0]
+    doen = f", ongeveer {doen_tekst(eerste.doetijd)} doen" if eerste.doetijd else ""
+    return f"""<article class="c-rij" data-cursus="{esc(s.slug)}">
+    <div>
+      <p class="label">{cursus_label(s)}</p>
+      <h{kop}><a href="{s.url}">{esc(s.titel)}</a></h{kop}>
+      <p class="c-lede">{esc(s.lede)}</p>
+      {cursus_feiten(s)}
+    </div>
+    <div>
+      {mini_route_html(s)}
+      <p class="c-volgende"><span data-als-nieuw>Begin met <b>stap {eerste.deel}: {esc(eerste.stap_titel)}</b>{esc(doen)}.</span><span data-als-terug>Volgende: <b>stap <span data-volgende-nr></span>: <span data-volgende-titel></span></b>.</span><span data-als-af hidden>Je hebt alle stappen afgevinkt.</span></p>
+      {volgende_knop(s, eerste)}
+    </div>
+  </article>"""
+
+
+def cursus_plek_html(item):
+    """Kop van een stap, de plek: "Stap 3 van 6" en de balk met de stappen. Klaar is vol inkt, deze pagina mos,
+    het zijpad gestippeld. Vervangt in een cursus "Plek in de serie", ook op stap 1 (DESIGN.md)."""
+    s = STAAT["series"][item.serie]
+    li = []
+    for x in s.stappen:
+        klasse = " ".join(k for k in ("zijpad" if x.deel == s.zijpad else "", "is-pagina" if x is item else "") if k)
+        k = f' class="{klasse}"' if klasse else ""
+        if x is item:
+            binnen = f'<a href="{x.url}" aria-current="step"><span class="sr">Stap {x.deel}, deze stap</span></a>'
+        elif x in s.delen:
+            binnen = f'<a href="{x.url}"><span class="sr">Stap {x.deel}: {esc(x.stap_titel)}</span></a>'
+        else:
+            binnen = f'<span class="nog"><span class="sr">Stap {x.deel} verschijnt op {datum_dag(x.datum)}</span></span>'
+        li.append(f'<li{k} data-stap="{x.deel}">{binnen}</li>')
+    return f"""<div class="c-plek" data-cursus="{esc(s.slug)}" role="navigation" aria-label="Stappen van de cursus">
+        <p class="label">Stap {item.deel} van {s.aantal_stappen}</p>
+        <ol class="c-balk">{"".join(li)}</ol>
+      </div>"""
+
+
+def stap_kop_html(item):
+    """Bovenaan een stap, onder de kop: Klaar als met zelf afvinken, en vorige en volgende (DESIGN.md)."""
+    if not item.is_stap or item.concept:
+        return ""
+    s = STAAT["series"][item.serie]
+    vorige, volgende, _ = s.buren(item)
+    if vorige:
+        links = (f'<a href="{vorige.url}">{icoon("pijl-terug")}<span class="label">Vorige · stap {vorige.deel}</span>'
+                 f'<span class="t">{esc(vorige.stap_titel)}</span></a>')
+    else:
+        links = (f'<a href="{s.url}">{icoon("pijl-terug")}<span class="label">Cursus</span>'
+                 f'<span class="t">Over deze cursus</span></a>')
+    if volgende:
+        rechts = (f'<a href="{volgende.url}"><span class="label">Volgende · stap {volgende.deel}</span>{icoon("pijl")}'
+                  f'<span class="t">{esc(volgende.stap_titel)}</span></a>')
+    else:
+        rechts = (f'<a href="{s.url}"><span class="label">Cursus</span>{icoon("pijl")}'
+                  f'<span class="t">Over deze cursus</span></a>')
+    zin = f'<p class="c-zin">{esc(item.klaar_als)}</p>' if item.klaar_als else ""
+    return f"""<div class="c-stapkop" data-cursus="{esc(s.slug)}">
+      <section class="c-klaarblok" aria-labelledby="klaar-als">
+        <span class="c-teken" aria-hidden="true">{icoon("vink")}</span>
+        <div>
+          <h2 class="label" id="klaar-als">Klaar als</h2>
+          {zin}
+          {stap_feiten(item, s.na(item))}
+        </div>
+        <button class="knop knop-secundair" type="button" aria-pressed="false" data-werkt="{item.deel}">{icoon("vink", "vink")}<span data-werkt-tekst>Dit werkt bij mij</span></button>
+      </section>
+      <ul class="c-buren" aria-label="Vorige en volgende stap">
+        <li>{links}</li>
+        <li>{rechts}</li>
+      </ul>
+    </div>"""
+
+
+def cursus_pagina_inhoud(s):
+    """De cursuspagina, vier lagen: kop, vooraf, de route en eventueel Over deze serie (DESIGN.md, Cursuspagina)."""
+    eerste = s.delen[0]
+    beeld = ""
+    if s.cover:
+        nep = types.SimpleNamespace(cover=s.cover, is_deel=False, soort="uitleg")
+        onder = f"<figcaption>{esc(s.beeld_onderschrift)}</figcaption>" if s.beeld_onderschrift else ""
+        beeld = f'<figure class="c-eindbeeld">{cover_html(nep, "cursus", lui=False)}{onder}</figure>'
+    nodig = ""
+    if s.voorkennis_geen or s.voorkennis:
+        geen = f'<p class="geen">{esc(s.voorkennis_geen)}</p>' if s.voorkennis_geen else ""
+        regels = "".join(f"<li>{icoon(i if i in ICOON_NAMEN else 'vink')}<span>{esc(t)}</span></li>"
+                         for i, t in s.voorkennis)
+        nodig = f'<div><h2>Wat je nodig hebt</h2>{geen}<ul>{regels}</ul></div>'
+    voor = f'<div><h2>Voor wie</h2><p>{esc(s.voor_wie)}</p></div>' if s.voor_wie else ""
+    vooraf = f'<section class="c-vooraf" aria-label="Voor wie en wat je nodig hebt">{voor}{nodig}</section>' if (voor or nodig) else ""
+    intro = f'<p class="c-route-intro">{esc(s.route_intro)}</p>' if s.route_intro else ""
+    over = ""
+    if s.over:
+        over = f"""<section class="serie-over" aria-labelledby="over-serie">
+    <h2 id="over-serie">Over deze cursus</h2>
+    {markdown(s.over)}
+  </section>"""
+    return f"""<section class="item-kop c-kop-vlak labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="c-kop{' met-beeld' if beeld else ''}" data-cursus="{esc(s.slug)}">
+      <div class="tekst">
+        {kruimel_html(("Series", "/series/"))}
+        <p class="label">{cursus_label(s)}</p>
+        <h1 id="titel">{esc(s.titel)}</h1>
+        <p class="lede">{esc(s.lede)}</p>
+        {cursus_feiten(s, account=True)}
+        <div class="c-start">
+          {volgende_knop(s, eerste)}
+          <button class="tekstknop" type="button" data-opnieuw data-als-bezig>Opnieuw beginnen</button>
+          <p class="c-onthoud"><span data-als-nieuw>Je browser onthoudt waar je bent. Geen account, niets wordt gemeten.</span><span data-als-terug>Je was bij stap <span data-volgende-nr></span>. Dat onthoudt alleen je eigen browser.</span><span data-als-af hidden>Je hebt alle stappen afgevinkt. Dat onthoudt alleen je eigen browser.</span></p>
+        </div>
+      </div>
+      {beeld}
+    </div>
+  </div>
+</section>
+<div class="wrap c-lijf" data-cursus="{esc(s.slug)}">
+  {vooraf}
+  <div class="c-laagkop"><h2 id="route-titel">De route</h2></div>
+  {intro}
+  {route_html(s)}
+  {over}
+</div>
+{cursus_gegevens(s)}"""
+
+
+def cursus_schema(s):
+    """Course én CreativeWorkSeries, met de stappen als hasPart (DESIGN.md, Cursuspagina)."""
+    voorkennis = " ".join(x for x in [s.voorkennis_geen] + [t for _, t in s.voorkennis] if x)
+    d = {"@type": ["Course", "CreativeWorkSeries"], "@id": f"{ADRES}{s.url}#serie", "name": s.titel,
+         "description": s.beschrijving, "url": ADRES + s.url, "inLanguage": "nl", "isAccessibleForFree": True,
+         "author": {"@id": f"{ADRES}/#frits"}, "provider": {"@id": f"{ADRES}/#frits"},
+         "isPartOf": {"@id": f"{ADRES}/#site"}, "startDate": s.delen[0].datum.isoformat()}
+    if s.doelgroep:
+        d["audience"] = {"@type": "EducationalAudience", "educationalRole": s.doelgroep}
+    if voorkennis:
+        d["coursePrerequisites"] = voorkennis
+    if cursus_doen(s):
+        d["timeRequired"] = iso_duur(cursus_doen(s))
+    if s.cover and s.cover.schema:
+        d["image"] = [ADRES + s.cover.schema[k] for k, _, _ in SCHEMA_MATEN if k in s.cover.schema]
+    if CATEGORIEEN.get(s.categorie):
+        d["genre"] = CATEGORIEEN[s.categorie]["naam"]
+    delen = []
+    for x in s.delen:
+        stap = {"@type": "LearningResource", "position": x.deel, "name": x.stap_titel, "url": ADRES + x.url}
+        if x.doetijd:
+            stap["timeRequired"] = iso_duur(x.doetijd)
+        if x.resultaat:
+            stap["teaches"] = x.resultaat
+        delen.append(stap)
+    d["hasPart"] = delen
+    return d
+
+
+ICOON_NAMEN = ("laptop", "assistent", "terminal", "boek", "hand", "slot", "vink", "doel", "vlag", "klok", "scherm",
+               "voor", "uitleg", "tool", "download", "link", "mail")
+
+
 VERDER_MAX = 3
 
 
@@ -1453,18 +1939,30 @@ def schema_extra(item):
     deel_van = [{"@id": f"{ADRES}/#site"}]
     if item.is_deel:
         s = STAAT["series"][item.serie]
-        deel_van.append({"@type": "CreativeWorkSeries", "@id": f"{ADRES}{s.url}#serie", "name": s.titel,
-                         "url": ADRES + s.url})
+        deel_van.append({"@type": ["Course", "CreativeWorkSeries"] if s.cursus else "CreativeWorkSeries",
+                         "@id": f"{ADRES}{s.url}#serie", "name": s.titel, "url": ADRES + s.url})
         extra["position"] = item.deel
+        if item.is_stap:
+            # Een stap in een cursus: ook een LearningResource met doetijd, resultaat en waar hij op voortbouwt.
+            if item.doetijd:
+                extra["timeRequired"] = iso_duur(item.doetijd)
+            if item.resultaat:
+                extra["teaches"] = item.resultaat
+            na = s.na(item)
+            vorige = next((x for x in s.stappen if x.deel == na), None)
+            if vorige:
+                extra["competencyRequired"] = f"Stap {vorige.deel}: {vorige.stap_titel}"
     extra["isPartOf"] = deel_van if len(deel_van) > 1 else deel_van[0]
     return extra
 
 
 def bouw_artikel(item, alle):
     lijf = markdown(item.tekst, maak_verwijzing(item, alle))
+    stapkop = stap_kop_html(item)
     inhoud = f"""{item_kop(item, feiten_extra=[("klok", item.leestijd)])}
 <div class="wrap">
   <article class="artikel">
+    {stapkop}
     {lijf}
     {onderwerpen_html(item)}
     {delen_html(item)}
@@ -1472,9 +1970,10 @@ def bouw_artikel(item, alle):
     {transparantie_html(item)}
   </article>
   {verder(item, alle)}
-</div>"""
+</div>{cursus_gegevens(STAAT["series"][item.serie]) if stapkop else ""}"""
+    c_kop, c_voet = cursus_extra([item.serie] if stapkop else [])
     schema = jsonld(
-        {"@type": "Article", "headline": item.titel, "description": item.beschrijving,
+        {"@type": ["Article", "LearningResource"] if stapkop else "Article", "headline": item.titel, "description": item.beschrijving,
          "inLanguage": "nl", "datePublished": item.datum.isoformat(), "dateModified": item.bijgewerkt.isoformat(),
          "author": {"@id": f"{ADRES}/#frits"}, "publisher": {"@id": f"{ADRES}/#frits"},
          "image": schema_beeld(item), "mainEntityOfPage": ADRES + item.url,
@@ -1483,10 +1982,11 @@ def bouw_artikel(item, alle):
         item_kruimelpad_schema(item))
     pagina(item.url, titel=item.seotitel, beschrijving=item.beschrijving, inhoud=inhoud, url=item.url,
            menu="series" if item.is_deel else "leren", ogtype="article", deel=deelbeeld(item.slug), schema=schema,
-           noindex=item.concept, extra_voet="\n  ".join(x for x in (delen_script(item), beweging_html()[1]) if x),
+           noindex=item.concept, extra_voet="\n  ".join(x for x in (delen_script(item), beweging_html()[1], c_voet) if x),
            extra_kop=f'<meta property="article:published_time" content="{item.datum.isoformat()}">\n'
                      f'  <meta property="article:modified_time" content="{item.bijgewerkt.isoformat()}">'
-                     + (f"\n  {beweging_html()[0]}" if beweging_html()[0] else ""))
+                     + (f"\n  {beweging_html()[0]}" if beweging_html()[0] else "")
+                     + (f"\n  {c_kop}" if c_kop else ""))
 
 
 EXTERNE_LINK = re.compile(r'<a\b([^>]*\bhref="https?://(?!(?:www\.)?ai-leerlab\.nl[/"])[^"]*"[^>]*)>(.*?)</a>', re.S)
@@ -1847,8 +2347,23 @@ def bouw_home(items):
         blokken.append(categorie_blok(slug, groot, totaal, rest))
         groot_getoond.append(groot)
         cat_plank += [groot] + (rest if CATEGORIEEN[slug].get("plank") else [])
-    lagen = "\n  ".join(x for x in [plank_nieuw(op_plank, leren_items(items))]
-                        + [serie_blok(s) for s in series] + blokken if x)
+    # Een cursus staat in de laag van de lopende series als cursusrij, en telt mee voor de drie. De laag
+    # heet dan "Cursussen en series" (DESIGN.md, Cursusrij).
+    cursussen = [s for s in series if s.cursus]
+    cursuslaag = ""
+    if cursussen:
+        rijen = "\n  ".join(cursus_rij(s) for s in cursussen)
+        cursuslaag = f"""<section class="sectie c-laag" aria-labelledby="cursussen-titel">
+    <div class="sectie-kop">
+      <h2 id="cursussen-titel">Cursussen en series</h2>
+      <a class="serie-alle" href="/series/">Alle series{icoon("pijl")}</a>
+    </div>
+    <div class="c-rijen">
+  {rijen}
+    </div>
+  </section>{"".join(cursus_gegevens(s) for s in cursussen)}"""
+    lagen = "\n  ".join(x for x in [plank_nieuw(op_plank, leren_items(items)), cursuslaag]
+                        + [serie_blok(s) for s in series if not s.cursus] + blokken if x)
     inhoud = f"""{held_html(h)}
 <div class="wrap" id="items">
   {uitgelicht}
@@ -1877,9 +2392,11 @@ def bouw_home(items):
     spreker_js = f'<script src="/assets/spreker.js?v={VERSIE}"></script>' if h.get("spreker") else ""
     # plank.js bedient de pijlknoppen van de plank en de series; zonder script werkt alles ook.
     plank_js = f'<script src="/assets/plank.js?v={VERSIE}" defer></script>' if (op_plank or series or len(cat_plank) > len(groot_getoond)) else ""
+    c_kop, c_voet = cursus_extra([s.slug for s in cursussen])
     pagina("/", titel=h["seotitel"], beschrijving=h["beschrijving"], inhoud=inhoud, url="/",
-           schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"], extra_kop=beweging_html()[0],
-           extra_voet="\n  ".join(x for x in (spreker_js, plank_js, beweging_html()[1]) if x))
+           schema=jsonld(WEBSITE, PERSOON, lijst), hoofd_titel=h["seotitel"],
+           extra_kop="\n  ".join(x for x in (beweging_html()[0], c_kop) if x),
+           extra_voet="\n  ".join(x for x in (spreker_js, plank_js, beweging_html()[1], c_voet) if x))
 
 
 def held_html(h):
@@ -2223,6 +2740,11 @@ def bouw_series():
   </ol>
   {over}
 </div>"""
+        c_kop = c_voet = ""
+        if s.cursus:
+            # Een cursus (klus 402): dezelfde plek, een andere pagina. De gewone seriepagina hierboven vervalt.
+            inhoud = cursus_pagina_inhoud(s)
+            c_kop, c_voet = cursus_extra([s.slug])
         reeks = {"@type": "CreativeWorkSeries", "@id": f"{ADRES}{s.url}#serie", "name": s.titel, "url": ADRES + s.url,
                  "description": s.beschrijving, "inLanguage": "nl", "author": {"@id": f"{ADRES}/#frits"},
                  "isPartOf": {"@id": f"{ADRES}/#site"}, "startDate": s.delen[0].datum.isoformat(),
@@ -2230,22 +2752,30 @@ def bouw_series():
                              for x in s.delen]}
         if CATEGORIEEN.get(s.categorie):
             reeks["genre"] = CATEGORIEEN[s.categorie]["naam"]
+        if s.cursus:
+            reeks = cursus_schema(s)
         feed = f"{s.url}feed.xml"
         pagina(s.url, titel=s.seotitel, beschrijving=s.beschrijving, inhoud=inhoud, url=s.url, menu="series",
                schema=jsonld(reeks, PERSOON, WEBSITE,
                              kruimelpad(("AI-leerlab", "/"), ("Series", "/series/"), (s.titel, None))),
-               extra_kop=f'<link rel="alternate" type="application/rss+xml" title="{esc(s.titel)}" href="{feed}">')
+               extra_kop=f'<link rel="alternate" type="application/rss+xml" title="{esc(s.titel)}" href="{feed}">'
+                         + (f"\n  {c_kop}" if c_kop else ""),
+               extra_voet=c_voet)
         bouw_feed(s)
         EXTRA.append((s.url, max(x.bijgewerkt for x in s.delen)))
 
     # Het overzicht /series/
     alle = sorted(STAAT["series"].values(), key=lambda s: s.delen[-1].datum, reverse=True)
+    # Een cursus staat hier als cursusrij, net als op de beginpagina (DESIGN.md, Cursusrij); de rest als kaart.
+    cursussen = [s for s in alle if s.cursus]
+    rijen = "\n".join(cursus_rij(s, kop=2) for s in cursussen)
+    rijen = f'<div class="c-rijen">\n  {rijen}\n  </div>' if rijen else ""
     kaarten = "\n".join(f"""<li class="kaart">
   <p class="label">{icoon("serie")}{esc(s.label)}</p>
   <h2><a href="{s.url}">{esc(s.titel)}</a></h2>
   <p class="uitleg">{esc(s.lede)}</p>
   <p class="voor">{len(s.delen)} {"deel" if len(s.delen) == 1 else "delen"} · nieuwste {datum_kort(s.delen[-1].datum)}</p>
-</li>""" for s in alle)
+</li>""" for s in alle if not s.cursus)
     t = SITE.get("series", {})
     beschrijving = t.get("beschrijving", "")
     inhoud = f"""<section class="lijst-kop labpapier" aria-labelledby="titel">
@@ -2255,10 +2785,10 @@ def bouw_series():
   </div>
 </section>
 <div class="wrap lijst">
-  <ul class="raster">
-{kaarten}
-  </ul>
-</div>"""
+  {rijen}
+  {f'<ul class="raster">{chr(10)}{kaarten}{chr(10)}  </ul>' if kaarten else ""}
+</div>{"".join(cursus_gegevens(s) for s in cursussen)}"""
+    c_kop, c_voet = cursus_extra([s.slug for s in cursussen])
     schema = jsonld({"@type": "CollectionPage", "name": "Series", "url": f"{ADRES}/series/", "description": beschrijving,
                      "isPartOf": {"@id": f"{ADRES}/#site"},
                      "mainEntity": {"@type": "ItemList", "itemListElement": [
@@ -2266,7 +2796,7 @@ def bouw_series():
                          for n, s in enumerate(alle)]}},
                     WEBSITE, PERSOON, kruimelpad(("AI-leerlab", "/"), ("Series", None)))
     pagina("/series/", titel=t.get("seotitel", "Series"), beschrijving=beschrijving, inhoud=inhoud, url="/series/",
-           menu="series", schema=schema)
+           menu="series", schema=schema, extra_kop=c_kop, extra_voet=c_voet)
     EXTRA.append(("/series/", max(s.delen[-1].bijgewerkt for s in alle)))
 
 
@@ -2523,7 +3053,7 @@ def bouw():
     shutil.copytree(STATISCH, UIT)
     items = lees_items()
     # Ook geplande artikelen, zodat de ochtendbouw (zonder Pillow) hun beelden al vindt op de dag dat ze uitkomen.
-    maak_coverbeelden(items + GEPLAND, oud if os.path.isdir(oud) else None)
+    maak_coverbeelden(items + GEPLAND + lees_serie_covers(), oud if os.path.isdir(oud) else None)
     shutil.rmtree(tijdelijk, ignore_errors=True)
     urls = [x.url for x in items]
     if len(urls) != len(set(urls)):

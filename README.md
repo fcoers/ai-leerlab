@@ -125,7 +125,7 @@ Een serie is een bestand in `inhoud/series/`, bijvoorbeeld `masterproject.md`, m
 
 Een serie verschijnt pas als er minstens één deel gepubliceerd is: een deel zonder `status: concept` en met een datum van vandaag of eerder. Tot dan staat Series niet in het menu en niet in de voet, is er geen pagina `/series/` of `/series/<naam>/`, staat er niets over op de beginpagina en niets in de sitemap. Dat regelt `bouw.py` vanzelf; zodra het eerste deel online gaat (ook via gepland publiceren), komt alles tegelijk.
 
-`inhoud/series/masterproject.md` staat er al, met een werktitel. De echte naam zet je daar neer voordat deel 1 verschijnt. Ook `inhoud/series/bouw-je-eigen-productiviteitsapp.md` staat klaar (categorie techniek); beschrijving, lede en ritme zijn daar een werktekst.
+`inhoud/series/masterproject.md` staat er al, met een werktitel. De echte naam zet je daar neer voordat deel 1 verschijnt. `inhoud/series/bouw-je-eigen-productiviteitsapp.md` is sinds 08-11-2026 een cursus (zie hieronder, Cursus).
 
 Wat er dan komt:
 
@@ -135,6 +135,21 @@ Wat er dan komt:
 - Een RSS-feed per serie: `/series/<naam>/feed.xml` (zie "RSS-feeds").
 
 `bouw.py` waarschuwt onder "Let op" bij: geen of een onbekende categorie, een onbekend onderwerp, meer dan drie onderwerpen, een serie zonder deelnummer of een deelnummer zonder serie, een serie die niet bestaat, een deelnummer dat twee keer voorkomt, en een artikel dat heet als een categorie.
+
+### Cursus (klus 402)
+
+Een serie waarin je iets bouwt, is een korte cursus (Leerpad, Frits 08-11-2026; regels in `Styleguides/AI-leerlab/DESIGN.md`, Cursuspagina, Route, Cursusrij en Kop van een stap). Zet in het seriebestand `soort: cursus`. Een serie die je leest als verhaal houdt de gewone seriepagina.
+
+Velden in het seriebestand, naast de gewone: `lede` is de belofte, `voor_wie`, `voorkennis_geen` (wat je niet hoeft te kunnen), `voorkennis` (regels gescheiden door `|`, elk met een icoon ervoor: `[laptop]`, `[assistent]`, `[terminal]`), `doelgroep` (educationalRole voor schema.org, bijvoorbeeld `teacher`), `route_intro`, `zijpad` en `zijpad_na` (hooguit één zijpad), `eind_titel` en `eind_tekst`, `beeld` met `beeld_alt` en `beeld_onderschrift` (het eindresultaat in de kop; vervangt de avatar), en `staptitel_als_kop`.
+
+Velden per stap, ook in het seriebestand en niet in het artikel (de artikelen in `inhoud/leren/` komen uit de contentkalender en de commit-controle houdt een directe wijziging tegen): `<adres>.staptitel` (begint met een werkwoord), `<adres>.resultaat` (de zin onder de stap en in "Klaar als"), `<adres>.doetijd` in minuten (een schatting) en optioneel `<adres>.klaar_als` als "Klaar als" iets anders moet zeggen dan het resultaat. `<adres>` is het adres van het artikel, de bestandsnaam zonder `.md`. De teksten zijn van Kamiel.
+
+- `staptitel_als_kop: ja` maakt de staptitel ook de kop van het artikel: h1, kaarten, feed, vorige en volgende, schema.org headline. Adres, canonical en seotitel blijven. Met `nee` komt de kop uit de tekst terug. Sinds 08-11-2026 staat hij op `ja` (Frits).
+- De cursuspagina staat op het adres van de serie: kop met belofte, lezen (uitgerekend) en doen (opgeteld, in halve uren), de knop, "Voor wie" en "Wat je nodig hebt", en de route. Op de beginpagina en op `/series/` staat de cursusrij met de mini-route; op de beginpagina in de laag "Cursussen en series".
+- Bovenaan elke stap: "Stap 3 van 6" met de stapbalk (vervangt "Plek in de serie"), het blok "Klaar als" met "Dit werkt bij mij", en vorige en volgende (stap 1 linkt naar de cursus). De serienavigatie onderaan blijft.
+- Voortgang staat alleen in de browser van de lezer: `localStorage`, sleutel `ail-cursus:<naam>`, met de stappen die zelf zijn afgevinkt. Een functionele voorkeur, net als de spreker: geen account, niets wordt gemeten. Een klein script in de head en `statisch/assets/cursus.js` (onderaan, zonder defer) zetten de stand vóór de eerste weergave. Zonder JavaScript staat er "Begin bij stap 1" als gewone link en is er geen afvinkknop.
+- Schema.org: de cursuspagina is `Course` en `CreativeWorkSeries` met de stappen als `hasPart` (`LearningResource` met position, timeRequired en teaches); een stap is `Article` en `LearningResource` met isPartOf, position, timeRequired, teaches en competencyRequired.
+- `bouw.py` waarschuwt bij een stap zonder staptitel, resultaat of doetijd, een zijpad dat geen stap is of geen `zijpad_na` heeft, een cursus zonder beeld, `voor_wie` of `eind_titel`, en een seotitel van een serie boven 65 tekens met de merknaam.
 
 ### RSS-feeds
 

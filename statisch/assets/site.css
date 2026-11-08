@@ -1,7 +1,7 @@
 /* AI-leerlab, ai-leerlab.nl
    Naar Styleguides/AI-leerlab/DESIGN.md en de mockup van Bram (Eerste opzet site).
    Regels die hier gelden: groen alleen waar je kunt klikken, mos nooit als tekst,
-   lopende tekst 18px, niets kleiner dan 14px (alleen labels in kapitalen), klikdoelen minstens 44px,
+   lopende tekst 18px, niets kleiner dan 14px, labels in kapitalen 15px (klus 402), klikdoelen minstens 44px,
    geen schaduw of verloop op kaarten. Beweging alleen via transform/opacity en nooit bij reduced motion. */
 
 @font-face {
@@ -49,7 +49,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 @media (max-width: 640px) { .wrap { padding: 0 20px; } }
 
 /* ---------- labels, knoppen ---------- */
-.label { font: 500 14px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; margin: 0; }
+.label { font: 500 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; margin: 0; }
 .label svg { width: 20px; height: 20px; flex: none; stroke: var(--inkt); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .knoppen { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 .knop { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 22px; border-radius: 8px; font: 600 18px/1.2 var(--sans); text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: background-color .15s var(--uit), border-color .15s var(--uit); }
@@ -333,7 +333,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .tutorial h2 { font: 800 clamp(28px, 4vw, 36px)/1.12 var(--sans); letter-spacing: -.01em; margin: 0 0 20px; }
 .tutorial h3 { font: 700 20px/1.3 var(--sans); margin: 0 0 8px; }
 .tutorial p { margin: 0 0 16px; }
-.stapnummer { margin: 0 0 8px; font: 500 14px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); }
+.stapnummer { margin: 0 0 8px; font: 500 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); }
 .tutorial .uitleg { font-size: 20px; line-height: 1.55; margin: 0 0 40px; }
 
 .handelingen { list-style: none; counter-reset: h; margin: 0 0 40px; padding: 0; }
@@ -533,7 +533,7 @@ main:focus, h1:focus, h2:focus { outline: none; }
 .serie-nav a.stap { color: var(--inkt); text-decoration: none; }
 .serie-nav a.stap:hover { border-color: var(--inkt); }
 .serie-nav a.stap:hover .titel { text-decoration: underline; text-decoration-thickness: 2px; }
-.serie-nav .richting { font: 500 14px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; }
+.serie-nav .richting { font: 500 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); display: flex; align-items: center; gap: 8px; }
 .serie-nav .richting svg { width: 20px; height: 20px; stroke: var(--labgroen); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .serie-nav .titel { font: 700 19px/1.3 var(--sans); }
 .serie-nav .volgende { text-align: right; align-items: flex-end; }
@@ -1159,7 +1159,7 @@ picture.per-stand { display: contents; }
 .rij .serie-voet { color: var(--inkt); font-weight: 500; }
 .filter-leeg { margin: 40px 0 0; }
 .rail { padding-top: 40px; font-size: 16px; }
-.rail h2 { font: 500 14px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); padding-bottom: 12px; border-bottom: 3px solid var(--inkt); margin: 0 0 4px; }
+.rail h2 { font: 500 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); padding-bottom: 12px; border-bottom: 3px solid var(--inkt); margin: 0 0 4px; }
 .rail section + section { margin-top: 40px; }
 .rail ul { list-style: none; margin: 0; padding: 0; }
 .rail li a { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 44px; color: var(--inkt); text-decoration: none; border-bottom: 1px solid var(--lijn); }
@@ -1206,3 +1206,189 @@ picture.per-stand { display: contents; }
   .uitgelicht.met-cover { background: var(--vlak); }
 }
 @media (prefers-reduced-motion: reduce) { .kaart, .uitgelicht, .rij .cover { transition: none; } }
+
+/* ================= Cursus: Leerpad (Roel, klus 402, naar Brams mockup richting A en DESIGN.md) =================
+   Cursuspagina, Route, Cursusrij en Kop van een stap. Alleen bestaande kleurrollen. Een halte heeft drie standen
+   die in vorm verschillen, niet alleen in kleur: open (nummer), volgende stap (vol, met het woord "Volgende stap")
+   en klaar (vinkje in plaats van het nummer, met "· klaar"). Beweging: klaar vult in 280 ms (uit), het nummer gaat
+   weg in 200 ms (in); hovers laten los in 450 ms (in-uit). Bij minder beweging en bij het laden: direct.
+   Voor cursus.js draait (head-script, data-cursus-terug) blijven de juiste zinnen zichtbaar; daarna het hidden-attribuut. */
+html:not(.cursus-gezet):not([data-cursus-terug]) [data-als-terug],
+html:not(.cursus-gezet):not([data-cursus-terug]) [data-als-bezig],
+html[data-cursus-terug]:not(.cursus-gezet) [data-als-nieuw] { display: none !important; }
+[data-cursus] [hidden] { display: none !important; }
+
+.c-halte { position: relative; width: 40px; height: 40px; border-radius: 8px; flex: none; display: inline-flex; align-items: center; justify-content: center; font: 700 17px/1 var(--mono); color: var(--inkt); background: var(--papier); border: 1.5px solid var(--inkt); transition: background-color .28s var(--uit), color .28s var(--uit), border-color .28s var(--uit); }
+/* Elke richting zijn eigen curve: de basisregel geldt bij terugzetten (nummer komt binnen met uit, vinkje gaat weg met in), .is-klaar bij afvinken (vinkje binnen met uit, nummer weg met in). */
+.c-halte .nr { transition: opacity .2s var(--uit); }
+.c-halte svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.c-halte .vink { position: absolute; inset: 0; margin: auto; opacity: 0; transform: scale(.6); transition: opacity .28s var(--in), transform .28s var(--in); }
+.is-klaar .c-halte { background: var(--vlak); }
+.is-klaar .c-halte .nr { opacity: 0; transition-timing-function: var(--in); }
+.is-klaar .c-halte .vink { opacity: 1; transform: none; transition-timing-function: var(--uit); }
+.is-hier .c-halte { background: var(--inkt); color: var(--mos); border-color: var(--inkt); }
+.zijpad .c-halte { border-style: dashed; }
+.is-hier.zijpad .c-halte { border-style: solid; }
+
+/* ---------- cursuspagina: kop ---------- */
+.c-kop { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; align-items: end; padding: 8px 0 0; }
+.c-kop.met-beeld { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+.c-kop-vlak .wrap { display: block; }
+.c-kop h1 { font: 800 clamp(34px, 4.4vw, 48px)/1.08 var(--sans); letter-spacing: -.015em; margin: 10px 0 16px; text-wrap: balance; }
+.c-kop .lede { margin: 0 0 20px; }
+.c-start { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 28px; }
+.c-onthoud { flex-basis: 100%; margin: 0; font-size: 16px; color: var(--inkt-zacht); min-height: 26px; }
+.tekstknop { min-height: 44px; padding: 0; border: 0; background: none; color: var(--labgroen); font: 600 16px/1.2 var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tekstknop:hover { text-decoration-thickness: 2px; }
+.c-eindbeeld { margin: 0; }
+.c-eindbeeld .cover { border-radius: 8px; }
+.c-eindbeeld figcaption { font-size: 16px; color: var(--inkt-zacht); margin-top: 10px; }
+
+/* ---------- cursuspagina: vooraf ---------- */
+.c-lijf { padding-top: 48px; }
+.c-vooraf { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; margin: 0 0 72px; }
+.c-vooraf > div { padding: 24px 28px; }
+.c-vooraf > div + div { border-left: 1px solid var(--lijn); }
+.c-vooraf h2 { font: 500 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); margin: 0 0 10px; }
+.c-vooraf p { margin: 0 0 12px; }
+.c-vooraf p:last-child { margin-bottom: 0; }
+.c-vooraf ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.c-vooraf li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; }
+.c-vooraf li svg { width: 20px; height: 20px; margin-top: 4px; stroke: var(--inkt); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.c-vooraf .geen { font-weight: 600; }
+
+/* ---------- cursuspagina: de route ---------- */
+.c-laagkop { border-top: 2px solid var(--inkt); padding-top: 14px; margin: 0 0 16px; }
+.c-laagkop h2 { font: 700 28px/1.2 var(--sans); margin: 0; }
+.c-route-intro { margin: 0 0 32px; max-width: 680px; }
+.c-route { list-style: none; margin: 0; padding: 0; max-width: 820px; }
+.c-route > li { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 24px; padding-bottom: 36px; }
+.c-route > li::before { content: ""; position: absolute; left: 19px; top: 40px; bottom: 0; border-left: 2px solid var(--inkt); }
+.c-route > li.c-eind { padding-bottom: 0; }
+.c-route > li.c-eind::before { display: none; }
+.c-route > li.zijpad { grid-template-columns: 40px 40px minmax(0, 1fr); }
+.c-route > li.zijpad .c-halte { grid-column: 2; }
+.c-route > li.zijpad .c-stap { grid-column: 3; }
+.c-route > li.zijpad::before { top: 0; }
+.c-route > li.zijpad::after { content: ""; position: absolute; left: 21px; top: 19px; width: 43px; border-top: 2px dashed var(--inkt-zacht); }
+.c-stap { padding-top: 2px; min-width: 0; }
+.c-kopregel { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 4px; }
+.c-hier { font: 500 15px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 6px 8px; border-radius: 4px; background: var(--inkt); color: var(--mos); }
+.c-klaarwoord { font: 500 15px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); }
+.c-stap h3 { font: 700 22px/1.3 var(--sans); margin: 0 0 6px; }
+.c-stap h3 a { color: var(--inkt); text-decoration: none; display: inline-block; padding: 9px 0; margin: -7px 0 -5px; text-decoration-thickness: 2px; }   /* klikvlak minstens 44px */
+.c-stap h3 a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+.c-volgt { font: 500 16px/1.4 var(--sans); color: var(--inkt-zacht); }
+.c-klaar-als { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; margin: 0 0 8px; }
+.c-klaar-als svg { width: 20px; height: 20px; margin-top: 5px; stroke: var(--inkt); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.c-eind .c-halte { border-radius: 50%; background: var(--nacht); border-color: var(--inkt); color: var(--mos); }
+.c-eind h3 { margin-top: 6px; }
+.c-eind p { margin: 0; color: var(--inkt-zacht); }
+.c-lijf .serie-over { margin-top: 72px; }
+@media (max-width: 640px) {
+  .c-kop, .c-kop.met-beeld { grid-template-columns: 1fr; gap: 28px; }
+  .c-kop h1 { font-size: 30px; }
+  .c-start .knop { width: 100%; }
+  .c-vooraf { grid-template-columns: 1fr; margin-bottom: 48px; }
+  .c-vooraf > div { padding: 20px; }
+  .c-vooraf > div + div { border-left: 0; border-top: 1px solid var(--lijn); }
+  .c-route > li { gap: 0 16px; }
+  .c-route > li.zijpad { grid-template-columns: 40px 28px minmax(0, 1fr); }
+  .c-route > li.zijpad .c-halte { margin-left: -12px; }
+  .c-route > li.zijpad::after { width: 23px; }
+  .c-stap h3 { font-size: 20px; }
+}
+
+/* ---------- cursusrij: beginpagina en /series/ ---------- */
+.c-rijen { display: grid; gap: 24px; margin-top: 24px; }
+.lijst > .c-rijen { margin: 0 0 32px; }
+.c-rij { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 32px 48px; align-items: center; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 14px; padding: 32px; }
+.c-rij .label { margin: 0; }
+.c-rij h2, .c-rij h3 { font: 800 30px/1.12 var(--sans); letter-spacing: -.01em; margin: 8px 0 10px; text-wrap: balance; }
+.c-rij h2 a, .c-rij h3 a { color: var(--inkt); text-decoration: none; }
+.c-rij h2 a:hover, .c-rij h3 a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+.c-lede { margin: 0 0 14px; }
+.c-mini { --kolommen: 5; list-style: none; margin: 0 0 20px; padding: 0; display: grid; grid-template-columns: repeat(var(--kolommen), 44px); grid-template-rows: 44px; justify-content: space-between; position: relative; }
+.c-mini::before { content: ""; position: absolute; left: 22px; right: 22px; top: 21px; border-top: 2px solid var(--inkt); }
+.c-mini.met-zijpad { grid-template-rows: 44px 44px; row-gap: 14px; }
+.c-mini.met-zijpad::before { top: 79px; }
+.c-mini li { position: relative; z-index: 1; grid-row: 1; }
+.c-mini.met-zijpad li.hoofd { grid-row: 2; }
+.c-mini li.zijpad { grid-row: 1; justify-self: center; }
+.c-mini li.zijpad::after { content: ""; position: absolute; left: 21px; top: 40px; height: 40px; border-left: 2px dashed var(--inkt-zacht); z-index: -1; }
+.c-mini a, .c-mini .c-mini-nog { display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; text-decoration: none; border-radius: 8px; }
+.c-mini .c-halte { width: 36px; height: 36px; font-size: 16px; }
+.c-mini a:hover .c-halte { border-width: 2.5px; }
+.c-mini .c-mini-nog .c-halte { border-style: dashed; color: var(--inkt-zacht); border-color: var(--inkt-zacht); }
+.c-zijlabel { position: absolute; left: 52px; top: 12px; white-space: nowrap; font: 500 15px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--inkt-zacht); }
+.c-volgende { margin: 0 0 16px; font-size: 17px; line-height: 1.45; min-height: calc(2 * 1.45em); }
+.c-volgende b { font-weight: 600; }
+.c-rij .knop { width: 100%; }
+@media (max-width: 640px) {
+  .c-rij { grid-template-columns: 1fr; padding: 22px 20px 24px; border-radius: 8px; }
+  .c-rij h2, .c-rij h3 { font-size: 26px; }
+}
+
+/* ---------- kop van een stap ---------- */
+.c-plek { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0; }
+.c-plek .label { color: var(--inkt); }
+.c-balk { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; flex: 1 1 200px; max-width: 320px; }
+.c-balk li { flex: 1; min-width: 0; }
+.c-balk a, .c-balk .nog { display: flex; align-items: center; height: 44px; }
+.c-balk a::before, .c-balk .nog::before { content: ""; display: block; width: 100%; height: 8px; border-radius: 4px; border: 1.5px solid var(--inkt); background: transparent; transition: background-color .28s var(--uit), border-color .28s var(--uit); }
+.c-balk li.zijpad a::before, .c-balk .nog::before { border-style: dashed; border-color: var(--inkt-zacht); }
+.c-balk li.is-klaar a::before { background: var(--inkt); }
+.c-balk li.zijpad.is-klaar a::before { background: var(--inkt-zacht); }
+.c-balk li.is-pagina a::before { background: var(--mos); border: 1.5px solid var(--inkt); }
+.c-balk a:hover::before { border-width: 2.5px; }
+
+.c-stapkop { margin: 0 0 40px; }
+.c-klaarblok { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px 20px; align-items: center; background: var(--munt); border-radius: 14px; padding: 24px; }
+.c-teken { width: 56px; height: 56px; border-radius: 8px; background: var(--nacht); color: var(--mos); display: flex; align-items: center; justify-content: center; }
+.c-teken svg { width: 28px; height: 28px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.c-klaarblok h2.label { margin: 0; }
+.c-zin { font: 600 20px/1.4 var(--sans); margin: 4px 0 8px; }
+.c-klaarblok .feiten { margin: 0; }
+.c-klaarblok .knop { border-width: 1.5px; border-color: var(--lijn); transition: background-color .45s var(--in-uit), border-color .45s var(--in-uit); }
+.c-klaarblok .knop:hover { border-color: var(--inkt); transition-duration: .2s; }
+.c-klaarblok .knop[aria-pressed="true"] { border-color: var(--inkt); }
+.c-klaarblok .knop .vink { display: none; }
+.c-klaarblok .knop[aria-pressed="true"] .vink { display: block; }
+html:not(.js) .c-klaarblok .knop { display: none; }   /* zonder JavaScript kun je niets afvinken */
+.c-buren { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 0; padding: 0; list-style: none; }
+.c-buren a { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: center; min-height: 64px; padding: 10px 0; text-decoration: none; color: var(--inkt); }
+.c-buren li + li a { grid-template-columns: minmax(0, 1fr) auto; text-align: right; }
+.c-buren li + li a .label { justify-content: flex-end; }
+.c-buren .t { font-weight: 600; font-size: 17px; line-height: 1.35; }
+.c-buren a:hover .t { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.c-buren svg { width: 20px; height: 20px; stroke: var(--labgroen); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; grid-row: span 2; }
+.c-buren li + li a svg { grid-column: 2; grid-row: 1 / span 2; }
+.c-buren li + li a .label, .c-buren li + li a .t { grid-column: 1; }
+@media (max-width: 640px) {
+  .c-klaarblok { grid-template-columns: 44px minmax(0, 1fr); padding: 20px; align-items: start; }
+  .c-teken { width: 44px; height: 44px; }
+  .c-teken svg { width: 24px; height: 24px; }
+  .c-klaarblok .knop { grid-column: 1 / -1; width: 100%; }
+  .c-zin { font-size: 18px; }
+  .c-buren { grid-template-columns: 1fr; gap: 0; }
+  .c-buren li:empty { display: none; }
+  .c-buren li + li { border-top: 1px solid var(--lijn); }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  /* "Vol" draait om, zoals de halte van het nieuwste deel: in donker mos met donkere tekst. */
+  .is-hier .c-halte, .c-hier { background: var(--mos); color: var(--op-inkt); border-color: var(--mos); }
+  .c-teken, .c-eind .c-halte { box-shadow: inset 0 0 0 1px var(--lijn); }
+}
+.cursus-stil .c-halte, .cursus-stil .c-halte .nr, .cursus-stil .c-halte .vink, .cursus-stil .c-balk a::before { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .c-halte, .c-halte .nr, .c-halte .vink, .c-balk a::before, .c-klaarblok .knop { transition: none !important; }
+}
+/* binnen .artikel: de algemene kop-, alinea- en lijstopmaak niet laten winnen in de kop van een stap */
+.artikel .c-stapkop h2.label { font: 500 15px/1.2 var(--mono); margin: 0; }
+.artikel .c-stapkop p.c-zin { margin: 4px 0 8px; }
+.artikel .c-stapkop ul.feiten { margin: 0; padding: 0; }
+.artikel .c-stapkop .feiten li { margin: 0; padding: 0; }
+.artikel .c-stapkop ul.c-buren { margin: 20px 0 0; padding: 0; }
+.artikel .c-stapkop .c-buren li { margin: 0; padding: 0; }
+.artikel .c-stapkop .c-buren a { text-decoration: none; }

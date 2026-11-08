@@ -3,25 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bouw je eigen productiviteitsapp met AI · AI-leerlab</title>
-  <meta name="description" content="Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.">
+  <title>Eigen productiviteitsapp bouwen zonder programmeren · AI-leerlab</title>
+  <meta name="description" content="Na deze serie kun je met je AI-assistent een eigen app bouwen voor je taken, aantekeningen, bronnen en opnames, die alleen op je eigen laptop draait.">
   <meta name="robots" content="max-image-preview:large">
   <link rel="canonical" href="https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="nl_NL">
   <meta property="og:site_name" content="AI-leerlab">
-  <meta property="og:title" content="Bouw je eigen productiviteitsapp met AI">
-  <meta property="og:description" content="Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.">
+  <meta property="og:title" content="Eigen productiviteitsapp bouwen zonder programmeren">
+  <meta property="og:description" content="Na deze serie kun je met je AI-assistent een eigen app bouwen voor je taken, aantekeningen, bronnen en opnames, die alleen op je eigen laptop draait.">
   <meta property="og:url" content="https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/">
   <meta property="og:image" content="https://ai-leerlab.nl/assets/img/deel/ai-leerlab.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Bouw je eigen productiviteitsapp met AI">
-  <meta name="twitter:description" content="Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.">
+  <meta name="twitter:title" content="Eigen productiviteitsapp bouwen zonder programmeren">
+  <meta name="twitter:description" content="Na deze serie kun je met je AI-assistent een eigen app bouwen voor je taken, aantekeningen, bronnen en opnames, die alleen op je eigen laptop draait.">
   <meta name="twitter:image" content="https://ai-leerlab.nl/assets/img/deel/ai-leerlab.png">
   <link rel="alternate" type="application/rss+xml" title="AI-leerlab" href="/feed.xml">
-  <link rel="alternate" type="application/rss+xml" title="Bouw je eigen productiviteitsapp" href="/series/bouw-je-eigen-productiviteitsapp/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="Bouw je eigen productiviteitsapp, zonder te programmeren" href="/series/bouw-je-eigen-productiviteitsapp/feed.xml">
+  <script>try{["ail-cursus:bouw-je-eigen-productiviteitsapp"].some(function(k){var c=JSON.parse(localStorage.getItem(k)||'null');return c&&c.klaar&&c.klaar.length})&&document.documentElement.setAttribute('data-cursus-terug','')}catch(e){}</script>
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-32.png" sizes="32x32">
@@ -31,65 +32,95 @@
   <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
   <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/assets/site.css?v=202611081456">
+  <link rel="stylesheet" href="/assets/site.css?v=202611081737">
   <script>document.documentElement.className = 'js';</script>
   <script type="application/ld+json">
 {
  "@context": "https://schema.org",
  "@graph": [
   {
-   "@type": "CreativeWorkSeries",
+   "@type": [
+    "Course",
+    "CreativeWorkSeries"
+   ],
    "@id": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/#serie",
-   "name": "Bouw je eigen productiviteitsapp",
+   "name": "Bouw je eigen productiviteitsapp, zonder te programmeren",
+   "description": "Na deze serie kun je met je AI-assistent een eigen app bouwen voor je taken, aantekeningen, bronnen en opnames, die alleen op je eigen laptop draait.",
    "url": "https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/",
-   "description": "Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen Mac of Windows-computer.",
    "inLanguage": "nl",
+   "isAccessibleForFree": true,
    "author": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "provider": {
     "@id": "https://ai-leerlab.nl/#frits"
    },
    "isPartOf": {
     "@id": "https://ai-leerlab.nl/#site"
    },
    "startDate": "2026-10-01",
+   "audience": {
+    "@type": "EducationalAudience",
+    "educationalRole": "teacher"
+   },
+   "coursePrerequisites": "Programmeren hoef je niet te kunnen. Een Mac of Windows-laptop. Een AI-assistent die bestanden op je laptop kan aanpassen, zoals Claude Code of Codex, met een betaald abonnement. Je durft een opdracht in een terminal te typen.",
+   "timeRequired": "PT4H30M",
+   "image": [
+    "https://ai-leerlab.nl/assets/img/cover/serie-bouw-je-eigen-productiviteitsapp-16x9-a313036beb.webp",
+    "https://ai-leerlab.nl/assets/img/cover/serie-bouw-je-eigen-productiviteitsapp-4x3-63d7a3537d.webp",
+    "https://ai-leerlab.nl/assets/img/cover/serie-bouw-je-eigen-productiviteitsapp-1x1-4fee3293aa.webp"
+   ],
+   "genre": "Techniek",
    "hasPart": [
     {
-     "@type": "Article",
-     "headline": "Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt",
+     "@type": "LearningResource",
+     "position": 1,
+     "name": "Kies je eerste onderdeel",
      "url": "https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/",
-     "position": 1
+     "timeRequired": "PT5M",
+     "teaches": "Je hebt je eerste kleine idee op papier, en je weet wat je nodig hebt en wat het kost."
     },
     {
-     "@type": "Article",
-     "headline": "Zo installeer je de basis van je app op Mac en Windows",
+     "@type": "LearningResource",
+     "position": 2,
+     "name": "Start je app met één opdracht",
      "url": "https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/",
-     "position": 2
+     "timeRequired": "PT45M",
+     "teaches": "Een lege app in je browser, die je met één opdracht start en stopt."
     },
     {
-     "@type": "Article",
-     "headline": "Je eerste onderdeel: een taakbord dat je elke dag gebruikt",
+     "@type": "LearningResource",
+     "position": 3,
+     "name": "Bouw een taakbord met jouw kolommen",
      "url": "https://ai-leerlab.nl/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/",
-     "position": 3
+     "timeRequired": "PT45M",
+     "teaches": "Een taakbord met jouw kolommen dat elke ochtend vanzelf start."
     },
     {
-     "@type": "Article",
-     "headline": "Journal, projecten, kennisbank en documenten in één database",
+     "@type": "LearningResource",
+     "position": 4,
+     "name": "Koppel aantekeningen en bronnen aan projecten",
      "url": "https://ai-leerlab.nl/leren/journal-projecten-kennisbank-en-documenten-in-een-database/",
-     "position": 4
+     "timeRequired": "PT1H",
+     "teaches": "Aantekeningen, bronnen en documenten aan je projecten, met één zoekveld."
     },
     {
-     "@type": "Article",
-     "headline": "Transcriberen zonder cloud: lokale AI op je eigen laptop",
+     "@type": "LearningResource",
+     "position": 5,
+     "name": "Laat opnames uitschrijven zonder cloud",
      "url": "https://ai-leerlab.nl/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/",
-     "position": 5
+     "timeRequired": "PT1H",
+     "teaches": "Opnames uitschrijven en samenvatten op je laptop."
     },
     {
-     "@type": "Article",
-     "headline": "Van werkt naar prettig: een eigen design system voor je app",
+     "@type": "LearningResource",
+     "position": 6,
+     "name": "Geef je app één huisstijl",
      "url": "https://ai-leerlab.nl/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/",
-     "position": 6
+     "timeRequired": "PT1H",
+     "teaches": "Een DESIGN.md die je assistent bij elk scherm leest, plus een eerste scherm in die stijl."
     }
-   ],
-   "genre": "Techniek"
+   ]
   },
   {
    "@type": "Person",
@@ -135,14 +166,14 @@
     {
      "@type": "ListItem",
      "position": 3,
-     "name": "Bouw je eigen productiviteitsapp"
+     "name": "Bouw je eigen productiviteitsapp, zonder te programmeren"
     }
    ]
   }
  ]
 }
 </script>
-  <script src="/assets/toestemming.js?v=202611081456" data-meet-id="G-EYCDGPX6LG" defer></script>
+  <script src="/assets/toestemming.js?v=202611081737" data-meet-id="G-EYCDGPX6LG" defer></script>
 </head>
 <body>
   <a class="skiplink" href="#inhoud">Naar de inhoud</a>
@@ -162,59 +193,92 @@
   </header>
 
   <main id="inhoud" tabindex="-1">
-<section class="item-kop serie-kop labpapier" aria-labelledby="titel">
+<section class="item-kop c-kop-vlak labpapier" aria-labelledby="titel">
   <div class="wrap">
-    <div class="tekst">
-      <nav aria-label="Kruimelpad"><p class="kruimel"><a href="/series/">Series</a></p></nav>
-      <p class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Serie</p>
-      <h1 id="titel">Bouw je eigen productiviteitsapp</h1>
-      <p class="lede">Stap voor stap een eigen app voor je taken en notities bouwen met hulp van AI, op je eigen computer.</p>
-      <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2M4 12h2M4 18h2M10 6h10M10 12h10M10 18h10"/></svg>6 delen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Sinds 1 oktober 2026</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg><a href="/leren/techniek/">Techniek</a></li></ul>
-      <div class="knoppen">
-        <a class="knop knop-primair" href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/">Begin bij deel 1<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a class="tekstlink" href="#deel-6">Lees het nieuwste deel</a>
+    <div class="c-kop met-beeld" data-cursus="bouw-je-eigen-productiviteitsapp">
+      <div class="tekst">
+        <nav aria-label="Kruimelpad"><p class="kruimel"><a href="/series/">Series</a></p></nav>
+        <p class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h12v14M5 6h12v15H5z"/></svg>Cursus · 6 stappen</p>
+        <h1 id="titel">Bouw je eigen productiviteitsapp, zonder te programmeren</h1>
+        <p class="lede">Na deze serie kun je met je AI-assistent een eigen app bouwen voor je taken, aantekeningen, bronnen en opnames, die alleen op je eigen laptop draait.</p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>46 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 4,5 uur doen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>zonder account</li></ul>
+        <div class="c-start">
+          <a class="knop knop-primair" href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/" data-volgende-link><span data-als-nieuw>Begin bij stap 1</span><span data-als-terug>Ga verder met stap <span data-volgende-nr></span></span><span data-als-af hidden>Lees stap 1 terug</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <button class="tekstknop" type="button" data-opnieuw data-als-bezig>Opnieuw beginnen</button>
+          <p class="c-onthoud"><span data-als-nieuw>Je browser onthoudt waar je bent. Geen account, niets wordt gemeten.</span><span data-als-terug>Je was bij stap <span data-volgende-nr></span>. Dat onthoudt alleen je eigen browser.</span><span data-als-af hidden>Je hebt alle stappen afgevinkt. Dat onthoudt alleen je eigen browser.</span></p>
+        </div>
       </div>
+      <figure class="c-eindbeeld"><div class="cover plaat"><img src="/assets/img/cover/serie-bouw-je-eigen-productiviteitsapp-1600w-62652cb4e1.webp" srcset="/assets/img/cover/serie-bouw-je-eigen-productiviteitsapp-800w-95fa6b3765.webp 800w, /assets/img/cover/serie-bouw-je-eigen-productiviteitsapp-1600w-62652cb4e1.webp 1600w" sizes="(max-width: 640px) 100vw, 480px" width="1600" height="900" alt="Een productiviteitsapp met links een menu en rechts een taakbord met vier kolommen." fetchpriority="high"></div><figcaption>Waar je naartoe werkt. Dit is de app van Frits; de jouwe heeft jouw kolommen.</figcaption></figure>
     </div>
-    <div class="kop-avatar"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/job-rust.webp"><img class="" src="/assets/img/avatars/job-rust.webp" width="356" height="560" alt=""></picture></div>
   </div>
 </section>
-<div class="wrap lijst">
-  <h2 class="sr">Alle delen</h2>
-  <ol class="delen">
-    <li class="deel" id="deel-1">
-          <span class="nr" aria-hidden="true">1</span>
-          <h3><a href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/"><span class="sr">Deel 1: </span>Waarom ik mijn eigen productiviteitsapp heb gebouwd, en wat je hiervoor nodig hebt</a></h3>
-          <p>Waarom ik een eigen app heb gebouwd voor mijn taken en kennis, wat het kost en wat je nodig hebt om zelf te beginnen.</p>
-          <p class="wanneer"><time datetime="2026-10-01">1 oktober 2026</time></p>
-        </li><li class="deel" id="deel-2">
-          <span class="nr" aria-hidden="true">2</span>
-          <h3><a href="/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/"><span class="sr">Deel 2: </span>Zo installeer je de basis van je app op Mac en Windows</a></h3>
-          <p>Een lege app in je browser die je volgende week net zo makkelijk weer start: wat je zelf installeert en wat je je AI-assistent vraagt.</p>
-          <p class="wanneer"><time datetime="2026-10-03">3 oktober 2026</time></p>
-        </li><li class="deel" id="deel-3">
-          <span class="nr" aria-hidden="true">3</span>
-          <h3><a href="/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/"><span class="sr">Deel 3: </span>Je eerste onderdeel: een taakbord dat je elke dag gebruikt</a></h3>
-          <p>Een bord met jouw eigen kolommen, dat elke ochtend vanzelf klaarstaat en dat je ook weer uit kunt zetten.</p>
-          <p class="wanneer"><time datetime="2026-10-05">5 oktober 2026</time></p>
-        </li><li class="deel" id="deel-4">
-          <span class="nr" aria-hidden="true">4</span>
-          <h3><a href="/leren/journal-projecten-kennisbank-en-documenten-in-een-database/"><span class="sr">Deel 4: </span>Journal, projecten, kennisbank en documenten in één database</a></h3>
-          <p>Aantekeningen, bronnen en documenten die aan je projecten en taken hangen, en één zoekveld dat alles terugvindt.</p>
-          <p class="wanneer"><time datetime="2026-10-09">9 oktober 2026</time></p>
-        </li><li class="deel" id="deel-5">
-          <span class="nr" aria-hidden="true">5</span>
-          <h3><a href="/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/"><span class="sr">Deel 5: </span>Transcriberen zonder cloud: lokale AI op je eigen laptop</a></h3>
-          <p>Opnames uitschrijven en samenvatten op je eigen laptop, zodat niets naar een clouddienst gaat.</p>
-          <p class="wanneer"><time datetime="2026-10-16">16 oktober 2026</time></p>
-        </li><li class="deel nieuwste" id="deel-6">
-          <span class="nr" aria-hidden="true">6</span>
-          <h3><a href="/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/"><span class="sr">Deel 6: </span>Van werkt naar prettig: een eigen design system voor je app</a></h3>
-          <p>Van een app die werkt naar één huisstijl voor alles wat je maakt, vastgelegd in een DESIGN.md en in Claude Design.</p>
-          <p class="wanneer"><time datetime="2026-11-01">1 november 2026</time><span class="nieuwste-woord">Nieuwste deel</span></p>
-        </li>
+<div class="wrap c-lijf" data-cursus="bouw-je-eigen-productiviteitsapp">
+  <section class="c-vooraf" aria-label="Voor wie en wat je nodig hebt"><div><h2>Voor wie</h2><p>Voor docenten die hun taken, aantekeningen en bronnen bij elkaar willen hebben, in een app die past bij hoe hun week loopt.</p></div><div><h2>Wat je nodig hebt</h2><p class="geen">Programmeren hoef je niet te kunnen.</p><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg><span>Een Mac of Windows-laptop.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-4 3v-3H6a2 2 0 0 1-2-2z"/><path d="M9 10.5h.01M15 10.5h.01"/></svg><span>Een AI-assistent die bestanden op je laptop kan aanpassen, zoals Claude Code of Codex, met een betaald abonnement.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></svg><span>Je durft een opdracht in een terminal te typen.</span></li></ul></div></section>
+  <div class="c-laagkop"><h2 id="route-titel">De route</h2></div>
+  <p class="c-route-intro">Zes stappen, elk met een resultaat dat je kunt zien. Stap 5 is een zijpad: dat kan na stap 3 en is niet nodig voor 4 en 6. Lezen is de leestijd van het artikel, doen is een schatting.</p>
+  <ol class="c-route" aria-labelledby="route-titel">
+    <li class="c-stapitem is-hier" data-stap="1">
+      <span class="c-halte" aria-hidden="true"><span class="nr">1</span><svg class="vink" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap 1</span><span class="c-hier">Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3><a href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/">Kies je eerste onderdeel</a></h3>
+        <p class="c-klaar-als"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span><span class="sr">Klaar als: </span>Je hebt je eerste kleine idee op papier, en je weet wat je nodig hebt en wat het kost.</span></p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>7 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 5 min doen</li></ul>
+      </div>
+    </li>
+    <li class="c-stapitem" data-stap="2">
+      <span class="c-halte" aria-hidden="true"><span class="nr">2</span><svg class="vink" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap 2</span><span class="c-hier" hidden>Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3><a href="/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/">Start je app met één opdracht</a></h3>
+        <p class="c-klaar-als"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span><span class="sr">Klaar als: </span>Een lege app in je browser, die je met één opdracht start en stopt.</span></p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>7 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 45 min doen</li></ul>
+      </div>
+    </li>
+    <li class="c-stapitem" data-stap="3">
+      <span class="c-halte" aria-hidden="true"><span class="nr">3</span><svg class="vink" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap 3</span><span class="c-hier" hidden>Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3><a href="/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/">Bouw een taakbord met jouw kolommen</a></h3>
+        <p class="c-klaar-als"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span><span class="sr">Klaar als: </span>Een taakbord met jouw kolommen dat elke ochtend vanzelf start.</span></p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>7 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 45 min doen</li></ul>
+      </div>
+    </li>
+    <li class="c-stapitem" data-stap="4">
+      <span class="c-halte" aria-hidden="true"><span class="nr">4</span><svg class="vink" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap 4</span><span class="c-hier" hidden>Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3><a href="/leren/journal-projecten-kennisbank-en-documenten-in-een-database/">Koppel aantekeningen en bronnen aan projecten</a></h3>
+        <p class="c-klaar-als"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span><span class="sr">Klaar als: </span>Aantekeningen, bronnen en documenten aan je projecten, met één zoekveld.</span></p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>8 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 1 uur doen</li></ul>
+      </div>
+    </li>
+    <li class="c-stapitem zijpad" data-stap="5">
+      <span class="c-halte" aria-hidden="true"><span class="nr">5</span><svg class="vink" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap 5</span><span class="label">· Zijpad, kan na stap 3</span><span class="c-hier" hidden>Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3><a href="/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/">Laat opnames uitschrijven zonder cloud</a></h3>
+        <p class="c-klaar-als"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span><span class="sr">Klaar als: </span>Opnames uitschrijven en samenvatten op je laptop.</span></p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>8 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 1 uur doen</li></ul>
+      </div>
+    </li>
+    <li class="c-stapitem" data-stap="6">
+      <span class="c-halte" aria-hidden="true"><span class="nr">6</span><svg class="vink" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div class="c-stap">
+        <p class="c-kopregel"><span class="label">Stap 6</span><span class="c-hier" hidden>Volgende stap</span><span class="c-klaarwoord" hidden>· klaar</span></p>
+        <h3><a href="/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/">Geef je app één huisstijl</a></h3>
+        <p class="c-klaar-als"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span><span class="sr">Klaar als: </span>Een DESIGN.md die je assistent bij elk scherm leest, plus een eerste scherm in die stijl.</span></p>
+        <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>9 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>ongeveer 1 uur doen</li></ul>
+      </div>
+    </li>
+    <li class="c-eind">
+      <span class="c-halte" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></svg></span>
+      <div class="c-stap"><h3>Je eigen app, op je eigen laptop</h3><p>Daarna bouw je verder op dezelfde manier: één onderdeel tegelijk.</p></div>
+    </li>
   </ol>
   
 </div>
+<script type="application/json" data-cursus-gegevens="bouw-je-eigen-productiviteitsapp">{"stappen": [{"nr": 1, "titel": "Kies je eerste onderdeel", "url": "/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/", "zijpad": false, "doen": "5 min"}, {"nr": 2, "titel": "Start je app met één opdracht", "url": "/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/", "zijpad": false, "doen": "45 min"}, {"nr": 3, "titel": "Bouw een taakbord met jouw kolommen", "url": "/leren/je-eerste-onderdeel-een-taakbord-dat-je-elke-dag-gebruikt/", "zijpad": false, "doen": "45 min"}, {"nr": 4, "titel": "Koppel aantekeningen en bronnen aan projecten", "url": "/leren/journal-projecten-kennisbank-en-documenten-in-een-database/", "zijpad": false, "doen": "1 uur"}, {"nr": 5, "titel": "Laat opnames uitschrijven zonder cloud", "url": "/leren/transcriberen-zonder-cloud-lokale-ai-op-je-eigen-laptop/", "zijpad": true, "doen": "1 uur"}, {"nr": 6, "titel": "Geef je app één huisstijl", "url": "/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/", "zijpad": false, "doen": "1 uur"}]}</script>
   </main>
 
   <footer class="voet">
@@ -238,6 +302,6 @@
       </nav>
     </div>
   </footer>
-  
+  <script src="/assets/cursus.js?v=202611081737"></script>
 </body>
 </html>

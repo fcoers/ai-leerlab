@@ -7,6 +7,8 @@ Options -Indexes
   RewriteEngine On
   # Openbaar thema: /apps/taaloefenen/frans/h3-wonen/
   RewriteRule ^(frans|duits)/([a-z0-9-]{1,80})/?$ thema.php?taal=$1&slug=$2 [L,QSA]
+  # Paspoort en reiziger: /apps/taaloefenen/paspoort/ en /apps/taaloefenen/reiziger/ (altijd noindex)
+  RewriteRule ^(paspoort|reiziger)/?$ $1.php [L,QSA]
   # Privé-thema: /apps/taaloefenen/t/<code>/
   RewriteRule ^t/([a-z0-9]{24})/?$ thema.php?code=$1 [L,QSA]
 </IfModule>

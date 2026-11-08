@@ -161,11 +161,99 @@ main .label + h1 { margin-top: 8px; }
 .to-telling b { font: 700 20px var(--sans); font-variant-numeric: tabular-nums; }
 .to-einde .to-stapel { margin-top: 24px; }
 
+/* ---------- verdienen: stappen, reiziger en paspoort (klus 771, ontwerp Bram) ----------
+   Beweging alleen via transform en opacity, zacht in en zacht uit, 360 tot 520 ms; bij minder beweging staat alles stil. */
+
+/* de stap onder de bakjesregel: klein, nooit groter dan de uitkomst */
+.to-stap { display: inline-flex; align-items: center; gap: 6px; margin: 10px 0 0; font: 600 16px/1.3 var(--sans); color: var(--inkt);
+  animation: to-stapin 420ms var(--in-uit) 160ms both; }
+.to-stap.nieuw { background: var(--munt); border-radius: 999px; padding: 6px 12px 6px 8px; }
+.to-voetstap { width: 20px; height: 20px; flex: 0 0 20px; fill: var(--labgroen); }
+@keyframes to-stapin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* de reiziger: Anouks lagen gestapeld op één maat (160 x 230); elke laag regelt zelf licht en donker */
+.to-fig { display: block; position: relative; aspect-ratio: 160 / 230; }
+.to-fig img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.to-fig .it { opacity: 0; transform: translateY(-4px); transition: opacity 360ms var(--in-uit), transform 360ms var(--in-uit); }
+.to-fig .it.aan { opacity: 1; transform: none; }
+.to-fig .it.direct { transition: none; }
+.to-icoon { display: block; }
+
+/* eindscherm */
+.to-einde .to-kaart { margin-top: 16px; }
+.to-einde .to-kaart h2 { font: 700 22px/1.25 var(--sans); margin: 0 0 4px; }
+.to-verdiend { border: 2px solid var(--inkt); }
+.to-verdiend .to-etiket, .to-stempelmoment .to-etiket { margin: 0 0 4px; }
+.to-onderweg { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: center; }
+.to-onderweg .to-fig { width: 96px; }
+.to-onderweg p { margin: 0; font-size: 16px; line-height: 1.45; }
+.to-verdiend .knop { margin-top: 14px; }
+.to-stempelmoment { text-align: center; }
+.to-stempelmoment p { margin: 0 0 6px; font-size: 17px; line-height: 1.5; color: var(--inkt-zacht); }
+.to-stempelbeeld .to-st { width: 180px; margin: 4px auto 8px; }
+.to-land { animation: to-land 520ms var(--in-uit) both; }
+@keyframes to-land { 0% { opacity: 0; transform: scale(1.18); } 60% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+.to-route { margin: 20px 0 0; }
+.to-route p { font-size: 17px; margin: 0 0 8px; }
+.to-route .to-balk > i { transition-duration: 700ms; }
+
+/* stempels: vorm per taal, kleur helpt alleen mee */
+.to-st { display: block; width: 100%; height: auto; overflow: visible; }
+.to-st-fr { color: var(--labgroen); }
+.to-st-de { color: var(--inkt); }
+.to-st-open { color: var(--inkt-zacht); }
+.to-st-sans { font-family: var(--sans); font-weight: 800; }
+.to-st-mono { font-family: var(--mono); font-weight: 700; }
+.to-pas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.to-pasvak { display: block; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; padding: 12px 10px; color: var(--inkt); text-decoration: none; min-height: 44px; }
+.to-pasvak:hover { border-color: var(--inkt-zacht); }
+.to-pasvak .to-st { max-width: 132px; margin: 0 auto 6px; }
+.to-pasvak b { display: block; font: 700 17px/1.3 var(--sans); overflow-wrap: anywhere; }
+.to-pasvak small { display: block; font-size: 15px; color: var(--inkt-zacht); line-height: 1.4; }
+.to-pasvak .to-balk { margin-top: 8px; height: 6px; }
+.to-pasvak.open { background: transparent; border-style: dashed; }
+.to-pasleeg { text-align: center; padding: 16px 12px 8px; }
+.to-pasleeg .to-st { width: 150px; margin: 0 auto 12px; }
+.to-pasleeg p { margin: 0 0 6px; font-size: 17px; }
+.to-pas-knop { margin-top: 24px; }
+.to-paspoort main h2 { margin-top: 24px; }
+
+/* reiziger en kast */
+.to-podium { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 14px; padding: 16px 16px 12px; display: grid; justify-items: center; }
+.to-podium > .to-fig { width: 170px; }
+.to-podium .to-route { width: 100%; margin-top: 8px; }
+.to-podium .to-route p { order: 2; font-size: 16px; color: var(--inkt-zacht); margin: 6px 0 0; }
+.to-podium .to-route { display: flex; flex-direction: column; }
+.to-podium > p { margin: 6px 0 0; font-size: 16px; color: var(--inkt-zacht); text-align: center; }
+.to-kast { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.to-kast button, .to-kast .to-dicht { width: 100%; min-height: 104px; display: grid; justify-items: center; align-content: center; gap: 4px; border-radius: 8px;
+  background: var(--vlak); border: 1.5px solid var(--lijn); font: 600 15px/1.25 var(--sans); color: var(--inkt); position: relative; padding: 8px 4px; text-align: center; }
+.to-kast button { cursor: pointer; }
+.to-kast .to-icoon { width: 44px; height: 44px; }
+.to-kast button[aria-pressed="true"] { border: 2px solid var(--inkt); background: var(--munt); }
+.to-kast button[aria-pressed="true"]::after { content: ""; position: absolute; top: 7px; right: 7px; width: 18px; height: 18px; border-radius: 50%; background: var(--mos);
+  border: 1.5px solid var(--inkt); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M5 9.2l2.6 2.5L13 6.3' fill='none' stroke='%2317211C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 100%; }
+.to-kast .to-dicht { background: transparent; border-style: dashed; border-color: var(--inkt-zacht); color: var(--inkt-zacht); font-weight: 500; }
+.to-kast .to-dicht .to-icoon { opacity: .5; }
+.to-kast .to-dicht.volgende { border-color: var(--inkt); color: var(--inkt); }
+.to-kast .to-dicht small { font-size: 15px; font-weight: 400; color: var(--inkt-zacht); }
+.to-reiziger main h2 { margin-top: 28px; }
+
+/* tegels op de start, direct onder Vandaag */
+.to-tegels { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.to-tegel { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px;
+  padding: 12px; min-height: 88px; color: var(--inkt); text-decoration: none; }
+.to-tegel:hover { border-color: var(--inkt-zacht); }
+.to-tegel b { display: block; font: 700 18px/1.2 var(--sans); }
+.to-tegel small { display: block; font-size: 15px; line-height: 1.35; color: var(--inkt-zacht); }
+.to-tegel-beeld .to-st, .to-tegel-beeld .to-fig { width: 44px; }
+
 @media screen and (prefers-color-scheme: dark) {
   .to-soort .v::after, .to-rond-vink { stroke: #17211C; }
   .to-rond-vol { stroke: #0B100D; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .to-balk > i, .knop { transition: none !important; }
+  .to-balk > i, .knop, .to-fig .it { transition: none !important; }
+  .to-stap, .to-land { animation: none !important; }
 }

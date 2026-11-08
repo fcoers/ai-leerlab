@@ -6,11 +6,14 @@
   'use strict';
   var N = window.TONakijken;
   if (!N || !document.body.classList.contains('to')) return;
+  var R = window.TOReis || null;   // verdienen (reiziger.js); zonder dat bestand werkt alles zoals vóór klus 771
 
   var TALEN = {
     frans: { naam: 'Frans', lang: 'fr', tekens: ['é', 'è', 'ê', 'à', 'ç', 'ô', 'û', 'î', 'ï', 'ë', 'œ', "'"] },
     duits: { naam: 'Duits', lang: 'de', tekens: ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'] }
   };
+  /* Alleen eigen sleutels tellen: TALEN['constructor'] of TALEN['toString'] is geërfd en geen taal (klus 771, ronde 4). */
+  function isTaal(t) { return typeof t === 'string' && Object.prototype.hasOwnProperty.call(TALEN, t); }
   var MAX_NIEUW = 10;
   var MAX_HERHALEN = 3;      // zo vaak komt een item hooguit terug in één sessie
   var MAX_SESSIE = 40;       // herhalingen per sessie; de rest komt de volgende keer
@@ -34,20 +37,82 @@
   function meld(t) { var m = $('[data-meldingen]'); if (m) { m.textContent = ''; setTimeout(function () { m.textContent = t; }, 50); } }
 
   /* ---------------------------------------------------------------- opslag */
+  /* Twee tabbladen tegelijk (klus 771, ronde 2): elk tabblad houdt één toestand in het geheugen, steeds hetzelfde
+     object. Vlak voor elke schrijfactie en bij het storage-event van een ander tabblad wordt de opslag opnieuw gelezen
+     en samengevoegd, zodat er nooit iets weggaat. Per item en richting wint de stand met het laatste antwoord. */
   var opslagWerkt = true;
-  var geheugen = null;
-  function leesOpslag() {
-    if (geheugen) return geheugen;
-    var d = null;
-    try { d = JSON.parse(localStorage.getItem(SLEUTEL) || 'null'); } catch (e) { opslagWerkt = false; }
-    if (!d || d.v !== 1) d = { v: 1, taal: 'frans', stand: {}, prive: {}, laatste: {} };
-    d.stand = d.stand || {}; d.prive = d.prive || {}; d.laatste = d.laatste || {};
-    geheugen = d;
+  var geheugen = null, basis = null;
+  var vervallen = {};   // privé-thema's die de server niet meer kent; die komen bij het samenvoegen niet terug
+  function leegOpslag() { return { v: 1, taal: 'frans', stand: {}, prive: {}, laatste: {} }; }
+  function heel(d) {
+    if (!d || typeof d !== 'object' || d.v !== 1) d = leegOpslag();
+    if (!d.stand || typeof d.stand !== 'object') d.stand = {};
+    if (!d.prive || typeof d.prive !== 'object') d.prive = {};
+    if (!d.laatste || typeof d.laatste !== 'object') d.laatste = {};
+    if (!isTaal(d.taal)) d.taal = 'frans';   // een eerder opgeslagen ongeldige taal valt terug op Frans
     return d;
   }
+  function leesSchijf() {
+    try { return JSON.parse(localStorage.getItem(SLEUTEL) || 'null'); } catch (e) { opslagWerkt = false; return null; }
+  }
+  /** Tijd van het laatste antwoord: t (ms) bij nieuwe standen, anders het begin van de dag in l. */
+  function tijd(st) {
+    if (st && typeof st.t === 'number') return st.t;
+    var m = st && /^(\d{4})-(\d{2})-(\d{2})$/.exec(st.l || '');
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]).getTime() : 0;
+  }
+  /** ons: dit tabblad, oud: de opslag zoals dit tabblad hem het laatst zag, schijf: de opslag nu. */
+  function samenvoegen(ons, oud, schijf) {
+    ons = heel(ons); oud = heel(oud); schijf = heel(schijf);
+    var r = Object.assign({}, schijf, ons);   // onbekende velden van beide blijven staan
+    r.v = 1;
+    r.taal = ons.taal !== oud.taal ? ons.taal : (schijf.taal || ons.taal);
+    r.stand = Object.assign({}, schijf.stand);
+    Object.keys(ons.stand).forEach(function (k) {
+      var a = ons.stand[k], b = schijf.stand[k];
+      if (!b || tijd(a) > tijd(b)) r.stand[k] = a;
+    });
+    r.prive = Object.assign({}, schijf.prive, ons.prive);
+    Object.keys(vervallen).forEach(function (c) { delete r.prive[c]; });
+    r.laatste = Object.assign({}, schijf.laatste);
+    Object.keys(ons.laatste).forEach(function (t) {
+      if (ons.laatste[t] !== oud.laatste[t] || !(t in r.laatste)) r.laatste[t] = ons.laatste[t];
+    });
+    return r;
+  }
+  function leesOpslag() {
+    if (geheugen) return geheugen;
+    geheugen = heel(leesSchijf());
+    basis = JSON.parse(JSON.stringify(geheugen));
+    return geheugen;
+  }
+  /** Haalt binnen wat een ander tabblad intussen bewaarde; geeft hetzelfde object terug. */
+  function verversOpslag() {
+    leesOpslag();
+    var nieuw = samenvoegen(geheugen, basis, leesSchijf());
+    Object.keys(geheugen).forEach(function (k) { delete geheugen[k]; });
+    Object.assign(geheugen, nieuw);
+    basis = JSON.parse(JSON.stringify(geheugen));
+    return geheugen;
+  }
   function bewaar() {
+    verversOpslag();
     try { localStorage.setItem(SLEUTEL, JSON.stringify(geheugen)); } catch (e) { opslagWerkt = false; }
   }
+  /* Een ander tabblad schreef: geheugen bijwerken en, buiten een sessie, opnieuw tekenen. */
+  function bijgewerkt() {
+    if (S) return;
+    var scherm = document.body.getAttribute('data-scherm');
+    if (scherm === 'start' && P.themas.length) tekenStart();
+    else if (scherm === 'thema' && P.thema) tekenThema();
+  }
+  window.addEventListener('storage', function (e) {
+    if (!geheugen || (e.key !== SLEUTEL && e.key !== null)) return;
+    verversOpslag();
+    bijgewerkt();
+  });
+  if (R) document.addEventListener('to-reis-bijgewerkt', function () { bijgewerkt(); if (reisBijgewerkt) reisBijgewerkt(); });
+  var reisBijgewerkt = null;
 
   /* ---------------------------------------------------------------- inhoud */
   function haal(url) {
@@ -61,7 +126,7 @@
     var codes = Object.keys(d.prive).filter(function (c) { return d.prive[c].taal === taal; });
     return Promise.all([haal('/apps/taaloefenen/api/inhoud.php?taal=' + taal)].concat(codes.map(function (c) {
       return haal('/apps/taaloefenen/api/inhoud.php?code=' + encodeURIComponent(c)).then(function (j) {
-        if (j.status === 404) { delete d.prive[c]; bewaar(); return null; }
+        if (j.status === 404) { vervallen[c] = 1; delete d.prive[c]; bewaar(); return null; }
         if (j.ok && j.themas[0]) { j.themas[0].code = c; d.prive[c].naam = j.themas[0].naam; }
         return j;
       });
@@ -288,6 +353,8 @@
       tekst.textContent = delen.join(' en ') + '.';
       knoppen.hidden = false;
     }
+    stilleStempels(P.themas, P.taal);
+    tekenTegels();
     if (!opslagWerkt) {
       var v = $('.to-voetnoot');
       if (v) v.textContent = 'Deze browser kan je voortgang niet bewaren. Je kunt oefenen, maar na het sluiten ben je hem kwijt.';
@@ -296,7 +363,10 @@
 
   function startPagina() {
     var d = leesOpslag();
-    P.taal = TALEN[d.taal] ? d.taal : 'frans';
+    /* Taal: die uit de terugweg van een thema (?taal=), anders de laatst gekozen, anders Frans. */
+    var uitAdres = (/[?&]taal=([^&#]*)/.exec(location.search) || [])[1];   // elke waarde: ongeldig wordt genegeerd
+    P.taal = isTaal(uitAdres) ? uitAdres : isTaal(d.taal) ? d.taal : 'frans';
+    if (uitAdres !== undefined && history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
     var wissel = $('[data-wissel]');
     function toonTaal(taal, eerst) {
       P.taal = taal; d.taal = taal; bewaar();
@@ -335,9 +405,11 @@
   function themaPagina() {
     var body = document.body;
     var taal = body.getAttribute('data-taal'), uid = body.getAttribute('data-thema'), code = body.getAttribute('data-code');
+    if (!isTaal(taal)) taal = 'frans';
     P.taal = taal;
     var d = leesOpslag();
     d.laatste[taal] = uid;
+    d.taal = taal;   // terug naar de start toont de taal van dit thema
     if (code) d.prive[code] = { taal: taal, naam: body.getAttribute('data-naam') || '' };
     bewaar();
     var knoppen = $$('[data-soort]');
@@ -374,6 +446,7 @@
       P.themas = themas;
       P.thema = themas.filter(function (t) { return t.uid === uid; })[0] || null;
       if (!P.thema) throw new Error('weg');
+      stilleStempels(P.themas, taal);
       tekenThema();
     }).catch(function () {
       $('[data-stand-tekst]').textContent = 'Dit thema laadt niet. Controleer je internet, of vraag om een nieuwe link.';
@@ -417,7 +490,7 @@
 
   function startSessie(modus, lijst, themas, bron) {
     S = { modus: modus, rij: lijst.slice(), alle: themas, totaal: lijst.length, gezien: {}, klaar: 0, eerste: {}, keer: {},
-          naarVijf: 0, bron: bron, huidige: null, fase: 'vraag', leeg: false };
+          naarVijf: 0, stappen: 0, nieuweSpullen: [], bron: bron, huidige: null, fase: 'vraag', leeg: false };
     var pagina = $('[data-pagina]'), sessie = $('[data-sessie]');
     sessie.textContent = '';
     bouwSessie(sessie);
@@ -624,16 +697,27 @@
     E.hint.hidden = true;
     var lang = taalVan(o, P.taal);
     var r = N.kijkNa(E.veld.value, goedeAntwoorden(o), lang, o.item.soort);
+    var eerstePoging = !S.eerste[o.k];
     if (!S.eerste[o.k]) S.eerste[o.k] = r.uitkomst;
     // bakje bijwerken (niet bij oefenen of de toetsronde)
-    var d = leesOpslag();
+    var d = verversOpslag();   // wat een ander tabblad intussen deed, telt mee
     var oud = d.stand[o.k] ? d.stand[o.k].b : 1;
     var nieuwB = oud;
+    var verdien = null;
     if (S.modus === 'overhoren') {
-      var s = N.naUitkomst(d.stand[o.k], r.uitkomst, vandaag());
+      var dag = vandaag();
+      var aanDeBeurt = !d.stand[o.k] || d.stand[o.k].v <= dag;
+      var s = N.naUitkomst(d.stand[o.k], r.uitkomst, dag);
+      s.t = Date.now();   // tijd van dit antwoord: bij samenvoegen wint de nieuwste stand
       d.stand[o.k] = s; bewaar();
       nieuwB = s.b;
       if (nieuwB === 5 && oud < 5) S.naarVijf++;
+      if (R) {
+        verdien = R.poging(R.ververs(), { k: o.k, dag: dag, aanDeBeurt: aanDeBeurt, eerste: eerstePoging, goed: r.uitkomst === 'goed' });
+        R.bewaar();
+        if (verdien.stap) S.stappen++;
+        if (verdien.nieuw) S.nieuweSpullen.push(verdien.nieuw);
+      }
     }
     var keer = S.keer[o.k] || 0;
     var moetTerug = r.uitkomst === 'fout' || (r.uitkomst === 'bijna' && (S.modus !== 'overhoren' ? false : nieuwB === 1));
@@ -645,8 +729,12 @@
     zetVoortgang();
 
     var kop = r.uitkomst === 'goed' ? 'Goed' : r.uitkomst === 'bijna' ? 'Bijna goed: ' + N.redenZin(r.redenen) : 'Nog niet';
+    // Een stap staat onder de bakjesregel, niet groter; bij bijna goed en fout staat er niets.
+    var stapRegel = verdien && verdien.stap
+      ? maak('p', { klasse: 'to-stap' + (verdien.nieuw ? ' nieuw' : '') }, [R.voetstap(), verdien.nieuw ? 'Je reiziger heeft iets nieuws' : 'Een stap voor je reiziger'])
+      : null;
     var uitkomst = maak('div', { klasse: 'to-uitkomst', role: 'status' }, [rondje(r.uitkomst),
-      maak('div', null, [maak('p', { klasse: 'to-wat', tekst: kop }), maak('p', { klasse: 'to-gevolg', tekst: gevolgTekst(r.uitkomst, oud, nieuwB, terug) })])]);
+      maak('div', null, [maak('p', { klasse: 'to-wat', tekst: kop }), maak('p', { klasse: 'to-gevolg', tekst: gevolgTekst(r.uitkomst, oud, nieuwB, terug) }), stapRegel])]);
 
     if (r.uitkomst === 'goed') {
       S.fase = 'klaar';
@@ -798,10 +886,13 @@
         : s.naarVijf ? getalWoord(s.naarVijf) + (s.naarVijf === 1 ? ' item zit nu in bakje 5. Die ken je.' : ' items zitten nu in bakje 5. Die ken je.')
         : 'Wat goed ging, komt over een paar dagen terug.';
       kinderen.push(maak('p', { klasse: 'lede', tekst: zin }));
+      var verdiend = s.modus === 'overhoren' && R ? eindeVerdiend(s) : null;
+      if (verdiend) verdiend.kaarten.forEach(function (k) { kinderen.push(k); });
       kinderen.push(maak('ul', { klasse: 'to-telling' }, [
         maak('li', null, [rondje('goed'), maak('span', { tekst: 'Goed' }), maak('b', { tekst: String(tel.goed) })]),
         maak('li', null, [rondje('bijna'), maak('span', { tekst: 'Bijna goed' }), maak('b', { tekst: String(tel.bijna) })]),
         maak('li', null, [rondje('fout'), maak('span', { tekst: 'Nog niet, daarna wel' }), maak('b', { tekst: String(tel.fout) })])]));
+      if (verdiend) kinderen.push(verdiend.route);
     }
     if (lastig.length) {
       kinderen.push(maak('h2', { tekst: 'Vandaag lastig' }));
@@ -834,18 +925,253 @@
       E.teller.textContent = s.totaal + ' / ' + s.totaal;
       binnen(E.inh);
       h.focus();
+      if (verdiendNa) verdiendNa();
     });
+  }
+
+  /* ---------------------------------------------------------------- verdienen op het eindscherm */
+  var verdiendNa = null;   // na het tonen: balk vullen en de stempel laten landen
+  function stappenTekst(n) { return n === 1 ? '1 stap' : n + ' stappen'; }
+  function hoofdletter(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+  var DOE = { hoofd: 'Zet hem op', ogen: 'Zet hem op', hals: 'Doe hem om', rug: 'Doe hem om', jas: 'Trek hem aan', hand: 'Neem hem mee' };
+
+  /** De weg naar het volgende ding: één regel en een dunne balk. Wat het is, blijft een verrassing. */
+  function routeBlok(rd, metVandaag) {
+    function tekst() {
+      var dag = vandaag();
+      var vlg = R.volgende(rd.stappen);
+      var vorige = R.vorigeDrempel(rd.stappen);
+      if (metVandaag && R.vandaagStappen(rd, dag) >= R.MAX_DAG) return 'Je reiziger heeft vandaag genoeg gelopen. Je bakjes tellen wel door.';
+      if (!vlg) return (metVandaag ? 'Vandaag ' + stappenTekst(R.vandaagStappen(rd, dag)) + '. ' : '') + 'Je reiziger heeft alles wat er nu is.';
+      if (metVandaag) return 'Vandaag ' + stappenTekst(R.vandaagStappen(rd, dag)) + '. Nog ' + (vlg.drempel - rd.stappen) + ' tot het volgende ding.';
+      return 'Nog ' + stappenTekst(vlg.drempel - rd.stappen) + ' tot ' + (vorige ? 'het volgende ding.' : 'het eerste ding.');
+    }
+    var i = maak('i');
+    var p = maak('p', { tekst: tekst() });
+    var blok = maak('div', { klasse: 'to-route' }, [p, maak('span', { klasse: 'to-balk', 'aria-hidden': 'true' }, [i])]);
+    blok.vul = function () {
+      var vlg = R.volgende(rd.stappen), vorige = R.vorigeDrempel(rd.stappen);
+      zetBalk(i, vlg ? (rd.stappen - vorige) / (vlg.drempel - vorige) : 1);
+    };
+    /* Een ander tabblad verdiende stappen: tekst en balk op hun plek bijwerken, de balk loopt zacht door. */
+    blok.werkBij = function () { p.textContent = tekst(); blok.vul(); };
+    return blok;
+  }
+
+  function eindeVerdiend(s) {
+    var rd = R.lees();
+    var dag = vandaag();
+    var stempels = R.kijkStempels(rd, s.alle, P.taal, kentItem, dag);
+    R.bewaar();
+    var kaarten = [];
+    var landen = null;
+    if (stempels.length) {
+      var st = stempels[0];
+      var beeld = R.stempel(st);
+      var ook = stempels.slice(1).map(function (x) { return x.naam; });
+      kaarten.push(maak('div', { klasse: 'to-kaart to-stempelmoment' }, [
+        maak('p', { klasse: 'to-etiket', tekst: stempels.length > 1 ? 'Nieuwe stempels' : 'Nieuwe stempel' }),
+        maak('div', { klasse: 'to-stempelbeeld' }, [beeld]),
+        maak('h2', { tekst: st.naam + ' ken je helemaal' }),
+        maak('p', { tekst: 'Alle ' + st.n + ' items zitten in bakje 5. De stempel blijft in je paspoort, ook als je later iets vergeet.' }),
+        ook.length ? maak('p', { tekst: 'Ook ' + ook.join(' en ') + ' ken je helemaal.' }) : null,
+        maak('a', { klasse: 'to-tekstlink', href: '/apps/taaloefenen/paspoort/', tekst: 'Naar je paspoort' })]));
+      landen = beeld;
+    }
+    if (s.nieuweSpullen.length) {
+      var ding = s.nieuweSpullen[s.nieuweSpullen.length - 1];
+      var fig = R.figuur(R.gedragen(rd));
+      var knop = maak('button', { type: 'button', klasse: 'knop knop-secundair', 'aria-pressed': R.draagt(rd, ding.id) ? 'true' : 'false' });
+      var zetKnopTekst = function () { knop.textContent = R.draagt(rd, ding.id) ? 'Doe hem weer af' : DOE[ding.plek]; };
+      zetKnopTekst();
+      knop.addEventListener('click', function () {
+        var aan = R.wissel(rd, ding.id);
+        R.bewaar();
+        knop.setAttribute('aria-pressed', aan ? 'true' : 'false');
+        zetKnopTekst();
+        R.kleed(fig, R.gedragen(rd));
+      });
+      kaarten.push(maak('div', { klasse: 'to-kaart to-verdiend' }, [
+        maak('div', { klasse: 'to-onderweg' }, [fig, maak('div', null, [
+          maak('p', { klasse: 'to-etiket', tekst: 'Nieuw verdiend' }),
+          maak('h2', { tekst: 'Een ' + ding.naam }),
+          maak('p', { klasse: 'to-zacht', tekst: 'Verdiend met ' + ding.drempel + ' stappen.' + (s.nieuweSpullen.length > 1 ? ' Er ligt nog meer in je kast.' : '') })])]),
+        knop]));
+    }
+    var route = routeBlok(rd, true);
+    verdiendNa = function () {
+      verdiendNa = null;
+      requestAnimationFrame(function () { requestAnimationFrame(route.vul); });
+      if (landen) landen.classList.add('to-land');
+    };
+    return { kaarten: kaarten, route: route };
   }
   /** Nieuwe sessie vanaf het einde van een sessie: de geschiedenis heeft al een sessie-stap. */
   function startSessieZonderGeschiedenis(modus, lijst, themas, bron) {
     S = { modus: modus, rij: lijst.slice(), alle: themas, totaal: lijst.length, gezien: {}, klaar: 0, eerste: {}, keer: {},
-          naarVijf: 0, bron: bron, huidige: null, fase: 'vraag', leeg: false };
+          naarVijf: 0, stappen: 0, nieuweSpullen: [], bron: bron, huidige: null, fase: 'vraag', leeg: false };
     E.veld = null;
     volgende(false);
+  }
+
+  /* ---------------------------------------------------------------- paspoort en reiziger */
+  /** Een thema dat al helemaal in bakje 5 zat (ook van vóór het verdienen) krijgt zijn stempel zonder moment. */
+  function stilleStempels(themas, taal) {
+    if (!R || !themas.length) return;
+    if (R.kijkStempels(R.lees(), themas, taal, kentItem, vandaag()).length) R.bewaar();
+  }
+  function stempelAantal(n) { return n === 1 ? '1 stempel' : n + ' stempels'; }
+
+  /** Twee tegels onder Vandaag; ze tellen beide talen samen. */
+  function tekenTegels() {
+    var tegels = $('[data-tegels]');
+    if (!R || !tegels) return;
+    var rd = R.lees();
+    var lijst = R.stempelLijst(rd);
+    var plek = $('[data-tegel-stempel]', tegels);
+    plek.textContent = '';
+    var laatste = lijst[lijst.length - 1];
+    plek.appendChild(laatste ? R.stempel({ uid: laatste.uid, taal: laatste.taal, naam: laatste.naam, regels: [R.stempelRegels(laatste.naam)[0]], datum: '' })
+      : R.stempel({ uid: 'leeg', taal: 'frans', naam: '', regels: [], open: true }));
+    $('[data-tegel-paspoort]', tegels).textContent = lijst.length ? stempelAantal(lijst.length) : 'Nog leeg';
+    var fig = $('[data-tegel-reiziger]', tegels);
+    fig.textContent = '';
+    fig.appendChild(R.figuur(R.gedragen(rd)));
+    var vlg = R.volgende(rd.stappen);
+    $('[data-tegel-stappen]', tegels).textContent = !vlg ? 'alles verdiend'
+      : R.verdiend(rd.stappen).length ? 'nog ' + stappenTekst(vlg.drempel - rd.stappen) : 'Nog ' + stappenTekst(vlg.drempel - rd.stappen) + ' tot de eerste';
+    tegels.hidden = false;
+  }
+
+  function themaLink(t) { return t.code ? '/apps/taaloefenen/t/' + t.code + '/' : (t.url || '/apps/taaloefenen/'); }
+
+  /** Eén vak in het paspoort: de stempel, de naam in gewone tekst en wanneer, of hoe ver je bent. */
+  function pasVak(o) {
+    var kinderen = [R.stempel(o), maak('b', { tekst: o.naam }),
+      maak('small', { tekst: o.open ? o.ken + ' van ' + o.totaal + ' ken je' : 'sinds ' + R.langeDatum(o.datum, vandaag()) })];
+    var i = null;
+    if (o.open) { i = maak('i'); kinderen.push(maak('span', { klasse: 'to-balk', 'aria-hidden': 'true' }, [i])); }
+    var a = maak('a', { klasse: 'to-pasvak' + (o.open ? ' open' : ''), href: o.pad }, kinderen);
+    if (i) requestAnimationFrame(function () { requestAnimationFrame(function () { zetBalk(i, o.ken / o.totaal); }); });
+    return a;
+  }
+
+  function paspoortPagina() {
+    var rd = R.lees();
+    var houder = $('[data-pas]'), kop = $('[data-pas-kop]');
+    function teken(perTaal) {
+      var lijst = R.stempelLijst(rd);
+      houder.textContent = '';
+      // thema's waar je mee bezig bent: minstens tien items, al iets geoefend, nog geen stempel
+      var bezig = [];
+      Object.keys(perTaal).forEach(function (taal) {
+        perTaal[taal].forEach(function (t) {
+          if (rd.stempels[t.uid] || t.items.length < R.MIN_ITEMS) return;
+          var gestart = oefeningen([t], false).some(function (o) { return !!stand(o); });
+          var c = telThema(t);
+          bezig.push({ uid: t.uid, taal: taal, naam: t.naam, open: true, ken: c.ken, totaal: c.totaal, gestart: gestart,
+                       deel: c.ken + ' / ' + c.totaal, pad: themaLink(t) });
+        });
+      });
+      bezig.sort(function (a, b) { return b.ken / b.totaal - a.ken / a.totaal; });
+      if (!lijst.length) {
+        kop.textContent = 'Nog leeg';
+        houder.appendChild(maak('div', { klasse: 'to-kaart to-pasleeg' }, [
+          R.stempel({ uid: 'leeg', taal: 'frans', naam: 'Jouw eerste · thema', open: true, deel: '' }),
+          maak('p', { tekst: 'Een stempel krijg je als je een heel thema kent. Dat duurt minstens elf dagen, want elk woord moet een paar keer terugkomen.' })]));
+        var dichtbij = bezig.filter(function (x) { return x.gestart; })[0] || bezig[0];
+        if (dichtbij) {
+          houder.appendChild(maak('h2', { tekst: 'Het dichtstbij' }));
+          houder.appendChild(maak('div', { klasse: 'to-pas' }, [pasVak(dichtbij)]));
+        }
+        houder.appendChild(maak('div', { klasse: 'to-stapel to-pas-knop' }, [maak('a', { klasse: 'knop knop-primair', href: '/apps/taaloefenen/', tekst: 'Overhoor wat klaarstaat' })]));
+        return;
+      }
+      kop.textContent = stempelAantal(lijst.length);
+      houder.appendChild(maak('p', { klasse: 'lede', tekst: 'Een stempel krijg je als je een heel thema kent: alles in bakje 5.' }));
+      ['frans', 'duits'].forEach(function (taal) {
+        var mijn = lijst.filter(function (x) { return x.taal === taal; });
+        var open = bezig.filter(function (x) { return x.taal === taal && x.gestart; });
+        if (!mijn.length && !open.length) return;
+        houder.appendChild(maak('h2', { tekst: TALEN[taal].naam }));
+        houder.appendChild(maak('div', { klasse: 'to-pas' }, mijn.map(pasVak).concat(open.map(pasVak))));
+      });
+    }
+    teken({});
+    Promise.all([laadTaal('frans'), laadTaal('duits')]).then(function (r) {
+      var perTaal = { frans: r[0], duits: r[1] };
+      stilleStempels(r[0], 'frans');
+      stilleStempels(r[1], 'duits');
+      teken(perTaal);
+    }).catch(function () { /* zonder internet: alleen de stempels die er al zijn */ });
+  }
+
+  function reizigerPagina() {
+    var rd = R.lees();
+    kop();
+    var podium = $('[data-podium]');
+    var groot = R.figuur(R.gedragen(rd));
+    groot.setAttribute('role', 'img');
+    groot.removeAttribute('aria-hidden');
+    groot.setAttribute('aria-label', 'Je reiziger');
+    var route = routeBlok(rd, false);
+    podium.appendChild(groot);
+    podium.appendChild(route);
+    podium.appendChild(maak('p', { tekst: 'Stappen komen uit overhoren.' }));
+    requestAnimationFrame(function () { requestAnimationFrame(route.vul); });
+    var kast = $('[data-kast]');
+    var knoppen = [];
+    function zetKnoppen() {
+      knoppen.forEach(function (b) { b.setAttribute('aria-pressed', R.draagt(rd, b.getAttribute('data-spul')) ? 'true' : 'false'); });
+    }
+    function kop() { $('[data-reis-kop]').textContent = rd.stappen ? stappenTekst(rd.stappen) + ' onderweg' : 'Nog geen stappen'; }
+    /* Eén plek per ding. Een verdiend ding wordt een knop; die blijft staan (stappen gaan nooit omlaag), zodat de
+       focus niet verspringt als een ander tabblad iets verdient. Dichte plekken krijgen hun tekst opnieuw. */
+    var plekken = R.SPULLEN.map(function (x) {
+      var li = maak('li');
+      kast.appendChild(li);
+      return { x: x, li: li, knop: null };
+    });
+    function vulKast() {
+      var vlg = R.volgende(rd.stappen);
+      plekken.forEach(function (pl) {
+        var x = pl.x;
+        if (pl.knop) return;
+        while (pl.li.firstChild) pl.li.removeChild(pl.li.firstChild);
+        if (R.heeft(rd, x.id)) {
+          var b = maak('button', { type: 'button', 'data-spul': x.id }, [R.icoon(x.id), hoofdletter(x.naam)]);
+          b.addEventListener('click', function () {
+            R.wissel(rd, x.id);
+            R.bewaar();
+            zetKnoppen();
+            R.kleed(groot, R.gedragen(rd));
+          });
+          pl.knop = b;
+          knoppen.push(b);
+          pl.li.appendChild(b);
+        } else {
+          var volgende = vlg && vlg.id === x.id;
+          pl.li.appendChild(maak('div', { klasse: 'to-dicht' + (volgende ? ' volgende' : '') }, [R.icoon('dicht'), maak('span', { klasse: 'to-sr', tekst: 'Nog geheim, ' }),
+            maak('small', { tekst: volgende ? 'nog ' + stappenTekst(x.drempel - rd.stappen) : 'vanaf ' + x.drempel })]));
+        }
+      });
+    }
+    vulKast();
+    zetKnoppen();
+    reisBijgewerkt = function () {
+      kop();
+      route.werkBij();
+      vulKast();
+      zetKnoppen();
+      R.kleed(groot, R.gedragen(rd));
+    };
+    if (!R.opslagWerkt()) { var v = $('.to-voetnoot'); if (v) v.textContent = 'Deze browser kan je reiziger niet bewaren.'; }
   }
 
   /* ---------------------------------------------------------------- start */
   var scherm = document.body.getAttribute('data-scherm');
   if (scherm === 'start') startPagina();
   else if (scherm === 'thema') themaPagina();
+  else if (scherm === 'paspoort' && R) paspoortPagina();
+  else if (scherm === 'reiziger' && R) reizigerPagina();
 })();

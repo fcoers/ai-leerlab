@@ -56,7 +56,7 @@ to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'o
         'data' => ['scherm' => 'thema', 'taal' => $t['taal'], 'thema' => $t['uid'], 'code' => $prive ? $t['code'] : '',
                    'naam' => $t['naam']]]);
 ?>
-    <a class="to-terug" href="/apps/taaloefenen/">Taaloefenen</a>
+    <a class="to-terug" href="/apps/taaloefenen/?taal=<?= to_esc($t['taal']) ?>">Taaloefenen</a>
     <p class="label"><?= to_esc($T['naam']) ?><?= $prive ? ' · via een link' : '' ?></p>
     <h1><?= to_esc($t['naam']) ?></h1>
 

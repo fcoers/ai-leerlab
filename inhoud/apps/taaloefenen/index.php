@@ -16,6 +16,9 @@ try {
     error_log('taaloefenen: ' . $e->getMessage());   // zonder database: de pagina staat er, zonder thema's
 }
 
+// Terug uit een thema: /apps/taaloefenen/?taal=duits toont meteen die taal (de canonical blijft zonder ?taal).
+$kies = isset($_GET['taal']) && is_string($_GET['taal']) && isset(TO_TALEN[$_GET['taal']]) ? $_GET['taal'] : 'frans';
+
 $h1 = 'Frans en Duits oefenen';
 $lede = 'Woordjes, zinnen en werkwoorden. Jij typt wat je weet, de app kijkt na en onthoudt wat je nog lastig vindt.';
 to_kop(['titel' => TO_TITEL, 'omschrijving' => TO_OMSCHRIJVING, 'pad' => '/apps/taaloefenen/', 'indexeren' => true,
@@ -32,7 +35,7 @@ to_kop(['titel' => TO_TITEL, 'omschrijving' => TO_OMSCHRIJVING, 'pad' => '/apps/
 
     <div class="to-taal" role="group" aria-label="Taal">
 <?php foreach (TO_TALEN as $code => $T): ?>
-      <button type="button" data-kies-taal="<?= $code ?>" aria-pressed="<?= $code === 'frans' ? 'true' : 'false' ?>"><?= $T['naam'] ?></button>
+      <button type="button" data-kies-taal="<?= $code ?>" aria-pressed="<?= $code === $kies ? 'true' : 'false' ?>"><?= $T['naam'] ?></button>
 <?php endforeach; ?>
     </div>
 
@@ -47,10 +50,15 @@ to_kop(['titel' => TO_TITEL, 'omschrijving' => TO_OMSCHRIJVING, 'pad' => '/apps/
         </div>
       </section>
 
+      <div class="to-tegels" data-tegels hidden>
+        <a class="to-tegel" href="/apps/taaloefenen/paspoort/"><span class="to-tegel-beeld" data-tegel-stempel></span><span><b>Paspoort</b><small data-tegel-paspoort>&nbsp;</small></span></a>
+        <a class="to-tegel" href="/apps/taaloefenen/reiziger/"><span class="to-tegel-beeld" data-tegel-reiziger></span><span><b>Reiziger</b><small data-tegel-stappen>&nbsp;</small></span></a>
+      </div>
+
       <section aria-labelledby="kop-themas">
         <h2 id="kop-themas">Thema's</h2>
 <?php foreach (TO_TALEN as $code => $T): ?>
-        <div data-themas="<?= $code ?>"<?= $code === 'frans' ? '' : ' hidden' ?>>
+        <div data-themas="<?= $code ?>"<?= $code === $kies ? '' : ' hidden' ?>>
 <?php if (!$themas[$code]): ?>
           <p class="to-zacht" data-geen-themas>Nog geen thema's in het <?= $T['naam'] ?>.</p>
 <?php endif; ?>

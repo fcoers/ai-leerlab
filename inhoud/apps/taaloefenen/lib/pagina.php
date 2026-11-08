@@ -78,6 +78,7 @@ function to_kop(array $p): void
   <link rel="stylesheet" href="/assets/site.css?v=<?= $v ?>">
   <link rel="stylesheet" href="/apps/taaloefenen/assets/taaloefenen.css?v=<?= $v ?>">
   <script src="/apps/taaloefenen/assets/nakijken.js?v=<?= $v ?>" defer></script>
+  <script src="/apps/taaloefenen/assets/reiziger.js?v=<?= $v ?>" defer></script>
   <script src="/apps/taaloefenen/assets/taaloefenen.js?v=<?= $v ?>" defer></script>
 <?php if (!empty($p['schema'])): ?>
   <script type="application/ld+json"><?= json_encode($p['schema'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>

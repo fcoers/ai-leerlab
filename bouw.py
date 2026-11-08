@@ -1554,29 +1554,36 @@ def serie_nav_html(item):
         return ""
     s = STAAT["series"][item.serie]
     vorige, volgende, gepland = s.buren(item)
+    # In een cursus dezelfde navigatie in cursustermen, zodat de voet zegt wat de stapkop zegt (klus 402).
+    if item.is_stap:
+        woord, soort, alle, aria = "Stap", "Cursus", "Over deze cursus", "Andere stappen van deze cursus"
+        naam = lambda x: x.stap_titel
+    else:
+        woord, soort, alle, aria = "Deel", "Serie", "Alle delen van deze serie", "Andere delen van deze serie"
+        naam = lambda x: x.titel
     links = rechts = "<span></span>"
     if vorige:
         links = f"""<a class="stap vorige" href="{vorige.url}">
-            <span class="richting">{icoon("pijl-terug")}Deel {vorige.deel}</span>
-            <span class="titel">{esc(vorige.titel)}</span>
+            <span class="richting">{icoon("pijl-terug")}{woord} {vorige.deel}</span>
+            <span class="titel">{esc(naam(vorige))}</span>
           </a>"""
     if volgende:
         rechts = f"""<a class="stap volgende" href="{volgende.url}">
-            <span class="richting">Deel {volgende.deel}{icoon("pijl")}</span>
-            <span class="titel">{esc(volgende.titel)}</span>
+            <span class="richting">{woord} {volgende.deel}{icoon("pijl")}</span>
+            <span class="titel">{esc(naam(volgende))}</span>
           </a>"""
     elif gepland:
         rechts = f"""<div class="stap volgende nog-niet">
-            <span class="richting">Deel {gepland.deel}</span>
+            <span class="richting">{woord} {gepland.deel}</span>
             <span class="titel">Volgt op {datum_dag(gepland.datum)}</span>
           </div>"""
-    return f"""<nav class="serie-nav" aria-label="Andere delen van deze serie">
-        <p class="label">Serie · <a href="{s.url}">{esc(s.titel)}</a></p>
+    return f"""<nav class="serie-nav" aria-label="{aria}">
+        <p class="label">{soort} · <a href="{s.url}">{esc(s.titel)}</a></p>
         <div class="paar">
           {links}
           {rechts}
         </div>
-        <a class="tekstlink alle" href="{s.url}">Alle delen van deze serie</a>
+        <a class="tekstlink alle" href="{s.url}">{alle}</a>
       </nav>"""
 
 

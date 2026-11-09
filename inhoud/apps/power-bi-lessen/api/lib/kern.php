@@ -302,7 +302,7 @@ function pb_zoeksleutel(): string
     $min = pb_tutor_modus() === 'echt' ? 32 : 1;
     if (strlen($sleutel) < $min) {
         error_log("power-bi-lessen: zoeksleutel ontbreekt of is korter dan $min tekens in apps-config.php ('nakijkapp' => ['zoeksleutel' => ...])");
-        ap_fout(503, 'De nakijkapp is nog niet ingesteld: de zoeksleutel ontbreekt in apps-config.php. Meld het je docent.', 'niet_ingesteld');
+        ap_fout(503, 'De nakijkapp is nog niet ingesteld. Meld het je docent.', 'niet_ingesteld');
     }
     return $sleutel;
 }

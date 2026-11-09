@@ -142,7 +142,7 @@ if ($actie === 'feedback') {
         $fb = pb_feedback($les, $def, $rij['velden'], $ander);
         if ($ander_rij !== null) {
             // Welke fout uit het antwoordmodel is dit, en beschreef het andere vak die al? (alleen op de server)
-            $fb = pb_l1_fout_duiden($les, $def, $fb, $rij['velden'], $ander_rij);
+            $fb = pb_l1_fout_duiden($les, $def, $fb, $rij['velden'], $ander_rij, $rij['uitslag']['feedback'] ?? null);
         }
     } catch (PbTutorOp $e) {
         ap_fout(429, 'De feedback is deze maand even niet beschikbaar.', 'op', ['op' => 'maand']);

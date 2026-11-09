@@ -323,9 +323,22 @@ function pb_l1_ander_id(array $def): string
 }
 
 /**
+ * Houdt het andere vak deze fout vast? Ja als zijn laatste feedback dezelfde fout noemt, nog geldt (pb_l1_fb_geldt) en
+ * zelf niet als dubbel is aangemerkt. Een vak dat als dubbel staat, houdt niets vast.
+ */
+function pb_l1_houdt_vast(array $def, ?array $ander, string $fout): bool
+{
+    $afb = $ander['uitslag']['feedback'] ?? null;
+    return $afb && ($afb['fout'] ?? null) === $fout && empty($afb['dubbel'])
+        && in_array(pb_l1_fb_geldt($def, $ander), ['actueel', 'klein'], true);
+}
+
+/**
  * Telt de beschrijving in dit vak als een van de twee fouten? Alleen als de server weet welke fout het is (fout_1 of
- * fout_2), en het andere vak niet al eerder dezelfde fout met geldende feedback beschreef. Zo dekken F1 en F2 samen
- * altijd beide fouten; bij dezelfde fout twee keer telt alleen het vak dat het eerst feedback kreeg.
+ * fout_2), dit vak niet als dubbel staat, en het andere vak niet al eerder dezelfde fout vasthoudt. Zo dekken F1 en F2
+ * samen altijd beide fouten; bij dezelfde fout twee keer telt alleen het vak dat die fout als eerste dekte. 'om' is het
+ * moment waarop dit vak de fout voor het eerst dekte; nieuwe feedback met dezelfde fout houdt dat moment
+ * (pb_l1_fout_duiden), dus "wie was eerst" draait niet om als een vak opnieuw feedback vraagt.
  */
 function pb_l1_fout_telt(array $def, array $rij): bool
 {
@@ -338,37 +351,42 @@ function pb_l1_fout_telt(array $def, array $rij): bool
         return true;
     }
     $ander = pb_l1_rij((int)$rij['duo_id'], (int)$rij['les'], pb_l1_ander_id($def));
-    $afb = $ander['uitslag']['feedback'] ?? null;
-    if (!$afb || ($afb['fout'] ?? null) !== $fout || !in_array(pb_l1_fb_geldt($def, $ander), ['actueel', 'klein'], true)) {
+    if (!pb_l1_houdt_vast($def, $ander, $fout)) {
         return true;
     }
-    return (float)($afb['om'] ?? 0) > (float)($fb['om'] ?? 0);
+    // Beide vakken houden dezelfde fout vast (kan alleen als een vak terugkwam op een tekst die het andere vak niet
+    // zag): het vak dat de fout het eerst dekte, telt.
+    return (float)($ander['uitslag']['feedback']['om'] ?? 0) > (float)($fb['om'] ?? 0);
 }
 
 /**
- * Na de feedback bij fout 1 of 2: leg vast welke fout het is en maak de feedback eerlijk. Het model kiest uit fout_1,
- * fout_2 of geen; woorden van één fout in de tekst bevestigen dat of vullen het aan als het model geen keuze gaf. Spreken
- * ze elkaar tegen, dan is het onbekend. Beschrijft het andere vak (met geldende feedback) dezelfde fout, dan zit
- * 'waar' er niet in en volgt een terugvraag die zegt dat er nog een tweede fout is, zonder te zeggen welke. Is niet te
- * zeggen welke fout het is, dan zit 'waar' er hooguit deels in.
+ * Na de feedback bij fout 1 of 2: leg vast welke fout het is en maak de feedback eerlijk.
+ *
+ * Welke fout: het model kiest uit fout_1, fout_2 of geen; woorden van één fout in de tekst (deel2.kenmerken) bevestigen
+ * dat of vullen het aan als het model geen keuze gaf. De woordenlijsten bevatten alleen woorden die bij één fout horen
+ * (geen 'gemiddeld' of 'model': het staafdiagram van fout 2 toont ook gemiddelden). Staan er woorden van beide fouten,
+ * dan telt het model. Wijzen de woorden alleen naar de andere fout dan het model kiest, dan is het onbekend: het model
+ * laten winnen zou een misser van het model, gevolgd door dezelfde fout in het andere vak, "2 van 2" maken.
+ *
+ * Dubbel: houdt het andere vak dezelfde fout vast, dan zit 'waar' er niet in en volgt een terugvraag die zegt dat er
+ * nog een tweede fout is, zonder te zeggen welke. Is niet te zeggen welke fout het is, dan zit 'waar' er hooguit deels in.
+ * $vorig is de vorige feedback van dit vak: noemde die dezelfde fout zonder dubbel, dan blijft het moment 'om' staan.
  */
-function pb_l1_fout_duiden(array $les, array $def, array $fb, array $velden, array $ander): array
+function pb_l1_fout_duiden(array $les, array $def, array $fb, array $velden, array $ander, ?array $vorig = null): array
 {
     $woorden = pb_l1_fout_uit_woorden($les, $velden);
     $model = $fb['fout'] ?? null;
     if (in_array($model, ['fout_1', 'fout_2'], true)) {
-        // Spreken woorden en model elkaar tegen, dan het voorzichtigste: niet te zeggen welke fout het is.
         $fout = $woorden === null || $woorden === $model ? $model : 'onbekend';
     } else {
         $fout = $woorden ?? ($model === 'geen' ? 'geen' : 'onbekend');
     }
     $fb['fout'] = $fout;
-    $fb['om'] = microtime(true);
+    $dubbel = in_array($fout, ['fout_1', 'fout_2'], true) && pb_l1_houdt_vast($def, $ander, $fout);
+    $hield = $vorig && ($vorig['fout'] ?? null) === $fout && empty($vorig['dubbel']) && isset($vorig['om']);
+    $fb['om'] = !$dubbel && $hield ? (float)$vorig['om'] : microtime(true);
     $d2 = $les['deel2'];
     $naam = pb_l1_ander_id($def) === 'f1' ? 'Fout 1' : 'Fout 2';
-    $afb = $ander['uitslag']['feedback'] ?? null;
-    $dubbel = in_array($fout, ['fout_1', 'fout_2'], true) && $afb && ($afb['fout'] ?? null) === $fout
-        && in_array(pb_l1_fb_geldt($def, $ander), ['actueel', 'klein'], true);
     foreach ($fb['criteria'] as &$c) {
         if ($c['id'] !== 'waar') {
             continue;

@@ -1,0 +1,8 @@
+# Power BI-lessen (nakijk- en hulpapp): verborgen. Niet in Google, niet in menu of sitemap.
+# De app blijft altijd op noindex: het is een hulpmiddel voor in de les, geen pagina om te vinden.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "same-origin"
+</IfModule>
+Options -Indexes

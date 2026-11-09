@@ -268,6 +268,10 @@ Zet daarna `assets/`, `firmware/` en `index.html` in de app-map. In `index.html`
 
 `inhoud/apps/wiskunde-oefenen/`: oefenapp haakjes wegwerken en ontbinden voor eerstejaars TBK, proef zonder inlog (03-11-2026, klus 402). Vite + React/TS; de map bevat alleen het bouwresultaat, de bron staat in `Projecten/AI-leerlab/app-bron/wiskunde-oefenen/` (daar ook de opgavenbank en de bouwinstructie). Voortgang in localStorage. Met een klascode stuurt de browser naamloze pogingen (onderdeel, goed of fout, foutcode, hulpstappen, datum) naar `api/pogingen.php`; tabellen `wo_klas` en `wo_poging` in dezelfde database als de andere apps, gemaakt bij het eerste gebruik. Klasoverzicht voor de docent op `docent/` met een geheime docentcode per klas, alleen totalen, getallen vanaf drie aanmeldingen. Klassen en docentcodes beheer je vanaf de Mac met `app-bron/wiskunde-oefenen/beheer/klassen.py` (sleutel van het postvak). Verborgen: X-Robots-Tag in `.htaccess`, robots-meta, `zichtbaar: false`.
 
+### Power BI-lessen (nakijk- en hulpapp)
+
+`inhoud/apps/power-bi-lessen/`: les-app voor de Power BI-lessen van Informatiemanagement, fase 1 les 2 (09-11-2026, klus 773). Duo's schrijven zich in met de code van de les, vinken de "Je ziet nu"-momenten op volgorde af, vragen per stap een tutor om een hint (Claude via de officiële PHP-bibliotheek van Anthropic, in `api/lib/vendor/`) en beantwoorden drie controlevragen. Vite + React/TS; de map bevat alleen het bouwresultaat, de bron en de lesinhoud staan in `Projecten/AI-leerlab/app-bron/power-bi-lessen/`. Tabellen `pb_…` in dezelfde database, codes als Argon2id-hash, alleen datums. Instellingen onder `nakijkapp` in het configbestand (API-sleutel, zoeksleutel, maandplafond); zonder sleutel een nep-tutor in testmodus. Beheer: `api/beheer.php` en `api/overzicht.php` (alleen lezen, voor de Productiviteit-app) met de sleutel van het postvak. Altijd verborgen: X-Robots-Tag, robots-meta, `zichtbaar: false`, `lesapp: true`.
+
 ## De beginpagina
 
 Ontwerp van Bram (01-10-2026, categorieblokken 02-10-2026), met besluiten van Frits.

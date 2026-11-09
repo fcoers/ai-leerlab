@@ -91,7 +91,8 @@ if ($actie === 'controleer') {
     }
     foreach ($te_doen as $f) {
         if ($f['soort'] === 'getal' && pb_l1_ingevuld($rij['velden'][$f['id']] ?? '') && pb_l1_getal($rij['velden'][$f['id']], (int)$f['decimalen']) === null) {
-            ap_fout(422, (int)$f['decimalen'] === 0 ? 'Vul een heel getal in, zoals 12.' : 'Vul een getal in, zoals 18,4.', 'geen_getal', ['veld' => $f['id']]);
+            ap_fout(422, ((int)$f['decimalen'] === 0 ? ($f['heel'] ?? 'Vul een heel getal in, zoals 12.') : 'Vul een getal in, zoals 18,4.')
+                . ' Deze poging telt niet.', 'geen_getal', ['veld' => $f['id']]);
         }
     }
     if ($te_doen && !pb_tel_vandaag((int)$duo['id'], 'l1c', PB_L1_CONTROLES_PER_DAG)) {
@@ -142,7 +143,9 @@ if ($actie === 'feedback') {
     } catch (RuntimeException $e) {
         ap_fout(503, 'De feedback is even niet bereikbaar. Probeer het straks opnieuw.', 'tutor');
     }
-    $rij['uitslag']['feedback'] = $fb + ['hash' => pb_l1_tekst_hash($def, $rij['velden'])];
+    // De bekeken tekst gaat mee (alleen op de server, weg met de rest van het antwoord): als het tegoed op is, blijft de
+    // beoordeling gelden zolang de tekst daarna maar weinig verandert (pb_l1_fb_geldt).
+    $rij['uitslag']['feedback'] = $fb + ['hash' => pb_l1_tekst_hash($def, $rij['velden']), 'tekst' => pb_l1_tekst($def, $rij['velden'])];
     $rij['feedback'] = (int)$rij['feedback'] + 1;
     pb_l1_bewaar($duo, $def, $rij);
     pb_tel_kosten(0, true);

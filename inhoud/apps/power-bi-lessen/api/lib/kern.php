@@ -879,7 +879,10 @@ function pb_voortgang(int $duo_id, array $les): array
         return ['klaar' => $klaar, 'begonnen' => $status !== [] || $geprobeerd || (int)$hulp->fetchColumn() > 0,
                 'tekst' => $vragen_klaar . ' van ' . count($les['vragen']) . ' vragen',
                 'stappen_klaar' => $klaar_ids, 'controle_goed' => $goed, 'controle_totaal' => 1,
-                'stappen' => array_map(fn($s) => ['id' => $s['id'], 'titel' => $s['titel']], $stappen)];
+                'stappen' => array_map(fn($s) => ['id' => $s['id'], 'titel' => $s['titel']], $stappen),
+                // zoals de app telt: "x van 8 vragen" in deel 1, de twee fouten apart in deel 2
+                'groepen' => [['naam' => 'vragen', 'ids' => array_map(fn($v) => (string)$v['nr'], $les['vragen'])],
+                    ['naam' => 'fouten', 'ids' => ['F1', 'F2']]]];
     }
     $afgevinkt = pb_afgevinkt($duo_id, $n);
     $klaar_ids = [];

@@ -1,12 +1,13 @@
 <?php
 /**
  * Docentoverzicht voor de Productiviteit-app (tab van Wouter). Alleen lezen. Header X-Postvak-Sleutel.
- * GET [?cohort=<id>]  -> {ok, lessen: [{les, titel, soort, stappen: [{id, titel}], controle_totaal}],
+ * GET [?cohort=<id>]  -> {ok, lessen: [{les, titel, soort, stappen: [{id, titel}], controle_totaal, groepen?}],
  *                         duos: [{id, naam, voornamen, klas, cohort_id, laatst_actief, lessen: [{les, stappen_klaar,
  *                         controle_goed, klaar, hulpvragen}]}], cohorten: [{id, naam, les, lessen, status, wis_na}], kosten: {...}}
  * Per duo een rij per les waar het aan begonnen is, plus altijd de les van zijn cohort. Les 1 (soort vragen): de stappen
  * zijn de acht vragen (id 1 tot 8) en de twee fouten (F1, F2), een stap is klaar als de vraag of fout klaar is; de
- * controle is de controlevraag van deel 2 (totaal 1).
+ * controle is de controlevraag van deel 2 (totaal 1). `groepen` (alleen bij een les met vragen) zegt hoe de app telt:
+ * [{naam: vragen, ids: [1..8]}, {naam: fouten, ids: [F1, F2]}], zodat de tab "x van 8 vragen" en de fouten apart kan tonen.
  * Geen duocode: die staat alleen als Argon2id-hash in de database. Kwijt? beheer.php {actie: nieuwe_duocode, duo_id}.
  * Geen gesprekken: alleen het aantal hulpvragen.
  */
@@ -70,7 +71,8 @@ $uit_lessen = [];
 foreach ($lessen as $n => $l) {
     // De "stappen" van een les met vragen zijn de acht vragen en de twee fouten; de controle is de vraag van deel 2.
     $v = pb_voortgang(0, $l);
-    $uit_lessen[] = ['les' => $n, 'titel' => $l['titel'], 'soort' => $l['soort'] ?? 'stappen', 'stappen' => $v['stappen'], 'controle_totaal' => $v['controle_totaal']];
+    $uit_lessen[] = ['les' => $n, 'titel' => $l['titel'], 'soort' => $l['soort'] ?? 'stappen', 'stappen' => $v['stappen'], 'controle_totaal' => $v['controle_totaal']]
+        + (isset($v['groepen']) ? ['groepen' => $v['groepen']] : []);
 }
 ap_json([
     'ok' => true,

@@ -29,6 +29,13 @@ if (!$vraag) {
 if ($vraag['goed']) {
     ap_json(['ok' => true, 'uitslag' => 'goed', 'stand' => pb_stand($duo)]);
 }
+// Rem per duo: hooguit PB_CONTROLE_PER_DAG pogingen per dag over alle vragen samen. Een duo dat zijn rapport gebruikt
+// komt daar niet aan (drie vragen, drie pogingen per vraag); wie met een script blijft proberen wel.
+$st = pb_db()->prepare('SELECT COALESCE(SUM(pogingen), 0) FROM pb_vraag WHERE duo_id = ? AND les = ? AND datum = ?');
+$st->execute([$duo['id'], $duo['les'], pb_vandaag()]);
+if ((int)$st->fetchColumn() >= PB_CONTROLE_PER_DAG) {
+    ap_fout(429, 'Jullie hebben vandaag vaak geprobeerd. Kijk morgen met frisse blik in jullie rapport, of vraag je docent.', 'rem');
+}
 $maat = $les['controle']['maten'][$vraag['maat']];
 $getal = pb_lees_getal($in['antwoord'] ?? null, (int)$maat['decimalen']);
 if ($getal === null) {

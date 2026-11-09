@@ -25,6 +25,7 @@ const PB_STANDAARD_WIS_DAGEN = 120;   // als beheer geen wisdatum meegeeft
 const PB_MAX_VRAAG = 500;             // tekens per hulpvraag
 const PB_HULP_PER_DAG = 25;
 const PB_HULP_PER_STAP = 8;
+const PB_CONTROLE_PER_DAG = 30;     // pogingen op de controlevragen per duo per dag
 const PB_PLAFOND_EURO = 40.0;
 const PB_MELDING_FRACTIE = 0.8;
 const PB_VERSIE = 1;
@@ -160,6 +161,7 @@ function pb_controletabel(int $les): ?array
 function pb_db(): PDO
 {
     static $klaar = false;
+    pb_zoeksleutel();
     $pdo = ap_db();
     if (!$klaar) {
         pb_tabellen($pdo);
@@ -287,30 +289,55 @@ function pb_controleer_hash(string $code, string $hash): bool
  */
 function pb_zoek(string $code): string
 {
-    $sleutel = (string)pb_cfg()['zoeksleutel'];
-    if ($sleutel === '') {
-        $sleutel = 'pb-zoek|' . (string)(ap_config()['postvak_sleutel_sha256'] ?? '');
-    }
-    return substr(hash_hmac('sha256', $code, $sleutel), 0, 4);
+    return substr(hash_hmac('sha256', $code, pb_zoeksleutel()), 0, 4);
 }
 
-const PB_WOORDEN = ['TULP', 'ROOS', 'BEUK', 'LINDE', 'WILG', 'DEN', 'HAZEL', 'KLAVER', 'MAAN', 'ZON', 'STER', 'WOLK',
-    'BERG', 'DUIN', 'MEER', 'BEEK', 'HAVEN', 'DIJK', 'BRUG', 'TOREN', 'MOLEN', 'SLOOT', 'KADE', 'PIER', 'BAAI', 'KAAP',
-    'VOS', 'DAS', 'OTTER', 'MEES', 'VINK', 'UIL', 'REIGER', 'ZWAAN', 'HAAS', 'EGEL', 'MOL', 'BEVER', 'KREEFT', 'ZALM',
-    'HARING', 'PAARD', 'GEIT', 'KOE', 'LAMA', 'PANDA', 'TIJGER', 'LEEUW', 'ZEBRA', 'KAMEEL', 'APPEL', 'PEER', 'KERS',
-    'PRUIM', 'DADEL', 'VIJG', 'MANGO', 'KIWI', 'BES', 'NOOT', 'PEPER', 'MUNT', 'SALIE', 'TIJM', 'DILLE', 'BIES', 'RIET',
-    'VARENS', 'MOS', 'KOGEL', 'PIJL', 'BOOG', 'SCHILD', 'ANKER', 'ROER', 'ZEIL', 'MAST', 'KIEL', 'BOEG', 'KOMPAS', 'KAART',
-    'LAMP', 'KAARS', 'VONK', 'VUUR', 'GLOED', 'IJS', 'SNEEUW', 'HAGEL', 'STORM', 'BRIES', 'WIND', 'REGEN', 'DAUW', 'MIST',
-    'KLEI', 'ZAND', 'GRIND', 'KEI', 'ROTS', 'KRIJT', 'GOUD', 'ZILVER', 'KOPER', 'TIN', 'ZINK', 'IJZER', 'STAAL', 'PARELS',
-    'KORAAL', 'SCHELP', 'JADE', 'OPAAL', 'ROBIJN', 'AGAAT', 'TROMMEL', 'FLUIT', 'HOORN', 'HARP', 'LUIT', 'BEL', 'GONG',
-    'TANGO', 'WALS', 'POLKA', 'SAMBA', 'RUMBA', 'BLOK', 'KUBUS', 'BOL', 'KEGEL', 'PRISMA', 'CIRKEL', 'LIJN', 'PUNT', 'HOEK',
-    'VLAK', 'ZAAG', 'HAMER', 'BEITEL', 'TANG', 'VIJL', 'BOOR', 'SCHAAF', 'LIER', 'KATROL', 'HEFBOOM', 'WIEL', 'AS',
-    'RADAR', 'SONAR', 'LASER', 'PIXEL', 'BYTE', 'DATA', 'CODE', 'LUS', 'TAK', 'STAM', 'WORTEL', 'KNOP', 'BLAD', 'BLOEI'];
+/**
+ * De zoeksleutel uit de config. Zonder zoeksleutel start de app niet: een sleutel die er later bij komt, maakt elke
+ * bestaande duocode onvindbaar. Met de echte tutor moet hij minstens 32 tekens zijn.
+ */
+function pb_zoeksleutel(): string
+{
+    $sleutel = trim((string)pb_cfg()['zoeksleutel']);
+    $min = pb_tutor_modus() === 'echt' ? 32 : 1;
+    if (strlen($sleutel) < $min) {
+        error_log("power-bi-lessen: zoeksleutel ontbreekt of is korter dan $min tekens in apps-config.php ('nakijkapp' => ['zoeksleutel' => ...])");
+        ap_fout(503, 'De nakijkapp is nog niet ingesteld: de zoeksleutel ontbreekt in apps-config.php. Meld het je docent.', 'niet_ingesteld');
+    }
+    return $sleutel;
+}
 
-/** Duocode: kort woord en twee cijfers, zoals TULP-38. */
+/**
+ * Woorden voor de duocode. Samen met twee cijfers: 163 x 163 x 90 = ongeveer 2,4 miljoen codes. Hardop te zeggen en
+ * over te schrijven: 3 tot 6 letters, geen IJ, EI, AU of OU (klinkt hetzelfde, schrijf je anders), geen C, Q, X of Y,
+ * en geen twee woorden die één letter verschillen (zoals PEER en PIER). Twee woorden aan elkaar geschreven zijn
+ * altijd maar op één manier te splitsen; tests/server_test.py controleert dat.
+ */
+const PB_WOORDEN = ['TULP', 'ROOS', 'BEUK', 'LINDE', 'WILG', 'KLAVER', 'MAAN', 'STER', 'WOLK', 'BERG', 'DUIN', 'MEER', 'HAVEN',
+    'MOLEN', 'SLOOT', 'KADE', 'BAAI', 'VOS', 'DAS', 'OTTER', 'VINK', 'UIL', 'ZWAAN', 'HAAS', 'EGEL', 'BEVER',
+    'ZALM', 'HARING', 'PAARD', 'KOE', 'PANDA', 'LEEUW', 'ZEBRA', 'KAMEEL', 'MEREL', 'APPEL', 'KERS', 'PRUIM',
+    'DADEL', 'MANGO', 'KIWI', 'NOOT', 'PEPER', 'MUNT', 'SALIE', 'DILLE', 'RIET', 'VAREN', 'BOOG', 'ANKER', 'ROER',
+    'MAST', 'KOMPAS', 'KAART', 'VUUR', 'GLOED', 'SNEEUW', 'HAGEL', 'STORM', 'BRIES', 'WIND', 'REGEN', 'ZAND',
+    'GRIND', 'ZILVER', 'KOPER', 'STAAL', 'PAREL', 'KORAAL', 'FLUIT', 'HOORN', 'HARP', 'GONG', 'WALS', 'POLKA',
+    'SAMBA', 'RUMBA', 'BLOK', 'KUBUS', 'PRISMA', 'HOEK', 'ZAAG', 'HAMER', 'TANG', 'WIEL', 'RADAR', 'SONAR',
+    'LASER', 'KNOP', 'BLAD', 'WORTEL', 'STAM', 'TAK', 'TOREN', 'BRUG', 'FAKKEL', 'BANAAN', 'MELOEN', 'DRUIF',
+    'TOMAAT', 'KANO', 'SLOEP', 'VLOT', 'GITAAR', 'PIANO', 'ORGEL', 'VIOOL', 'BANJO', 'TUBA', 'BAZUIN', 'KOMEET',
+    'RAKET', 'MARS', 'VENUS', 'PLUTO', 'ORKAAN', 'DONDER', 'HEUVEL', 'KLIF', 'GROT', 'OASE', 'DELTA', 'FJORD',
+    'MAGMA', 'MUIS', 'RAT', 'BIZON', 'ELAND', 'HERT', 'WEZEL', 'WALRUS', 'ORKA', 'KRAAI', 'EKSTER', 'FAZANT',
+    'ZWALUW', 'AREND', 'VALK', 'HAVIK', 'KOKOS', 'PERZIK', 'LIMOEN', 'PAPAJA', 'HONING', 'SIROOP', 'SUIKER',
+    'GEMBER', 'TAFEL', 'STOEL', 'BANK', 'DEKEN', 'KUSSEN', 'WEKKER', 'RADIO', 'PASSER', 'PAPIER', 'ATLAS', 'GLOBE',
+    'HELM', 'LAARS', 'BROEK', 'HEMD', 'TRUI'];
+
+/** Duocode: twee verschillende woorden en twee cijfers, zoals TULP-ROOS-38. */
 function pb_nieuwe_duocode(): string
 {
-    return PB_WOORDEN[random_int(0, count(PB_WOORDEN) - 1)] . '-' . random_int(10, 99);
+    $n = count(PB_WOORDEN);
+    $a = random_int(0, $n - 1);
+    $b = random_int(0, $n - 2);
+    if ($b >= $a) {
+        $b++;
+    }
+    return PB_WOORDEN[$a] . '-' . PB_WOORDEN[$b] . '-' . random_int(10, 99);
 }
 
 /** Inschrijfcode: één woord dat de docent hardop zegt. Zonder eigen woord kiest de server er een. */
@@ -330,14 +357,29 @@ function pb_schone_inschrijfcode($invoer): string
     return preg_match('/^[A-Z]{4,24}$/', $s) ? $s : '';
 }
 
-/** "tulp 38", "Tulp38" en "TULP-38" worden "TULP-38". Leeg als het er niet op lijkt. */
+/**
+ * "tulp roos 38", "Tulp-Roos38" en "TULPROOS38" worden "TULP-ROOS-38". Zonder streepjes splitst de server op de
+ * woordenlijst. Leeg als het er niet op lijkt.
+ */
 function pb_schone_duocode($invoer): string
 {
-    if (!is_string($invoer)) {
+    if (!is_string($invoer) || strlen($invoer) > 40) {
         return '';
     }
-    $s = strtoupper(preg_replace('/[\s\-.]+/', '', $invoer));
-    return preg_match('/^([A-Z]{2,8})(\d{2})$/', $s, $m) ? $m[1] . '-' . $m[2] : '';
+    $s = strtoupper(trim($invoer));
+    if (preg_match('/^([A-Z]{3,6})[\s\-.]+([A-Z]{3,6})[\s\-.]*(\d{2})$/', $s, $m)) {
+        return $m[1] . '-' . $m[2] . '-' . $m[3];
+    }
+    $s = preg_replace('/[\s\-.]+/', '', $s);
+    if (!preg_match('/^([A-Z]{6,12})(\d{2})$/', $s, $m)) {
+        return '';
+    }
+    foreach (PB_WOORDEN as $w) {
+        if (str_starts_with($m[1], $w) && in_array(substr($m[1], strlen($w)), PB_WOORDEN, true)) {
+            return $w . '-' . substr($m[1], strlen($w)) . '-' . $m[2];
+        }
+    }
+    return '';
 }
 
 /** Een naam uit een veld: spaties samengenomen, geen stuurtekens, hooguit $max tekens. Leeg als ongeldig. */
@@ -388,13 +430,19 @@ function pb_duo_uit_sessie(array $in): array
     if (!is_string($token) || $token === '' || strlen($token) > 100) {
         ap_fout(401, 'Vul jullie duocode opnieuw in.', 'sessie');
     }
-    $st = pb_db()->prepare('SELECT d.*, c.les, c.status AS cohort_status, c.naam AS cohort_naam FROM pb_sessie s
+    pb_opruimen();
+    $st = pb_db()->prepare('SELECT d.*, c.les, c.status AS cohort_status, c.naam AS cohort_naam, c.wis_na AS cohort_wis_na FROM pb_sessie s
         JOIN pb_duo d ON d.id = s.duo_id JOIN pb_cohort c ON c.id = d.cohort_id
         WHERE s.token_sha256 = ? AND s.geldig_tot >= ?');
     $st->execute([hash('sha256', $token), pb_vandaag()]);
     $duo = $st->fetch();
     if (!$duo) {
         ap_fout(401, 'Vul jullie duocode opnieuw in.', 'sessie');
+    }
+    if ($duo['cohort_wis_na'] < pb_vandaag()) {
+        // Voorbij de wisdatum: nu meteen alles van dit cohort weg, ook als het opruimen van dit uur al was.
+        pb_wis_cohort((int)$duo['cohort_id']);
+        ap_fout(410, 'Deze les is afgelopen en de gegevens zijn gewist.', 'gewist');
     }
     if ($duo['cohort_status'] === 'gesloten') {
         ap_fout(410, 'Deze les is afgesloten.', 'gesloten');
@@ -422,22 +470,33 @@ function pb_duocode_vrij(string $code): bool
 
 // ---------------------------------------------------------------- opruimen
 
-/** Wist gesprekken na 14 dagen, verlopen sessies, en alle duogegevens van cohorten voorbij hun wisdatum. Eens per uur. */
-function pb_opruimen(bool $altijd = false): void
+/**
+ * Wist gesprekken na 14 dagen, verlopen sessies, en alle duogegevens van cohorten voorbij hun wisdatum. Draait bij elk
+ * verzoek van een duo en bij beheer, hooguit eens per uur; beheer.php {actie: opruimen} draait hem altijd, zodat het
+ * wissen niet van verkeer afhangt (dagelijks vanaf de Mac). Geeft wat er weg is.
+ */
+function pb_opruimen(bool $altijd = false): array
 {
+    $uit = ['gesprekken' => 0, 'sessies' => 0, 'cohorten' => 0, 'duos' => 0];
     $laatst = (int)(pv_instelling('pb_opgeruimd') ?? 0);
     if (!$altijd && time() - $laatst < 3600) {
-        return;
+        return $uit;
     }
     $pdo = pb_db();
-    $pdo->prepare('DELETE FROM pb_gesprek WHERE datum < ?')->execute([pb_vandaag(-PB_GESPREK_DAGEN)]);
-    $pdo->prepare('DELETE FROM pb_sessie WHERE geldig_tot < ?')->execute([pb_vandaag()]);
+    $st = $pdo->prepare('DELETE FROM pb_gesprek WHERE datum < ?');
+    $st->execute([pb_vandaag(-PB_GESPREK_DAGEN)]);
+    $uit['gesprekken'] = $st->rowCount();
+    $st = $pdo->prepare('DELETE FROM pb_sessie WHERE geldig_tot < ? OR duo_id NOT IN (SELECT id FROM pb_duo)');
+    $st->execute([pb_vandaag()]);
+    $uit['sessies'] = $st->rowCount();
     $st = $pdo->prepare('SELECT id FROM pb_cohort WHERE wis_na < ?');
     $st->execute([pb_vandaag()]);
     foreach ($st->fetchAll(PDO::FETCH_COLUMN) as $id) {
-        pb_wis_cohort((int)$id);
+        $uit['duos'] += pb_wis_cohort((int)$id);
+        $uit['cohorten']++;
     }
     pv_zet_instelling('pb_opgeruimd', (string)time());
+    return $uit;
 }
 
 function pb_wis_duo(int $duo_id): void
@@ -449,17 +508,20 @@ function pb_wis_duo(int $duo_id): void
     $pdo->prepare('DELETE FROM pb_duo WHERE id = ?')->execute([$duo_id]);
 }
 
-function pb_wis_cohort(int $cohort_id): void
+/** Wist een cohort en alles van zijn duo's. Geeft het aantal gewiste duo's. */
+function pb_wis_cohort(int $cohort_id): int
 {
     $pdo = pb_db();
     $pdo->beginTransaction();
     $st = $pdo->prepare('SELECT id FROM pb_duo WHERE cohort_id = ?');
     $st->execute([$cohort_id]);
-    foreach ($st->fetchAll(PDO::FETCH_COLUMN) as $id) {
+    $ids = $st->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($ids as $id) {
         pb_wis_duo((int)$id);
     }
     $pdo->prepare('DELETE FROM pb_cohort WHERE id = ?')->execute([$cohort_id]);
     $pdo->commit();
+    return count($ids);
 }
 
 // ---------------------------------------------------------------- stand van een duo

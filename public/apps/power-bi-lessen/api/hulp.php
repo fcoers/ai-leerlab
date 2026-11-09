@@ -44,9 +44,9 @@ foreach ($eerder as $b) {
     if ($b['rol'] === 't') {
         $antwoorden++;
     }
-    $berichten[] = ['role' => $b['rol'] === 'd' ? 'user' : 'assistant', 'content' => $b['rol'] === 'd' ? "<vraag_van_duo>\n{$b['tekst']}\n</vraag_van_duo>" : $b['tekst']];
+    $berichten[] = ['role' => $b['rol'] === 'd' ? 'user' : 'assistant', 'content' => $b['rol'] === 'd' ? pb_vraag_in_tag($b['tekst']) : $b['tekst']];
 }
-$berichten[] = ['role' => 'user', 'content' => "<vraag_van_duo>\n$vraag\n</vraag_van_duo>"];
+$berichten[] = ['role' => 'user', 'content' => pb_vraag_in_tag($vraag)];
 $trede = min(3, $antwoorden + 1);
 
 try {

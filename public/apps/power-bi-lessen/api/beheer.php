@@ -12,6 +12,9 @@
  * POST {actie: verwijder, id}                      -> cohort en alle gegevens van zijn duo's weg
  * POST {actie: nieuwe_duocode, duo_id}             -> nieuwe duocode voor een duo dat hem kwijt is (alleen in dit antwoord)
  * POST {actie: wis_duo, duo_id}                    -> één duo en al zijn gegevens weg
+ * POST {actie: opruimen}                           -> nu opruimen, los van verkeer: cohorten voorbij hun wisdatum met al
+ *                                                     hun gegevens, gesprekken ouder dan 14 dagen, verlopen sessies.
+ *                                                     Geeft de aantallen. Dagelijks vanaf de Mac.
  */
 define('PB', true);
 require __DIR__ . '/lib/kern.php';
@@ -22,6 +25,10 @@ if ($methode !== 'GET' && $methode !== 'POST') {
 }
 pv_controleer_sleutel();
 $pdo = pb_db();
+$in = $methode === 'POST' ? ap_lees_json(4096) : [];
+if (($in['actie'] ?? null) === 'opruimen') {
+    ap_json(['ok' => true, 'gewist' => pb_opruimen(true), 'datum' => pb_vandaag()]);
+}
 pb_opruimen();
 
 function pb_cohort_stand(array $c): array
@@ -99,7 +106,6 @@ if ($methode === 'GET') {
     ap_json(['ok' => true, 'cohorten' => array_map('pb_cohort_stand', $cohorten), 'lessen' => pb_lessen(), 'kosten' => pb_kosten_stand()]);
 }
 
-$in = ap_lees_json(4096);
 $actie = $in['actie'] ?? null;
 
 if ($actie === 'nieuw') {

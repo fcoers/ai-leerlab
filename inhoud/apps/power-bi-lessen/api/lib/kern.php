@@ -3,9 +3,9 @@
  * Power BI-lessen (nakijk- en hulpapp): kern voor de API. Bouwt op de gedeelde kern van de apps (config buiten de
  * webroot, ap_db, ap_rem, pv_instelling).
  *
- * Wat de server bewaart, per cohort: naam, les, de Argon2id-hash van de inschrijfcode en de wisdatum. Per duo: de
- * duonaam, twee voornamen, de Argon2id-hash van de duocode, het afvinken en de controlevragen, steeds met alleen een
- * datum. Hulpvragen tellen als rij met een datum. Het gesprek met de tutor staat hooguit 14 dagen, alleen als
+ * Wat de server bewaart, per cohort: naam, de lessen die open staan, de Argon2id-hash van de inschrijfcode en de
+ * wisdatum. Per duo: de duonaam, twee voornamen, de Argon2id-hash van de duocode, het afvinken, de controlevragen en
+ * (les 1) de antwoorden die het duo intypt met de feedback daarop, steeds met alleen een datum. Hulpvragen tellen als rij met een datum. Het gesprek met de tutor staat hooguit 14 dagen, alleen als
  * context voor de tutor, en gaat weg zodra de stap klaar is. Geen e-mail, studentnummer, IP-adres of tijdstip.
  * Na de wisdatum van het cohort gaat alles van zijn duo's weg.
  */
@@ -18,7 +18,7 @@ if (!defined('AI_APPS')) {
 }
 require dirname(__DIR__, 3) . '/postvak/lib/kern.php';
 
-const PB_SCHEMA = '1';
+const PB_SCHEMA = '2';       // 2: lessen per cohort (pb_cohort_les), antwoorden (pb_antwoord), tellers (pb_teller)
 const PB_GESPREK_DAGEN = 14;
 const PB_SESSIE_DAGEN = 1;            // een sessie geldt vandaag en morgen; daarna opnieuw de duocode
 const PB_STANDAARD_WIS_DAGEN = 120;   // als beheer geen wisdatum meegeeft
@@ -251,7 +251,99 @@ function pb_tabellen(PDO $pdo): void
             // bestaat al
         }
     }
+    // Schema 2 (les 1): één inschrijving en één duocode voor alle lessen. Per cohort de lessen die open staan; per duo de
+    // antwoorden die het in de app typt, met de laatste uitslag en feedback; tellers per duo per dag.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS pb_cohort_les (
+        cohort_id BIGINT NOT NULL,
+        les INT NOT NULL,
+        PRIMARY KEY (cohort_id, les))$eind");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS pb_antwoord (
+        duo_id BIGINT NOT NULL,
+        les INT NOT NULL,
+        item VARCHAR(8) NOT NULL,
+        velden $tekst NOT NULL,
+        uitslag $tekst NULL,
+        status VARCHAR(10) NOT NULL DEFAULT 'leeg',
+        feedback INT NOT NULL DEFAULT 0,
+        datum DATE NOT NULL,
+        PRIMARY KEY (duo_id, les, item))$eind");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS pb_teller (
+        duo_id BIGINT NOT NULL,
+        soort VARCHAR(8) NOT NULL,
+        datum DATE NOT NULL,
+        aantal INT NOT NULL DEFAULT 0,
+        PRIMARY KEY (duo_id, soort, datum))$eind");
+    pb_migreer_lessen($pdo);
     pv_zet_instelling('pb_schema', PB_SCHEMA);
+}
+
+/**
+ * Migratie naar schema 2: elk cohort zonder rij in pb_cohort_les krijgt de lessen die er nu zijn tot en met zijn eigen
+ * les (een cohort van les 2 krijgt les 1 en 2), zodat bestaande duo's les 1 kunnen kiezen. pb_cohort.les blijft staan
+ * als de les waar een duo zonder keuze in komt (oude browsers die nog geen les meesturen). Mag vaker draaien.
+ */
+function pb_migreer_lessen(PDO $pdo): void
+{
+    $bestaand = pb_lessen();
+    $zonder = $pdo->query('SELECT id, les FROM pb_cohort WHERE id NOT IN (SELECT cohort_id FROM pb_cohort_les)')->fetchAll();
+    $ins = $pdo->prepare('INSERT INTO pb_cohort_les (cohort_id, les) VALUES (?, ?)');
+    foreach ($zonder as $c) {
+        $lessen = array_values(array_filter($bestaand, fn($n) => $n <= (int)$c['les']));
+        if (!in_array((int)$c['les'], $lessen, true)) {
+            $lessen[] = (int)$c['les'];
+        }
+        foreach ($lessen as $n) {
+            try {
+                $ins->execute([$c['id'], $n]);
+            } catch (Throwable $e) {
+                // tegelijk door een ander verzoek gedaan
+            }
+        }
+    }
+}
+
+/** De lessen die voor een cohort open staan, oplopend. */
+function pb_cohort_lessen(int $cohort_id): array
+{
+    $st = pb_db()->prepare('SELECT les FROM pb_cohort_les WHERE cohort_id = ? ORDER BY les');
+    $st->execute([$cohort_id]);
+    return array_map('intval', $st->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/** Zet de open lessen van een cohort; de eerste wordt de les zonder keuze. */
+function pb_zet_cohort_lessen(int $cohort_id, array $lessen): void
+{
+    $pdo = pb_db();
+    $pdo->beginTransaction();
+    $pdo->prepare('DELETE FROM pb_cohort_les WHERE cohort_id = ?')->execute([$cohort_id]);
+    $ins = $pdo->prepare('INSERT INTO pb_cohort_les (cohort_id, les) VALUES (?, ?)');
+    foreach ($lessen as $n) {
+        $ins->execute([$cohort_id, $n]);
+    }
+    $pdo->prepare('UPDATE pb_cohort SET les = ? WHERE id = ?')->execute([min($lessen), $cohort_id]);
+    $pdo->commit();
+}
+
+/** Telt één keer mee voor een duo vandaag; false als het maximum van vandaag al bereikt is. */
+function pb_tel_vandaag(int $duo_id, string $soort, int $max): bool
+{
+    $pdo = pb_db();
+    $st = $pdo->prepare('SELECT aantal FROM pb_teller WHERE duo_id = ? AND soort = ? AND datum = ?');
+    $st->execute([$duo_id, $soort, pb_vandaag()]);
+    $n = $st->fetchColumn();
+    if ($n === false) {
+        try {
+            $pdo->prepare('INSERT INTO pb_teller (duo_id, soort, datum, aantal) VALUES (?, ?, ?, 1)')->execute([$duo_id, $soort, pb_vandaag()]);
+            return true;
+        } catch (Throwable $e) {
+            $n = 0;
+        }
+    }
+    if ((int)$n >= $max) {
+        return false;
+    }
+    $pdo->prepare('UPDATE pb_teller SET aantal = aantal + 1 WHERE duo_id = ? AND soort = ? AND datum = ?')->execute([$duo_id, $soort, pb_vandaag()]);
+    return true;
 }
 
 function pb_vandaag(int $plus_dagen = 0): string
@@ -447,7 +539,26 @@ function pb_duo_uit_sessie(array $in): array
     if ($duo['cohort_status'] === 'gesloten') {
         ap_fout(410, 'Deze les is afgesloten.', 'gesloten');
     }
+    // De les waar het duo aan werkt: uit het verzoek als die meekomt (en open staat voor het cohort), anders de les van
+    // het cohort. Oude browsers sturen geen les mee en blijven zo in hun les.
+    $duo['cohort_les'] = (int)$duo['les'];
+    if (array_key_exists('les', $in) && $in['les'] !== null) {
+        if (!is_int($in['les']) || !in_array($in['les'], pb_cohort_lessen((int)$duo['cohort_id']), true) || !pb_les($in['les'])) {
+            ap_fout(409, 'Deze les staat nog niet open.', 'les_dicht');
+        }
+        $duo['les'] = $in['les'];
+    }
     return $duo;
+}
+
+/** Stopt met 409 als de les van het duo niet van deze soort is (stappen voor les 2, vragen voor les 1). */
+function pb_eis_soort(array $duo, string $soort): array
+{
+    $les = pb_les((int)$duo['les']);
+    if (!$les || ($les['soort'] ?? 'stappen') !== $soort) {
+        ap_fout(409, 'Dit hoort niet bij deze les.', 'soort');
+    }
+    return $les;
 }
 
 /** Zoekt een duo bij een (schone) duocode. Probeert alleen de hashes met dezelfde zoekwaarde. */
@@ -489,6 +600,7 @@ function pb_opruimen(bool $altijd = false): array
     $st = $pdo->prepare('DELETE FROM pb_sessie WHERE geldig_tot < ? OR duo_id NOT IN (SELECT id FROM pb_duo)');
     $st->execute([pb_vandaag()]);
     $uit['sessies'] = $st->rowCount();
+    $pdo->prepare('DELETE FROM pb_teller WHERE datum < ?')->execute([pb_vandaag()]);
     $st = $pdo->prepare('SELECT id FROM pb_cohort WHERE wis_na < ?');
     $st->execute([pb_vandaag()]);
     foreach ($st->fetchAll(PDO::FETCH_COLUMN) as $id) {
@@ -502,7 +614,7 @@ function pb_opruimen(bool $altijd = false): array
 function pb_wis_duo(int $duo_id): void
 {
     $pdo = pb_db();
-    foreach (['pb_vink', 'pb_hulp', 'pb_gesprek', 'pb_vraag', 'pb_sessie'] as $t) {
+    foreach (['pb_vink', 'pb_hulp', 'pb_gesprek', 'pb_vraag', 'pb_sessie', 'pb_antwoord', 'pb_teller'] as $t) {
         $pdo->prepare("DELETE FROM $t WHERE duo_id = ?")->execute([$duo_id]);
     }
     $pdo->prepare('DELETE FROM pb_duo WHERE id = ?')->execute([$duo_id]);
@@ -519,6 +631,7 @@ function pb_wis_cohort(int $cohort_id): int
     foreach ($ids as $id) {
         pb_wis_duo((int)$id);
     }
+    $pdo->prepare('DELETE FROM pb_cohort_les WHERE cohort_id = ?')->execute([$cohort_id]);
     $pdo->prepare('DELETE FROM pb_cohort WHERE id = ?')->execute([$cohort_id]);
     $pdo->commit();
     return count($ids);
@@ -683,6 +796,9 @@ function pb_stand(array $duo): array
     if (!$les) {
         ap_fout(503, 'Deze les staat nog niet klaar.', 'les');
     }
+    if (($les['soort'] ?? 'stappen') === 'vragen') {
+        return pb_stand_vragen($duo, $les) + ['keuze' => pb_keuze($duo)];
+    }
     $afgevinkt = pb_afgevinkt((int)$duo['id'], (int)$duo['les']);
     $volgend = pb_volgend_moment($les, $afgevinkt);
     $uit = [
@@ -695,6 +811,8 @@ function pb_stand(array $duo): array
         'tegoed' => $volgend ? pb_tegoed((int)$duo['id'], (int)$duo['les'], $volgend['stap']) : null,
         'vragen' => null,
         'klaar' => false,
+        'soort' => 'stappen',
+        'keuze' => pb_keuze($duo),
     ];
     if ($volgend === null) {
         if (pb_controletabel((int)$duo['les']) === null) {
@@ -707,6 +825,77 @@ function pb_stand(array $duo): array
         $uit['klaar'] = count($vragen) === $les['controle']['aantal'] && !array_filter($vragen, fn($v) => !$v['goed']);
     }
     return $uit;
+}
+
+/**
+ * De lessenkeuze: elke les die er is, met of hij open staat voor het cohort van het duo en hoe ver het duo is.
+ * {les, titel, sub, open, stand: tekst, klaar, begonnen}
+ */
+function pb_keuze(array $duo): array
+{
+    $open = pb_cohort_lessen((int)$duo['cohort_id']);
+    $uit = [];
+    foreach (pb_lessen() as $n) {
+        $l = pb_les($n);
+        $r = ['les' => $n, 'titel' => $l['titel'], 'sub' => $l['sub'] ?? '', 'open' => in_array($n, $open, true), 'stand' => '', 'klaar' => false, 'begonnen' => false];
+        if ($r['open']) {
+            $v = pb_voortgang((int)$duo['id'], $l);
+            $r['klaar'] = $v['klaar'];
+            $r['begonnen'] = $v['begonnen'];
+            $r['stand'] = $v['klaar'] ? 'Klaar om in te leveren' : $v['tekst'];
+        }
+        $uit[] = $r;
+    }
+    return $uit;
+}
+
+/**
+ * Hoe ver een duo is in een les, voor de lessenkeuze en het docentoverzicht. Les met stappen: stappen klaar en
+ * controlevragen goed. Les met vragen: de items (vragen, fout 1 en 2) die klaar zijn en de controlevraag van deel 2.
+ * {klaar, begonnen, tekst, stappen_klaar: [id], controle_goed, controle_totaal, stappen: [{id, titel}]}
+ */
+function pb_voortgang(int $duo_id, array $les): array
+{
+    $n = (int)$les['les'];
+    $vragen = pb_vragen($duo_id, $n);
+    $goed = count(array_filter($vragen, fn($v) => (int)$v['goed'] === 1));
+    if (($les['soort'] ?? 'stappen') === 'vragen') {
+        $st = pb_db()->prepare('SELECT item, status FROM pb_antwoord WHERE duo_id = ? AND les = ?');
+        $st->execute([$duo_id, $n]);
+        $status = $st->fetchAll(PDO::FETCH_KEY_PAIR);
+        $stappen = [];
+        foreach ($les['vragen'] as $v) {
+            $stappen[] = ['id' => (string)$v['nr'], 'titel' => $v['titel'], 'item' => $v['id']];
+        }
+        $stappen[] = ['id' => 'F1', 'titel' => 'Fout 1 beschreven', 'item' => 'f1'];
+        $stappen[] = ['id' => 'F2', 'titel' => 'Fout 2 beschreven', 'item' => 'f2'];
+        $klaar_ids = array_values(array_map(fn($s) => $s['id'], array_filter($stappen, fn($s) => ($status[$s['item']] ?? '') === 'klaar')));
+        $vragen_klaar = count(array_filter($les['vragen'], fn($v) => ($status[$v['id']] ?? '') === 'klaar'));
+        $klaar = count($klaar_ids) === count($stappen) && $goed === 1;
+        $hulp = pb_db()->prepare('SELECT COUNT(*) FROM pb_hulp WHERE duo_id = ? AND les = ?');
+        $hulp->execute([$duo_id, $n]);
+        // De controlevraag van deel 2 ontstaat al bij het eerste bekijken; begonnen is pas iets invullen of hulp vragen.
+        $geprobeerd = array_filter($vragen, fn($v) => (int)$v['pogingen'] > 0) !== [];
+        return ['klaar' => $klaar, 'begonnen' => $status !== [] || $geprobeerd || (int)$hulp->fetchColumn() > 0,
+                'tekst' => $vragen_klaar . ' van ' . count($les['vragen']) . ' vragen',
+                'stappen_klaar' => $klaar_ids, 'controle_goed' => $goed, 'controle_totaal' => 1,
+                'stappen' => array_map(fn($s) => ['id' => $s['id'], 'titel' => $s['titel']], $stappen)];
+    }
+    $afgevinkt = pb_afgevinkt($duo_id, $n);
+    $klaar_ids = [];
+    foreach ($les['stappen'] as $s) {
+        if (!array_diff(array_column($s['momenten'], 'id'), $afgevinkt)) {
+            $klaar_ids[] = $s['id'];
+        }
+    }
+    $totaal = (int)$les['controle']['aantal'];
+    $hulp = pb_db()->prepare('SELECT COUNT(*) FROM pb_hulp WHERE duo_id = ? AND les = ?');
+    $hulp->execute([$duo_id, $n]);
+    return ['klaar' => count($klaar_ids) === count($les['stappen']) && $totaal > 0 && $goed === $totaal,
+            'begonnen' => $afgevinkt !== [] || (int)$hulp->fetchColumn() > 0,
+            'tekst' => count($klaar_ids) . ' van ' . count($les['stappen']) . ' stappen',
+            'stappen_klaar' => $klaar_ids, 'controle_goed' => $goed, 'controle_totaal' => $totaal,
+            'stappen' => array_map(fn($s) => ['id' => $s['id'], 'titel' => $s['titel']], $les['stappen'])];
 }
 
 // ---------------------------------------------------------------- kosten
@@ -777,3 +966,5 @@ function pb_kosten_stand(): array
         'tutor' => pb_tutor_modus(),
     ];
 }
+
+require __DIR__ . '/vragen.php';

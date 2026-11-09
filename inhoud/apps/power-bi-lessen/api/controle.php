@@ -9,7 +9,7 @@ require __DIR__ . '/lib/kern.php';
 pb_eis_eigen_herkomst();
 $in = ap_lees_json(1024);
 $duo = pb_duo_uit_sessie($in);
-$les = pb_les((int)$duo['les']);
+$les = pb_eis_soort($duo, 'stappen');
 if (pb_volgend_moment($les, pb_afgevinkt((int)$duo['id'], (int)$duo['les'])) !== null) {
     ap_fout(409, 'Eerst alle stappen afvinken.', 'volgorde');
 }

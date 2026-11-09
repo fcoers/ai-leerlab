@@ -1,10 +1,14 @@
 <?php
 /**
  * Cohorten en duo's beheren vanaf de Mac. Header X-Postvak-Sleutel, dezelfde sleutel als het postvak.
- * GET                                              -> cohorten met aantallen, de lessen en de kosten van deze maand
- * POST {actie: nieuw, naam, les, code?, wis_na?}   -> nieuw cohort; de inschrijfcode staat alleen in dit antwoord.
- *                                                     Zonder code kiest de server een woord; wis_na (JJJJ-MM-DD) is het
- *                                                     einde van het blok, standaard over 120 dagen.
+ * GET                                              -> cohorten met aantallen en open lessen, de lessen, de kosten van deze
+ *                                                     maand, en systeem: welke PHP-onderdelen op de host aanstaan (intl,
+ *                                                     sodium, Argon2id, zip) en de PHP-versie
+ * POST {actie: nieuw, naam, lessen|les, code?, wis_na?} -> nieuw cohort met de lessen die open staan ([1, 2], of één les);
+ *                                                     de inschrijfcode staat alleen in dit antwoord. Zonder code kiest de
+ *                                                     server een woord; wis_na (JJJJ-MM-DD) is het einde van het blok,
+ *                                                     standaard over 120 dagen.
+ * POST {actie: lessen, id, lessen}                 -> andere open lessen voor een cohort; een duo houdt zijn voortgang
  * POST {actie: inschrijfcode, id, code?}           -> nieuwe inschrijfcode; de oude werkt direct niet meer
  * POST {actie: sluiten, id}                        -> geen nieuwe inschrijvingen en duo's kunnen niet meer verder
  * POST {actie: openen, id}                         -> weer open
@@ -35,7 +39,7 @@ function pb_cohort_stand(array $c): array
 {
     $st = pb_db()->prepare('SELECT COUNT(*) FROM pb_duo WHERE cohort_id = ?');
     $st->execute([$c['id']]);
-    return ['id' => (int)$c['id'], 'naam' => $c['naam'], 'les' => (int)$c['les'], 'status' => $c['status'],
+    return ['id' => (int)$c['id'], 'naam' => $c['naam'], 'les' => (int)$c['les'], 'lessen' => pb_cohort_lessen((int)$c['id']), 'status' => $c['status'],
             'inschrijfcode' => $c['code_hash'] !== null, 'duos' => (int)$st->fetchColumn(), 'gemaakt' => $c['gemaakt'], 'wis_na' => $c['wis_na']];
 }
 
@@ -101,9 +105,40 @@ function pb_kies_inschrijfcode($gewenst, ?int $behalve = null): string
     ap_fout(500, 'Geen vrije inschrijfcode gevonden.', 'server');
 }
 
+/** Lessen uit het verzoek: een lijst van bestaande lessen, of één les. */
+function pb_lessen_uit($in): array
+{
+    $lijst = $in['lessen'] ?? (isset($in['les']) ? [$in['les']] : null);
+    if (!is_array($lijst) || $lijst === [] || count($lijst) > 20) {
+        ap_fout(422, 'Kies een of meer lessen die bestaan: ' . implode(', ', pb_lessen()) . '.', 'ongeldig');
+    }
+    foreach ($lijst as $n) {
+        if (!is_int($n) || !pb_les($n)) {
+            ap_fout(422, 'Kies een of meer lessen die bestaan: ' . implode(', ', pb_lessen()) . '.', 'ongeldig');
+        }
+    }
+    $lijst = array_values(array_unique($lijst));
+    sort($lijst);
+    return $lijst;
+}
+
+/** Wat er op de host aanstaat, zonder paden of instellingen: voor de beheerder, alleen met de sleutel. */
+function pb_systeem(): array
+{
+    return [
+        'php' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+        'intl' => extension_loaded('intl') && class_exists('Normalizer'),
+        'sodium' => extension_loaded('sodium'),
+        'argon2id' => defined('PASSWORD_ARGON2ID'),
+        'mbstring' => extension_loaded('mbstring'),
+        'zip' => class_exists('ZipArchive'),
+    ];
+}
+
 if ($methode === 'GET') {
     $cohorten = $pdo->query('SELECT * FROM pb_cohort ORDER BY id')->fetchAll();
-    ap_json(['ok' => true, 'cohorten' => array_map('pb_cohort_stand', $cohorten), 'lessen' => pb_lessen(), 'kosten' => pb_kosten_stand()]);
+    ap_json(['ok' => true, 'cohorten' => array_map('pb_cohort_stand', $cohorten), 'lessen' => pb_lessen(), 'kosten' => pb_kosten_stand(),
+        'systeem' => pb_systeem()]);
 }
 
 $actie = $in['actie'] ?? null;
@@ -113,15 +148,14 @@ if ($actie === 'nieuw') {
     if ($naam === '') {
         ap_fout(422, 'Geef het cohort een naam van hooguit 80 tekens.', 'ongeldig');
     }
-    $les = $in['les'] ?? null;
-    if (!is_int($les) || !pb_les($les)) {
-        ap_fout(422, 'Kies een les die bestaat: ' . implode(', ', pb_lessen()) . '.', 'ongeldig');
-    }
+    $lessen = pb_lessen_uit($in);
     $wis = pb_datum_of_standaard($in['wis_na'] ?? null);
     $code = pb_kies_inschrijfcode($in['code'] ?? null);
     $pdo->prepare("INSERT INTO pb_cohort (naam, les, code_hash, status, gemaakt, wis_na) VALUES (?, ?, ?, 'open', ?, ?)")
-        ->execute([$naam, $les, pb_hash($code), pb_vandaag(), $wis]);
-    $c = pb_cohort_op_id((int)$pdo->lastInsertId());
+        ->execute([$naam, $lessen[0], pb_hash($code), pb_vandaag(), $wis]);
+    $id = (int)$pdo->lastInsertId();
+    pb_zet_cohort_lessen($id, $lessen);
+    $c = pb_cohort_op_id($id);
     ap_json(['ok' => true, 'cohort' => pb_cohort_stand($c), 'inschrijfcode' => $code]);
 }
 if ($actie === 'inschrijfcode') {
@@ -129,6 +163,11 @@ if ($actie === 'inschrijfcode') {
     $code = pb_kies_inschrijfcode($in['code'] ?? null, (int)$c['id']);
     $pdo->prepare('UPDATE pb_cohort SET code_hash = ? WHERE id = ?')->execute([pb_hash($code), $c['id']]);
     ap_json(['ok' => true, 'cohort' => pb_cohort_stand(pb_cohort_op_id((int)$c['id'])), 'inschrijfcode' => $code]);
+}
+if ($actie === 'lessen') {
+    $c = pb_cohort_op_id($in['id'] ?? null);
+    pb_zet_cohort_lessen((int)$c['id'], pb_lessen_uit($in));
+    ap_json(['ok' => true, 'cohort' => pb_cohort_stand(pb_cohort_op_id((int)$c['id']))]);
 }
 if ($actie === 'sluiten' || $actie === 'openen') {
     $c = pb_cohort_op_id($in['id'] ?? null);

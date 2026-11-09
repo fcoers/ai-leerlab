@@ -1,9 +1,12 @@
 <?php
 /**
  * Docentoverzicht voor de Productiviteit-app (tab van Wouter). Alleen lezen. Header X-Postvak-Sleutel.
- * GET [?cohort=<id>]  -> {ok, lessen: [{les, titel, stappen: [{id, titel}], controle_totaal}],
+ * GET [?cohort=<id>]  -> {ok, lessen: [{les, titel, soort, stappen: [{id, titel}], controle_totaal}],
  *                         duos: [{id, naam, voornamen, klas, cohort_id, laatst_actief, lessen: [{les, stappen_klaar,
- *                         controle_goed, klaar, hulpvragen}]}], cohorten: [...], kosten: {...}}
+ *                         controle_goed, klaar, hulpvragen}]}], cohorten: [{id, naam, les, lessen, status, wis_na}], kosten: {...}}
+ * Per duo een rij per les waar het aan begonnen is, plus altijd de les van zijn cohort. Les 1 (soort vragen): de stappen
+ * zijn de acht vragen (id 1 tot 8) en de twee fouten (F1, F2), een stap is klaar als de vraag of fout klaar is; de
+ * controle is de controlevraag van deel 2 (totaal 1).
  * Geen duocode: die staat alleen als Argon2id-hash in de database. Kwijt? beheer.php {actie: nieuwe_duocode, duo_id}.
  * Geen gesprekken: alleen het aantal hulpvragen.
  */
@@ -35,27 +38,22 @@ $st->execute($cohort_filter !== null ? [$cohort_filter] : []);
 $duos = [];
 foreach ($st->fetchAll() as $d) {
     $c = $per_cohort[(int)$d['cohort_id']] ?? null;
-    $n = $c ? (int)$c['les'] : 0;
-    $les = $lessen[$n] ?? null;
-    $afgevinkt = pb_afgevinkt((int)$d['id'], $n);
-    $stappen_klaar = [];
-    if ($les) {
-        foreach ($les['stappen'] as $s) {
-            if (!array_diff(array_column($s['momenten'], 'id'), $afgevinkt)) {
-                $stappen_klaar[] = $s['id'];
-            }
+    // Een rij per les waar het duo aan begonnen is; de les van het cohort altijd (zoals voorheen).
+    $rijen = [];
+    foreach ($lessen as $n => $les) {
+        $v = pb_voortgang((int)$d['id'], $les);
+        if (!$v['begonnen'] && !($c && (int)$c['les'] === $n)) {
+            continue;
         }
+        $q = $pdo->prepare('SELECT COUNT(*) FROM pb_hulp WHERE duo_id = ? AND les = ?');
+        $q->execute([$d['id'], $n]);
+        $rijen[] = ['les' => $n, 'stappen_klaar' => $v['stappen_klaar'], 'controle_goed' => $v['controle_goed'], 'klaar' => $v['klaar'],
+            'hulpvragen' => (int)$q->fetchColumn()];
     }
-    $vragen = pb_vragen((int)$d['id'], $n);
-    $goed = count(array_filter($vragen, fn($v) => (int)$v['goed'] === 1));
-    $q = $pdo->prepare('SELECT COUNT(*) FROM pb_hulp WHERE duo_id = ? AND les = ?');
-    $q->execute([$d['id'], $n]);
-    $hulp = (int)$q->fetchColumn();
     $q = $pdo->prepare('SELECT MAX(datum) FROM (SELECT datum FROM pb_vink WHERE duo_id = ? UNION ALL SELECT datum FROM pb_hulp WHERE duo_id = ?
-        UNION ALL SELECT datum FROM pb_vraag WHERE duo_id = ?) x');
-    $q->execute([$d['id'], $d['id'], $d['id']]);
+        UNION ALL SELECT datum FROM pb_vraag WHERE duo_id = ? UNION ALL SELECT datum FROM pb_antwoord WHERE duo_id = ?) x');
+    $q->execute([$d['id'], $d['id'], $d['id'], $d['id']]);
     $laatst = $q->fetchColumn() ?: $d['gemaakt'];
-    $totaal = $les ? (int)$les['controle']['aantal'] : 0;
     $duos[] = [
         'id' => (int)$d['id'],
         'naam' => $d['duonaam'],
@@ -64,25 +62,21 @@ foreach ($st->fetchAll() as $d) {
         'cohort_id' => (int)$d['cohort_id'],
         'gemaakt' => $d['gemaakt'],
         'laatst_actief' => $laatst,
-        'lessen' => [[
-            'les' => $n,
-            'stappen_klaar' => $stappen_klaar,
-            'controle_goed' => $goed,
-            'klaar' => $les !== null && count($stappen_klaar) === count($les['stappen']) && $totaal > 0 && $goed === $totaal,
-            'hulpvragen' => $hulp,
-        ]],
+        'lessen' => $rijen,
     ];
 }
 
 $uit_lessen = [];
 foreach ($lessen as $n => $l) {
-    $uit_lessen[] = ['les' => $n, 'titel' => $l['titel'], 'stappen' => array_map(fn($s) => ['id' => $s['id'], 'titel' => $s['titel']], $l['stappen']),
-        'controle_totaal' => (int)$l['controle']['aantal']];
+    // De "stappen" van een les met vragen zijn de acht vragen en de twee fouten; de controle is de vraag van deel 2.
+    $v = pb_voortgang(0, $l);
+    $uit_lessen[] = ['les' => $n, 'titel' => $l['titel'], 'soort' => $l['soort'] ?? 'stappen', 'stappen' => $v['stappen'], 'controle_totaal' => $v['controle_totaal']];
 }
 ap_json([
     'ok' => true,
     'lessen' => $uit_lessen,
     'duos' => $duos,
-    'cohorten' => array_map(fn($c) => ['id' => (int)$c['id'], 'naam' => $c['naam'], 'les' => (int)$c['les'], 'status' => $c['status'], 'wis_na' => $c['wis_na']], $cohorten),
+    'cohorten' => array_map(fn($c) => ['id' => (int)$c['id'], 'naam' => $c['naam'], 'les' => (int)$c['les'], 'lessen' => pb_cohort_lessen((int)$c['id']),
+        'status' => $c['status'], 'wis_na' => $c['wis_na']], $cohorten),
     'kosten' => pb_kosten_stand(),
 ]);

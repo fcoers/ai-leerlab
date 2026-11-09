@@ -496,7 +496,9 @@ function pb_feedback_plek(array $def, bool $strenger): string
     if (!empty($def['fout'])) {
         $t = "Het duo beschrijft {$def['titel']} uit deel 2: een van de twee fouten in bestand B. De volgorde maakt niet uit: welke van de twee ze bij {$def['titel']} beschrijven, is goed. "
             . "Beschrijven ze iets wat geen van de twee fouten is, dan zit 'waar' er nog niet in; noem de echte fout dan niet. "
-            . "Beschrijven ze dezelfde fout als in het andere vak, zeg dan in de vraag terug dat er nog een tweede fout is, zonder te zeggen welke. "
+            . "Beschrijven ze dezelfde fout als in het andere vak, dan zit 'waar' er niet in (mist) en zeg je in de vraag terug dat er nog een tweede fout is, zonder te zeggen welke. "
+            . "Geef in 'fout' aan welke fout uit het antwoordmodel dit vak beschrijft: fout_1 (Fout 1 van het antwoordmodel), fout_2 (Fout 2 van het antwoordmodel), of geen (geen van beide, of te vaag om te zeggen). "
+            . "Het nummer van het vak in de app staat daar los van. Dit veld ziet het duo niet. "
             . "Over een fout die het duo nog niet beschreef, zeg je niets concreets: geen visual, keuzelijst, pagina, getal of verschijnsel. Wil je ze op weg helpen, "
             . "verwijs dan alleen naar de hulpvragen onder 'Loop je vast?' in de app.";
     } else {
@@ -509,41 +511,88 @@ function pb_feedback_plek(array $def, bool $strenger): string
     return $t;
 }
 
-/** Het schema van het antwoord: per criterium id, oordeel en toelichting, en de vraag terug. */
+/**
+ * Het schema van het antwoord: per criterium (als eigen sleutel, zodat elk criterium precies één keer voorkomt) oordeel
+ * en toelichting, en de vraag terug. Bij fout 1 en 2 ook welke fout uit het antwoordmodel het vak beschrijft.
+ */
 function pb_feedback_schema(array $def): array
 {
     $ids = array_column($def['rubric'], 'id');
-    return [
+    $criterium = [
         'type' => 'object',
         'properties' => [
-            'criteria' => ['type' => 'array', 'items' => [
-                'type' => 'object',
-                'properties' => [
-                    'id' => ['type' => 'string', 'enum' => $ids],
-                    'oordeel' => ['type' => 'string', 'enum' => ['zit', 'deels', 'mist']],
-                    'toelichting' => ['type' => 'string'],
-                ],
-                'required' => ['id', 'oordeel', 'toelichting'],
-                'additionalProperties' => false,
-            ]],
-            'terugvraag' => ['type' => 'string'],
+            'oordeel' => ['type' => 'string', 'enum' => ['zit', 'deels', 'mist']],
+            'toelichting' => ['type' => 'string'],
         ],
-        'required' => ['criteria', 'terugvraag'],
+        'required' => ['oordeel', 'toelichting'],
         'additionalProperties' => false,
     ];
+    $props = [
+        'criteria' => ['type' => 'object', 'properties' => array_fill_keys($ids, $criterium), 'required' => $ids, 'additionalProperties' => false],
+        'terugvraag' => ['type' => 'string'],
+    ];
+    $required = ['criteria', 'terugvraag'];
+    if (!empty($def['fout'])) {
+        $props['fout'] = ['type' => 'string', 'enum' => ['fout_1', 'fout_2', 'geen']];
+        $required[] = 'fout';
+    }
+    return ['type' => 'object', 'properties' => $props, 'required' => $required, 'additionalProperties' => false];
 }
 
-/** Antwoord van het model naar de vaste vorm: elk criterium één keer, in de volgorde van de rubric. Null als onbruikbaar. */
+/** Lijkt dit op een plekhouder of ruwe uitvoer in plaats van een zin voor de student? */
+function pb_lijkt_plekhouder(string $t): bool
+{
+    $t = trim($t);
+    return $t === '' || !preg_match('/\p{L}{2}/u', $t)
+        || preg_match('/placeholder|plekhouder|lorem|ipsum|\btodo\b|\btbd\b|\bfixme\b|\bxxx\b|\[(vul|invullen|tekst)|\{\{|\}\}|[{}]|"(id|oordeel|toelichting|criteria)"\s*:|\b(id|oordeel|toelichting)\s*:/iu', $t) === 1;
+}
+
+/**
+ * Antwoord van het model naar de vaste vorm: elk criterium precies één keer, in de volgorde van de rubric. Null als
+ * onbruikbaar (geen JSON, een criterium dat ontbreekt of niet bestaat, geen vraag terug). Komt een criterium toch
+ * dubbel voor (oude vorm als lijst), dan telt het voorzichtigste oordeel (mist voor deels voor zit). Een toelichting die
+ * op een plekhouder of ruwe uitvoer lijkt, gaat niet naar de student. In beide gevallen staat 'onzeker' erbij: dan
+ * vraagt pb_feedback eerst een nieuwe poging.
+ */
 function pb_feedback_lees(array $def, $data): ?array
 {
     if (!is_array($data) || !isset($data['criteria']) || !is_array($data['criteria']) || !is_string($data['terugvraag'] ?? null)) {
         return null;
     }
-    $per = [];
-    foreach ($data['criteria'] as $c) {
-        if (is_array($c) && isset($c['id'], $c['oordeel']) && in_array($c['oordeel'], ['zit', 'deels', 'mist'], true)) {
-            $per[$c['id']] = ['oordeel' => $c['oordeel'], 'toelichting' => pb_platte_tekst((string)($c['toelichting'] ?? ''))];
+    $ids = array_column($def['rubric'], 'id');
+    $rang = ['mist' => 0, 'deels' => 1, 'zit' => 2];
+    $onzeker = false;
+    $lijst = [];
+    if (array_is_list($data['criteria'])) {
+        $lijst = $data['criteria'];
+    } else {
+        foreach ($data['criteria'] as $id => $c) {
+            $lijst[] = is_array($c) ? ['id' => (string)$id] + $c : null;
         }
+    }
+    $per = [];
+    foreach ($lijst as $c) {
+        if (!is_array($c) || !isset($c['id'], $c['oordeel']) || !is_string($c['id']) || !in_array($c['id'], $ids, true)
+            || !is_string($c['oordeel']) || !isset($rang[$c['oordeel']])) {
+            return null;
+        }
+        $toel = pb_platte_tekst(is_string($c['toelichting'] ?? null) ? $c['toelichting'] : '');
+        if ($toel !== '' && pb_lijkt_plekhouder($toel)) {
+            $toel = '';
+            $onzeker = true;
+        }
+        $nieuw = ['oordeel' => $c['oordeel'], 'toelichting' => $toel];
+        if (isset($per[$c['id']])) {
+            $onzeker = true;
+            $oud = $per[$c['id']];
+            if ($rang[$nieuw['oordeel']] < $rang[$oud['oordeel']]) {
+                $per[$c['id']] = $nieuw;
+            } elseif ($rang[$nieuw['oordeel']] === $rang[$oud['oordeel']] && $oud['toelichting'] === '') {
+                $per[$c['id']] = $nieuw;
+            }
+            continue;
+        }
+        $per[$c['id']] = $nieuw;
     }
     $uit = [];
     foreach ($def['rubric'] as $r) {
@@ -553,7 +602,14 @@ function pb_feedback_lees(array $def, $data): ?array
         $uit[] = ['id' => $r['id'], 'label' => $r['label']] + $per[$r['id']];
     }
     $vraag = pb_platte_tekst($data['terugvraag']);
-    return trim($vraag) === '' ? null : ['criteria' => $uit, 'terugvraag' => $vraag];
+    if (pb_lijkt_plekhouder($vraag)) {
+        return null;
+    }
+    $fb = ['criteria' => $uit, 'terugvraag' => $vraag];
+    if (!empty($def['fout']) && in_array($data['fout'] ?? null, ['fout_1', 'fout_2', 'geen'], true)) {
+        $fb['fout'] = $data['fout'];
+    }
+    return $onzeker ? $fb + ['onzeker' => true] : $fb;
 }
 
 /** Alle tekst van een feedback achter elkaar, voor filter en lekcontrole. */
@@ -607,6 +663,9 @@ function pb_feedback_lekt(array $les, array $def, string $feedback, string $eige
         . "zegt of iets erin zit of nog vaag is, zegt dat een beschreven fout niet een van de fouten in bestand B is zonder de echte "
         . "fout te noemen, naar een pagina, visual of keuzelijst verwijst, of een vraag terugstelt zonder het antwoord. "
         . ($les['geen_lek'] ?? '') . "\n"
+        . (!empty($def['vaste_terugvraag']) ? "Deze vaste vraag terug hoort bij de opdracht en is OK, net als een vraag die in andere woorden niet meer zegt dan deze: \""
+            . $def['vaste_terugvraag'] . "\"\n" : '')
+        . (!empty($def['geen_lek']) ? $def['geen_lek'] . "\n" : '')
         . (!empty($def['fout']) ? "Bij deel 2: een fout die de studenten nog niet zelf beschreven, mag de feedback niet aanwijzen. Zeggen dat er nog een "
             . "tweede fout is, en deze hulpvragen uit de opdracht (letterlijk of bijna letterlijk) herhalen, is OK: \""
             . implode('" en "', $les['deel2']['vast']) . "\". Een visual, pagina, getal of verschijnsel van die andere fout noemen LEKT.\n" : '')
@@ -649,7 +708,7 @@ function pb_nep_feedback(array $def, array $velden): ?array
     $oordeel = $woorden >= 25 ? 'zit' : ($woorden >= 12 ? 'deels' : 'mist');
     $tekst = ['zit' => 'zit erin.', 'deels' => 'is er deels.', 'mist' => 'mist nog.'][$oordeel];
     return ['criteria' => array_map(fn($r) => ['id' => $r['id'], 'label' => $r['label'], 'oordeel' => $oordeel, 'toelichting' => "Testmodus: dit $tekst"], $def['rubric']),
-        'terugvraag' => $def['vaste_terugvraag']];
+        'terugvraag' => $def['vaste_terugvraag']] + (!empty($def['fout']) ? ['fout' => 'fout_' . (int)$def['nr']] : []);
 }
 
 /**
@@ -672,6 +731,15 @@ function pb_feedback(array $les, array $def, array $velden, ?array $ander): arra
         } else {
             $fb = pb_nep_feedback($def, $velden);
             if ($fb === null) {
+                continue;
+            }
+        }
+        if (!empty($fb['onzeker'])) {
+            // Dubbel criterium of plekhouder: eerst een nieuwe poging; de tweede keer de voorzichtigste lezing.
+            error_log("power-bi-lessen feedback {$def['id']}: antwoord niet eenduidig");
+            unset($fb['onzeker']);
+            if ($poging === 0) {
+                $laatste = $fb;
                 continue;
             }
         }
@@ -705,5 +773,5 @@ function pb_feedback(array $les, array $def, array $velden, ?array $ander): arra
         'criteria' => array_map(fn($c) => ['id' => $c['id'], 'label' => $c['label'], 'oordeel' => $c['oordeel'], 'toelichting' => ''], $laatste['criteria']),
         'terugvraag' => $alles && !empty($def['fout']) ? $les['deel2']['vaste_terugvraag_klaar'] : $def['vaste_terugvraag'],
         'bron' => 'vast',
-    ];
+    ] + (isset($laatste['fout']) ? ['fout' => $laatste['fout']] : []);
 }

@@ -133,11 +133,17 @@ if ($actie === 'feedback') {
         ap_fout(429, 'Het is even druk. Probeer het over een minuut opnieuw.', 'rem');
     }
     $ander = null;
+    $ander_rij = null;
     if (!empty($def['fout'])) {
-        $ander = pb_l1_rij((int)$duo['id'], $n, $item === 'f1' ? 'f2' : 'f1')['velden'];
+        $ander_rij = pb_l1_rij((int)$duo['id'], $n, pb_l1_ander_id($def));
+        $ander = $ander_rij['velden'];
     }
     try {
         $fb = pb_feedback($les, $def, $rij['velden'], $ander);
+        if ($ander_rij !== null) {
+            // Welke fout uit het antwoordmodel is dit, en beschreef het andere vak die al? (alleen op de server)
+            $fb = pb_l1_fout_duiden($les, $def, $fb, $rij['velden'], $ander_rij);
+        }
     } catch (PbTutorOp $e) {
         ap_fout(429, 'De feedback is deze maand even niet beschikbaar.', 'op', ['op' => 'maand']);
     } catch (RuntimeException $e) {

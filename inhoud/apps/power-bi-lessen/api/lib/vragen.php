@@ -83,6 +83,8 @@ function pb_l1_rij(int $duo_id, int $les, string $item): array
         'status' => $r ? $r['status'] : 'leeg',
         'feedback' => $r ? (int)$r['feedback'] : 0,
         'bestaat' => (bool)$r,
+        'duo_id' => $duo_id,   // niet in de database: zo kan de status van fout 1 en 2 het andere vak erbij pakken
+        'les' => $les,
     ];
 }
 
@@ -279,10 +281,112 @@ function pb_l1_status(array $def, array $rij): string
     $fb = $rij['uitslag']['feedback'] ?? null;
     $tekst_klaar = !$heeft_tekst || ($fb && in_array(pb_l1_fb_geldt($def, $rij), ['actueel', 'klein'], true)
         && !array_filter($fb['criteria'] ?? [], fn($c) => $c['oordeel'] !== 'zit'));
+    if ($tekst_klaar && !empty($def['fout']) && !pb_l1_fout_telt($def, $rij)) {
+        $tekst_klaar = false;
+    }
     if ($getallen_goed && $tekst_klaar) {
         return 'klaar';
     }
     return $getallen_goed && !empty($def['rubric']) && empty($def['fout']) ? 'uitleg' : 'bezig';
+}
+
+// ---------------------------------------------------------------- fout 1 en 2: welke fout dekt een beschrijving?
+
+/**
+ * Welke fout uit het antwoordmodel staat in deze tekst, alleen op woorden (deel2.kenmerken van de les)? fout_1 of fout_2
+ * als alleen woorden van die ene fout voorkomen; null als er woorden van beide of van geen van beide staan.
+ */
+function pb_l1_fout_uit_woorden(array $les, array $velden): ?string
+{
+    $t = '';
+    foreach ($velden as $w) {
+        $t .= (is_array($w) ? implode(' ', $w) : (string)$w) . "\n";
+    }
+    $t = function_exists('pb_gelijk') ? pb_gelijk($t) : mb_strtolower($t, 'UTF-8');
+    $t = (string)preg_replace('/[ \t]+/u', ' ', $t);
+    $raak = [];
+    foreach ($les['deel2']['kenmerken'] ?? [] as $fout => $patronen) {
+        foreach ($patronen as $p) {
+            if (preg_match('/' . str_replace('/', '\/', $p) . '/u', $t)) {
+                $raak[$fout] = true;
+                break;
+            }
+        }
+    }
+    return count($raak) === 1 ? (string)array_key_first($raak) : null;
+}
+
+/** Het andere vak bij fout 1 of 2 (f1 bij f2 en andersom). */
+function pb_l1_ander_id(array $def): string
+{
+    return $def['id'] === 'f1' ? 'f2' : 'f1';
+}
+
+/**
+ * Telt de beschrijving in dit vak als een van de twee fouten? Alleen als de server weet welke fout het is (fout_1 of
+ * fout_2), en het andere vak niet al eerder dezelfde fout met geldende feedback beschreef. Zo dekken F1 en F2 samen
+ * altijd beide fouten; bij dezelfde fout twee keer telt alleen het vak dat het eerst feedback kreeg.
+ */
+function pb_l1_fout_telt(array $def, array $rij): bool
+{
+    $fb = $rij['uitslag']['feedback'] ?? [];
+    $fout = $fb['fout'] ?? null;
+    if (!in_array($fout, ['fout_1', 'fout_2'], true) || !empty($fb['dubbel'])) {
+        return false;
+    }
+    if (!isset($rij['duo_id'], $rij['les'])) {
+        return true;
+    }
+    $ander = pb_l1_rij((int)$rij['duo_id'], (int)$rij['les'], pb_l1_ander_id($def));
+    $afb = $ander['uitslag']['feedback'] ?? null;
+    if (!$afb || ($afb['fout'] ?? null) !== $fout || !in_array(pb_l1_fb_geldt($def, $ander), ['actueel', 'klein'], true)) {
+        return true;
+    }
+    return (float)($afb['om'] ?? 0) > (float)($fb['om'] ?? 0);
+}
+
+/**
+ * Na de feedback bij fout 1 of 2: leg vast welke fout het is en maak de feedback eerlijk. Het model kiest uit fout_1,
+ * fout_2 of geen; woorden van één fout in de tekst bevestigen dat of vullen het aan als het model geen keuze gaf. Spreken
+ * ze elkaar tegen, dan is het onbekend. Beschrijft het andere vak (met geldende feedback) dezelfde fout, dan zit
+ * 'waar' er niet in en volgt een terugvraag die zegt dat er nog een tweede fout is, zonder te zeggen welke. Is niet te
+ * zeggen welke fout het is, dan zit 'waar' er hooguit deels in.
+ */
+function pb_l1_fout_duiden(array $les, array $def, array $fb, array $velden, array $ander): array
+{
+    $woorden = pb_l1_fout_uit_woorden($les, $velden);
+    $model = $fb['fout'] ?? null;
+    if (in_array($model, ['fout_1', 'fout_2'], true)) {
+        // Spreken woorden en model elkaar tegen, dan het voorzichtigste: niet te zeggen welke fout het is.
+        $fout = $woorden === null || $woorden === $model ? $model : 'onbekend';
+    } else {
+        $fout = $woorden ?? ($model === 'geen' ? 'geen' : 'onbekend');
+    }
+    $fb['fout'] = $fout;
+    $fb['om'] = microtime(true);
+    $d2 = $les['deel2'];
+    $naam = pb_l1_ander_id($def) === 'f1' ? 'Fout 1' : 'Fout 2';
+    $afb = $ander['uitslag']['feedback'] ?? null;
+    $dubbel = in_array($fout, ['fout_1', 'fout_2'], true) && $afb && ($afb['fout'] ?? null) === $fout
+        && in_array(pb_l1_fb_geldt($def, $ander), ['actueel', 'klein'], true);
+    foreach ($fb['criteria'] as &$c) {
+        if ($c['id'] !== 'waar') {
+            continue;
+        }
+        if ($dubbel) {
+            $c['oordeel'] = 'mist';
+            $c['toelichting'] = strtr($d2['dubbel_toelichting'], ['{ander}' => $naam]);
+        } elseif (!in_array($fout, ['fout_1', 'fout_2'], true) && $c['oordeel'] === 'zit') {
+            $c['oordeel'] = 'deels';
+            $c['toelichting'] = $d2['onduidelijk_toelichting'];
+        }
+    }
+    unset($c);
+    if ($dubbel) {
+        $fb['terugvraag'] = strtr($d2['dubbel_terugvraag'], ['{ander}' => $naam]);
+        $fb['dubbel'] = true;
+    }
+    return $fb;
 }
 
 /** De getallen en keuzes van een vraag nakijken. Geeft de bijgewerkte rij. */
@@ -463,5 +567,17 @@ function pb_l1_bewaar(array $duo, array $def, array $rij): void
     if ($rij['status'] === 'klaar') {
         // net als bij een klare stap: het gesprek met de tutor bij dit item gaat weg
         pb_db()->prepare('DELETE FROM pb_gesprek WHERE duo_id = ? AND les = ? AND stap = ?')->execute([$duo['id'], $duo['les'], $def['id']]);
+    }
+    if (!empty($def['fout'])) {
+        // De status van het andere vak hangt van dit vak af (dezelfde fout twee keer): ook die gelijkzetten.
+        $aid = pb_l1_ander_id($def);
+        $ander = pb_l1_rij((int)$duo['id'], (int)$duo['les'], $aid);
+        if ($ander['bestaat']) {
+            $s = pb_l1_status(['id' => $aid] + $def, $ander);
+            if ($s !== $ander['status']) {
+                $ander['status'] = $s;
+                pb_l1_schrijf((int)$duo['id'], (int)$duo['les'], $aid, $ander);
+            }
+        }
     }
 }

@@ -611,13 +611,97 @@ function pb_opruimen(bool $altijd = false): array
     return $uit;
 }
 
+/** Elke tabel met een kolom duo_id, met de naam waaronder beheer het aantal rijen teruggeeft. Nieuwe tabel: hier erbij. */
+const PB_DUO_TABELLEN = [
+    'pb_antwoord' => 'antwoorden',
+    'pb_vink' => 'vinkjes',
+    'pb_vraag' => 'controlevragen',
+    'pb_hulp' => 'hulpvragen',
+    'pb_gesprek' => 'gespreksregels',
+    'pb_teller' => 'tellers',
+    'pb_sessie' => 'sessies',
+];
+
+/** Wist een duo en alles wat aan hem hangt. Zonder eigen transactie: de aanroeper zet er een omheen. */
 function pb_wis_duo(int $duo_id): void
 {
     $pdo = pb_db();
-    foreach (['pb_vink', 'pb_hulp', 'pb_gesprek', 'pb_vraag', 'pb_sessie', 'pb_antwoord', 'pb_teller'] as $t) {
+    foreach (array_keys(PB_DUO_TABELLEN) as $t) {
         $pdo->prepare("DELETE FROM $t WHERE duo_id = ?")->execute([$duo_id]);
     }
     $pdo->prepare('DELETE FROM pb_duo WHERE id = ?')->execute([$duo_id]);
+}
+
+/** Hoeveel rijen er per soort aan een duo hangen: wat er weggaat bij verwijderen. */
+function pb_duo_tellingen(int $duo_id): array
+{
+    $uit = [];
+    foreach (PB_DUO_TABELLEN as $t => $naam) {
+        $st = pb_db()->prepare("SELECT COUNT(*) FROM $t WHERE duo_id = ?");
+        $st->execute([$duo_id]);
+        $uit[$naam] = (int)$st->fetchColumn();
+    }
+    return $uit;
+}
+
+/** Laatste dag waarop het duo iets deed (afvinken, hulp, controlevraag, antwoord), anders de dag van inschrijven. */
+function pb_laatst_actief(array $d): string
+{
+    $q = pb_db()->prepare('SELECT MAX(datum) FROM (SELECT datum FROM pb_vink WHERE duo_id = ? UNION ALL SELECT datum FROM pb_hulp WHERE duo_id = ?
+        UNION ALL SELECT datum FROM pb_vraag WHERE duo_id = ? UNION ALL SELECT datum FROM pb_antwoord WHERE duo_id = ?) x');
+    $q->execute([$d['id'], $d['id'], $d['id'], $d['id']]);
+    return $q->fetchColumn() ?: $d['gemaakt'];
+}
+
+/** Sleutel om dubbele inschrijvingen te herkennen: kleine letters, zonder witruimte aan de randen. */
+function pb_vergelijk(string $t): string
+{
+    return mb_strtolower(trim(preg_replace('/\s+/u', ' ', $t)), 'UTF-8');
+}
+
+/**
+ * Een duo zoals beheer het toont, om een dubbele inschrijving te herkennen: naam, voornamen, ingeschreven, laatst actief,
+ * per les hoe ver (alleen lessen waaraan het begon, plus de les van het cohort), en `lijkt_op`: andere duo's in hetzelfde
+ * cohort met dezelfde duonaam of dezelfde twee voornamen (in welke volgorde ook). Geen duocode, geen antwoorden.
+ */
+function pb_duo_samenvatting(array $d, ?array $cohortgenoten = null): array
+{
+    $c = pb_db()->prepare('SELECT les FROM pb_cohort WHERE id = ?');
+    $c->execute([$d['cohort_id']]);
+    $cohort_les = (int)$c->fetchColumn();
+    $lessen = [];
+    $klaar = 0;
+    foreach (pb_lessen() as $n) {
+        $les = pb_les($n);
+        $v = pb_voortgang((int)$d['id'], $les);
+        if (!$v['begonnen'] && $n !== $cohort_les) {
+            continue;
+        }
+        $lessen[] = ['les' => $n, 'tekst' => $v['tekst'], 'klaar_aantal' => count($v['stappen_klaar']), 'klaar' => $v['klaar'], 'begonnen' => $v['begonnen']];
+        $klaar += count($v['stappen_klaar']);
+    }
+    if ($cohortgenoten === null) {
+        $st = pb_db()->prepare('SELECT * FROM pb_duo WHERE cohort_id = ?');
+        $st->execute([$d['cohort_id']]);
+        $cohortgenoten = $st->fetchAll();
+    }
+    $namen = fn($x) => [pb_vergelijk($x['voornaam1']), pb_vergelijk($x['voornaam2'])];
+    $zelf = $namen($d);
+    sort($zelf);
+    $lijkt = [];
+    foreach ($cohortgenoten as $x) {
+        if ((int)$x['id'] === (int)$d['id']) {
+            continue;
+        }
+        $ander = $namen($x);
+        sort($ander);
+        if ($ander === $zelf || pb_vergelijk($x['duonaam']) === pb_vergelijk($d['duonaam'])) {
+            $lijkt[] = (int)$x['id'];
+        }
+    }
+    return ['id' => (int)$d['id'], 'cohort_id' => (int)$d['cohort_id'], 'naam' => $d['duonaam'], 'voornamen' => [$d['voornaam1'], $d['voornaam2']],
+            'ingeschreven' => $d['gemaakt'], 'laatst_actief' => pb_laatst_actief($d), 'klaar_aantal' => $klaar, 'lessen' => $lessen,
+            'lijkt_op' => $lijkt];
 }
 
 /** Wist een cohort en alles van zijn duo's. Geeft het aantal gewiste duo's. */

@@ -2331,6 +2331,8 @@ def bouw_home(items):
     # met alleen het uitgelichte item, krijgt geen blok.
     # Elk item staat hooguit één keer op de pagina (expertscan 11-10-2026, klus 316: 17 kaarten voor 10 items).
     # Een seriedeel staat in zijn serieblok, want die lijn moet compleet blijven; daarom niet op de plank Nieuw.
+    # Uitzondering (Frits, klus 820): een los artikel of tool staat altijd op de plank Nieuw, ook als het elders
+    # groot staat, zodat de plank alles laat zien wat er nieuw is. Delen van een serie of cursus niet.
     # De plank van een categorie laat weg wat al op de plank Nieuw staat.
     # Lopende series, hooguit drie, de serie met het nieuwste deel bovenaan. Een afgeronde serie staat op Series.
     lopend = sorted((s for s in STAAT["series"].values() if s.lopend), key=lambda s: s.nieuwste.datum, reverse=True)
@@ -2343,10 +2345,11 @@ def bouw_home(items):
         groot, totaal, rest = categorie_keuze(slug, live, uit, in_serieblok)
         if groot:
             keuzes.append((slug, groot, totaal, rest))
-    # De plank: het nieuwste eerst, zonder wat al groot op de pagina staat (het uitgelichte item en de grote
-    # kaarten van de categorieën) en zonder de delen in een serieblok.
+    # De plank: het nieuwste eerst. Losse artikelen en tools altijd (klus 820); een seriedeel alleen als het niet
+    # al groot op de pagina staat (het uitgelichte item of de grote kaart van een categorie) en niet in een serieblok.
     groot_ids = {id(g) for _, g, _, _ in keuzes} | ({id(uit)} if uit else set())
-    op_plank = [x for x in leren_items(items) if id(x) not in groot_ids and id(x) not in in_serieblok][:NIEUW_MAX]
+    op_plank = [x for x in leren_items(items)
+                if not x.is_deel or (id(x) not in groot_ids and id(x) not in in_serieblok)][:NIEUW_MAX]
     op_plank_ids = {id(x) for x in op_plank}
     blokken, groot_getoond, cat_plank = [], [], []
     for slug, groot, totaal, rest in keuzes:

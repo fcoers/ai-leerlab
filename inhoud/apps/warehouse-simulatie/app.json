@@ -1,0 +1,10 @@
+{
+  "titel": "Warehouse-simulatie",
+  "kaarttekst": "Richt in 2D een warehouse in, vul de kengetallen in met een bron en simuleer meerdere runs. Je ziet de spreiding, de wachttijd per uur en waar het knelt.",
+  "seotitel": "Warehouse-simulatie: ontwerp en simuleer een koel-DC",
+  "beschrijving": "Richt in 2D een warehouse in, vul de kengetallen in met een bron, simuleer meerdere runs en zie waar het knelt. Twee varianten vergelijk je naast elkaar.",
+  "transparantie": "**Transparantie GenAI.** Deze tool is gebouwd door een AI-team (Claude) op aanwijzing van Frits Coers, die de opzet, de eisen en de keuzes bepaalde en het resultaat beoordeelt. De kengetallen en grenzen zijn met Claude uitgezocht en door de docent aan te passen; de simulatiekern is getest tegen een handberekening. Human-AI Agency Label: Creative Director.",
+  "zichtbaar": false,
+  "artikel": "",
+  "lesapp": true
+}

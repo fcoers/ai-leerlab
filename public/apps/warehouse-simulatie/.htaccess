@@ -1,0 +1,11 @@
+# Warehouse-simulatie (testversie, klus 835): verborgen. Niet in Google, niet in menu of sitemap.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "same-origin"
+</IfModule>
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType font/woff2 .woff2
+</IfModule>
+Options -Indexes

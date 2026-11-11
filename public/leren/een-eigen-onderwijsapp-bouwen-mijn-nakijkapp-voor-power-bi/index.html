@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="nl" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Je eigen onderwijsapp bouwen met AI: mijn nakijkapp · AI-leerlab</title>
+  <meta name="description" content="Zo heb ik met AI een nakijkapp voor mijn Power BI-lessen laten bouwen: wat hij oplevert, hoe de tutor helpt zonder voor te zeggen en hoe je zelf begint.">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="nl_NL">
+  <meta property="og:site_name" content="AI-leerlab">
+  <meta property="og:title" content="Je eigen onderwijsapp bouwen met AI: mijn nakijkapp">
+  <meta property="og:description" content="Zo heb ik met AI een nakijkapp voor mijn Power BI-lessen laten bouwen: wat hij oplevert, hoe de tutor helpt zonder voor te zeggen en hoe je zelf begint.">
+  <meta property="og:url" content="https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/">
+  <meta property="og:image" content="https://ai-leerlab.nl/assets/img/deel/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Je eigen onderwijsapp bouwen met AI: mijn nakijkapp">
+  <meta name="twitter:description" content="Zo heb ik met AI een nakijkapp voor mijn Power BI-lessen laten bouwen: wat hij oplevert, hoe de tutor helpt zonder voor te zeggen en hoe je zelf begint.">
+  <meta name="twitter:image" content="https://ai-leerlab.nl/assets/img/deel/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi.png">
+  <link rel="alternate" type="application/rss+xml" title="AI-leerlab" href="/feed.xml">
+  <meta property="article:published_time" content="2026-11-11">
+  <meta property="article:modified_time" content="2026-11-11">
+  <link rel="stylesheet" href="/assets/beweging.css?v=202611111140">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
+  <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css?v=202611111140">
+  <script>document.documentElement.className = 'js';</script>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Article",
+   "headline": "Een eigen onderwijsapp bouwen: mijn nakijkapp voor Power BI",
+   "description": "Zo heb ik met AI een nakijkapp voor mijn Power BI-lessen laten bouwen: wat hij oplevert, hoe de tutor helpt zonder voor te zeggen en hoe je zelf begint.",
+   "inLanguage": "nl",
+   "datePublished": "2026-11-11",
+   "dateModified": "2026-11-11",
+   "author": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "image": [
+    "https://ai-leerlab.nl/assets/img/cover/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi-16x9-8cfe0d0601.webp",
+    "https://ai-leerlab.nl/assets/img/cover/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi-4x3-c3f4d1092d.webp",
+    "https://ai-leerlab.nl/assets/img/cover/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi-1x1-d8a74f3c6d.webp"
+   ],
+   "mainEntityOfPage": "https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/",
+   "articleSection": "Techniek",
+   "keywords": "feedback, agents, privacy",
+   "isPartOf": {
+    "@id": "https://ai-leerlab.nl/#site"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://ai-leerlab.nl/#frits",
+   "name": "Frits Coers",
+   "url": "https://ai-leerlab.nl/over/",
+   "jobTitle": "Docent bij Hogeschool Windesheim",
+   "sameAs": [
+    "https://www.linkedin.com/in/fritscoers/",
+    "https://www.instagram.com/ai_leerlab/"
+   ],
+   "worksFor": {
+    "@type": "CollegeOrUniversity",
+    "name": "Hogeschool Windesheim",
+    "url": "https://www.windesheim.nl/"
+   }
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://ai-leerlab.nl/#site",
+   "name": "AI-leerlab",
+   "url": "https://ai-leerlab.nl/",
+   "inLanguage": "nl",
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "AI-leerlab",
+     "item": "https://ai-leerlab.nl/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Leren",
+     "item": "https://ai-leerlab.nl/leren/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "Techniek",
+     "item": "https://ai-leerlab.nl/leren/techniek/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "name": "Een eigen onderwijsapp bouwen: mijn nakijkapp voor Power BI"
+    }
+   ]
+  }
+ ]
+}
+</script>
+  <script src="/assets/toestemming.js?v=202611111140" data-meet-id="G-EYCDGPX6LG" defer></script>
+</head>
+<body>
+  <a class="skiplink" href="#inhoud">Naar de inhoud</a>
+
+  <header class="kop">
+    <div class="wrap">
+      <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+        <picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/logo-op-donker.svg"><img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt=""></picture>
+      </a>
+      <nav class="nav" aria-label="Hoofdmenu">
+        <a href="/leren/" aria-current="page">Leren</a>
+        <a href="/tools/">Tools</a>
+        <a href="/series/">Series</a>
+        <a href="/over/">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud" tabindex="-1">
+<section class="item-kop met-cover" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      <nav aria-label="Kruimelpad"><p class="kruimel"><a href="/leren/">Leren</a><span class="sep" aria-hidden="true">/</span><a href="/leren/techniek/">Techniek</a></p></nav>
+      <p class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Techniek</p>
+      <h1 id="titel">Een eigen onderwijsapp bouwen: mijn nakijkapp voor Power BI</h1>
+      
+      <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>Voor docenten</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>7 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><time datetime="2026-11-11">11 november 2026</time></li></ul>
+      
+    </div>
+    <div class="kop-cover"><div class="cover vol" style="--focus: 55% 50%"><img src="/assets/img/nakijkapp-power-bi.webp" srcset="/assets/img/cover/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi-800w-1d9376d2ea.webp 800w, /assets/img/nakijkapp-power-bi.webp 1600w" sizes="(max-width: 640px) 100vw, 880px" width="1600" height="900" alt="Een scherm van de nakijkapp, schuin in beeld: een duo heeft bij een vraag over de heatmap uitgelegd wat het ziet, en de AI-tutor geeft per criterium aan wat erin zit, wat nog mist en wat deels klopt, met een vraag terug." fetchpriority="high"></div></div>
+  </div>
+</section>
+<div class="wrap">
+  <article class="artikel">
+    
+    <p>In het vak Informatiemanagement leren mijn studenten van Technische Bedrijfskunde in duo&#x27;s werken met Power BI. Tijdens zo&#x27;n les loop ik van tafel naar tafel. Vaak zitten meerdere duo&#x27;s op dezelfde plek vast, en wie denkt dat hij klaar is, weet niet zeker of zijn getallen kloppen. Ik kan niet bij iedereen tegelijk zijn. Daarom heb ik met mijn AI-team een kleine app laten bouwen die naast Power BI openstaat. Hij kijkt de getallen na, helpt als een duo vastzit en laat mij zien hoe ver iedereen is.</p>
+<p>Hieronder lees je wat dat oplevert, hoe het werkt en hoe je het zelf maakt. Programmeren hoef je daarvoor niet, maar je moet wel precies weten wat je wilt.</p>
+<h2 id="wat-het-oplevert">Wat het oplevert</h2>
+<p>Het grootste voordeel merk ik in de les zelf. Duo&#x27;s weten meteen of hun dashboard klopt, en ze hoeven niet op mij te wachten om verder te kunnen. Daardoor heb ik meer tijd voor de duo&#x27;s die echt vastzitten, en voor het gesprek over wat hun dashboard laat zien. Daar gaat het mij om.</p>
+<p>Na de les zie ik per duo hoe ver ze zijn gekomen en welke vragen nog openstaan. Bij mij staat dat in <a href="/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/">mijn eigen productiviteitsapp</a>, maar een docentpagina in de app zelf kan ook.</p>
+<h2 id="hoe-het-werkt">Hoe het werkt</h2>
+<p>Duo&#x27;s schrijven zich in met een code die ik in de les noem en krijgen een eigen duocode, waarmee ze in de volgende les verdergaan. Bij een vraag met een getal kijkt de app hard na: het getal uit hun dashboard moet binnen een kleine marge van het goede antwoord liggen. Die antwoorden heeft het team vooraf uitgerekend uit dezelfde dataset die de studenten krijgen.</p>
+<p>Wat me hierbij opviel, is dat de controlegetallen in mijn eigen instructie niets bewijzen, want die staan gewoon op papier. Daarom krijgt elk duo aan het eind een eigen controlevraag, over een andere ruimte en een andere week. Overschrijven van het buurduo heeft dan geen zin.</p>
+<p>Bij open vragen leggen duo&#x27;s in eigen woorden uit wat hun dashboard laat zien en wat ze zouden doen. Daar geeft een AI-tutor feedback, met Claude Sonnet van Anthropic. Die zegt per criterium uit mijn antwoordmodel of het erin zit, deels of nog mist, en stelt er een vraag bij terug. Het antwoord geeft hij nooit. Een tweede, kleiner model (Claude Haiku) kijkt vooraf of er niet per ongeluk een antwoord in staat; dan krijgt het duo een vaste hint.</p>
+<p>Dan de twee vragen die je vast hebt: wat kost het, en wat gebeurt er met de gegevens? Een antwoord van de tutor kost ongeveer een cent. Tot nu toe zit ik onder een euro, en er staat een plafond van 40 euro per maand op. Op privacy en beveiliging is goed gelet. De app bewaart alleen de duonaam, de voornamen en wat een duo invult: de antwoorden op de oefenvragen en de vragen aan de tutor. Achternamen, studentnummers of e-mailadressen vraagt hij niet, en de codes worden niet leesbaar bewaard. Naar de AI gaan alleen die antwoorden en vragen, zonder namen, en uiterlijk de dag na het einde van het blok is alles van de duo&#x27;s gewist. De app staat op mijn eigen website, is verborgen voor zoekmachines en alleen bedoeld voor mijn studenten.</p>
+<h2 id="de-didactiek-erachter">De didactiek erachter</h2>
+<p>De feedback volgt het model van Hattie en Timperley (2007): een duo ziet per onderdeel wat er al staat, wat nog mist en met welke vraag het verder kan. De hints werken zoals een goede docent helpt, eerst met een klein duwtje en pas meer als dat niet genoeg is, en het antwoord blijft bij de studenten zelf. Dit heet scaffolding (van de Pol e.a., 2010), en daar hoort ook bij dat je de hulp weer afbouwt. Zo is de reeks ook opgebouwd: in les één verkennen duo&#x27;s een dashboard, in les twee bouwen ze er stap voor stap een na en in les drie maken ze er zelf een.</p>
+<p>In het tweede deel van les één zoeken duo&#x27;s twee fouten die ik er bewust in heb gezet. Wie een fout moet verklaren, moet snappen hoe het wel werkt. Volgens Große en Renkl (2007) leer je daar meer van dan van alleen goede voorbeelden, vooral als je al wat voorkennis hebt. Daarom komt dat deel pas na de eerste vragen. Ook het werken in duo&#x27;s met een tutor die terugvraagt, is een bewuste keuze. Volgens het ICAP-model van Chi en Wylie (2014) leert wie samen iets in eigen woorden moet uitleggen meer dan wie alleen een antwoord leest.</p>
+<h2 id="wat-niet-meteen-goed-is-gegaan">Wat niet meteen goed is gegaan</h2>
+<p>In de les bleek de tutor te streng. Mijn antwoordmodel bevat precieze getallen, en de feedback rekende duo&#x27;s af op een getal dat net iets anders was, terwijl ze het idee wel goed hadden. Ik heb het team daarom gevraagd de feedback losser te maken: is het begrip er, dan zit het erin, en bij twijfel kiest de tutor het mildere oordeel. Ook de getallen krijgen iets meer ruimte. Daarnaast had ik er niet aan gedacht dat ik twee klassen tegelijk les geef. Elke klas heeft nu een eigen inschrijfcode, een eigen overzicht en een eigen datum waarop alles wordt gewist. Reken er dus op dat de eerste les ook een proef is.</p>
+<h2 id="zo-maak-je-het-zelf">Zo maak je het zelf</h2>
+<p>Begin bij je les en niet bij de app. Schrijf per les op wat een student inlevert, wat je hard kunt nakijken en waar je echt hulp of feedback wilt.</p>
+<p>Laat je daarna eerst bevragen. Ik werk met Claude Code en <a href="/leren/je-eigen-agentteam/">een team van AI-agents</a>. De ontwerper in dat team heeft niet meteen een scherm gemaakt, maar mij eerst vragen gesteld. Werk je zonder team, met ChatGPT of Claude, dan kun je hetzelfde vragen:</p>
+<blockquote><p>Ik wil een kleine webapp voor mijn les [vak en onderwerp]. Studenten werken in duo&#x27;s aan [opdracht]. Bouw nog niets. Stel me eerst vragen over wat studenten inleveren, wat de app hard kan nakijken, waar AI wel en niet mag helpen, hoe studenten binnenkomen zonder account en wat ik als docent wil zien. Maak daarna een klikbare schets van de schermen.</p></blockquote>
+<p>Pas toen ik ja had gezegd op die schets, is het team gaan bouwen. Begin met één les. Bij mij was dat de les met de meeste harde controles, en de les met open vragen is er later bij gekomen. Een nieuwe les is nu een nieuw bestand met de vragen, de hints en het antwoordmodel, zonder nieuwe code.</p>
+<p>Leg vooraf de regels voor de tutor vast: nooit het antwoord, hints van klein naar groot en een controle op elk antwoord. Het antwoordmodel staat alleen op de server, nooit in de browser van de student.</p>
+<p>Regel ook vooraf de praktische kant. Je hebt een eigen API-account nodig, bijvoorbeeld bij Anthropic of OpenAI, met tegoed dat niet vanzelf wordt bijgevuld en een limiet per maand. De app moet ergens draaien; bij mij is dat gewone webhosting met PHP. En spreek met jezelf af dat er geen namen naar de AI gaan en dat alles na het blok wordt gewist.</p>
+<p>Test daarna met verzonnen studenten en probeer de tutor bewust het antwoord te ontfutselen. In mijn team doet een aparte tester dat. Hij heeft de app meerdere keren afgekeurd voordat mijn studenten ermee mochten werken.</p>
+<p>De derde les staat nog niet in de app. Daarin kiezen studenten zelf hun KPI&#x27;s en schrijven ze een advies, dus er valt weinig hard na te kijken. Daar ga ik merken of feedback per criterium genoeg is. Wil je zelf beginnen, kies dan één les waarin je steeds dezelfde vraag beantwoordt, en schrijf op wat je daar hard kunt nakijken. Dat lijstje is je eerste opdracht aan je AI-assistent.</p>
+<h2 id="bronnen">Bronnen</h2>
+<ul><li>Chi, M. T. H., &amp; Wylie, R. (2014). The ICAP framework: Linking cognitive engagement to active learning outcomes. <em>Educational Psychologist, 49</em>(4), 219–243. <a href="https://doi.org/10.1080/00461520.2014.965823">https://doi.org/10.1080/00461520.2014.965823</a></li><li>Große, C. S., &amp; Renkl, A. (2007). Finding and fixing errors in worked examples: Can this foster learning outcomes? <em>Learning and Instruction, 17</em>(6), 612–634. <a href="https://doi.org/10.1016/j.learninstruc.2007.09.008">https://doi.org/10.1016/j.learninstruc.2007.09.008</a></li><li>Hattie, J., &amp; Timperley, H. (2007). The power of feedback. <em>Review of Educational Research, 77</em>(1), 81–112. <a href="https://doi.org/10.3102/003465430298487">https://doi.org/10.3102/003465430298487</a></li><li>van de Pol, J., Volman, M., &amp; Beishuizen, J. (2010). Scaffolding in teacher–student interaction: A decade of research. <em>Educational Psychology Review, 22</em>(3), 271–296. <a href="https://doi.org/10.1007/s10648-010-9127-6">https://doi.org/10.1007/s10648-010-9127-6</a></li></ul>
+    <p class="onderwerpen"><span class="label">Onderwerpen</span><span>feedback</span><a href="/onderwerp/agents/">agents</a><a href="/onderwerp/privacy/">privacy</a></p>
+    <div class="deelrij" role="group" aria-label="Deel deze pagina">
+      <span class="label" aria-hidden="true">Delen</span>
+      <a class="deelknop" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fai-leerlab.nl%2Fleren%2Feen-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi%2F" target="_blank" rel="noopener" aria-label="Delen op LinkedIn (opent in een nieuw tabblad)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/></svg></a>
+      <a class="deelknop" href="mailto:?subject=Een%20eigen%20onderwijsapp%20bouwen%3A%20mijn%20nakijkapp%20voor%20Power%20BI&amp;body=Een%20eigen%20onderwijsapp%20bouwen%3A%20mijn%20nakijkapp%20voor%20Power%20BI%0A%0Ahttps%3A//ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/" aria-label="Delen per mail"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg></a>
+      <button class="deelknop" type="button" data-kopieer="https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/" aria-label="Link kopiëren" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+      <span class="gekopieerd" role="status" aria-live="polite"></span>
+    </div>
+    
+    <div class="gemaakt">
+  <p class="gemaakt-zin">Geschreven met hulp van AI · label: <a href="/leren/human-ai-labels/">Creative Director</a></p>
+  <details class="gemaakt-meer">
+    <summary>Hoe AI is gebruikt</summary>
+    <p>Een AI-teamlid heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van mijn opdracht en het werk van mijn team aan de nakijkapp. Ik heb onderwerp en lijn bepaald en de tekst gecontroleerd voordat hij online ging.</p><p>Labels-bron: Boetje, J., &amp; Baake, G. (2026). <em>Nine prototypical human-AI agency patterns</em> [Figuur]. figshare. <a href="https://doi.org/10.6084/m9.figshare.31706884">https://doi.org/10.6084/m9.figshare.31706884</a> (CC BY 4.0).</p>
+  </details>
+</div>
+  </article>
+  <section class="verder sectie" aria-labelledby="verder-titel">
+  <div class="sectie-kop">
+    <h2 id="verder-titel">Verder in het lab</h2>
+    <a class="cat-alles" href="/leren/techniek/">Alles in Techniek<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <ul class="raster">
+<li class="kaart met-cover">
+  <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/dide-uitleggen.webp"><img src="/assets/img/avatars/dide-uitleggen.webp" width="976" height="604" alt="" loading="lazy" decoding="async" style="--schaal: 1.079"></picture></div>
+  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Didactiek</span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
+  <h3><a href="/leren/verantwoord-je-ai-gebruik-als-docent/">Vraag je studenten om een AI-verklaring? Schrijf er dan zelf ook een</a></h3>
+  <p class="voor met-tijd"><span class="v-tekst">Voor docenten</span><span class="v-tijd">4 min lezen</span></p>
+</li>
+<li class="kaart met-cover past-360">
+  <div class="cover plaat"><img src="/assets/img/stap1-work-gekozen.webp" srcset="/assets/img/cover/bouw-je-eigen-ai-team-800w-555bb6f21a.webp 800w, /assets/img/stap1-work-gekozen.webp 1000w" sizes="(max-width: 640px) 80vw, 360px" width="1000" height="788" alt="" loading="lazy" decoding="async"></div>
+  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2M4 12h2M4 18h2M10 6h10M10 12h10M10 18h10"/></svg>Praktijk</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
+  <h3><a href="/leren/bouw-je-eigen-ai-team/">Bouw je eigen AI-team in ChatGPT</a></h3>
+  <p class="voor met-tijd"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span><span class="v-tijd">Vier stappen</span></p>
+</li>
+  </ul>
+</section>
+</div>
+  </main>
+
+  <footer class="voet">
+    <div class="wrap">
+      <div>
+        <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+          <img class="logo" src="/assets/img/logo-op-donker.svg" width="211" height="52" alt="">
+        </a>
+        <p>Een persoonlijke site van Frits Coers, docent bij Windesheim. Geen uitgave van Windesheim.</p>
+        <p>Met je toestemming telt Google Analytics hoeveel bezoekers er komen. Zonder toestemming geen cookies. © 2026 Frits Coers.</p>
+      </div>
+      <nav aria-label="Onderaan">
+        <a href="/leren/">Leren</a>
+        <a href="/tools/">Tools</a>
+        <a href="/series/">Series</a>
+        <a href="/over/">Over</a>
+        <a href="/over/#colofon">Privacy en colofon</a>
+        <a href="/over/#colofon" data-cookie-instellingen>Cookie-instellingen</a>
+        <a href="/feed.xml" type="application/rss+xml">RSS-feed</a>
+        <a class="profiel" href="https://www.linkedin.com/in/fritscoers/" aria-label="Frits Coers op LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/></svg></a><a class="profiel" href="https://www.instagram.com/ai_leerlab/" aria-label="AI-leerlab op Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/></svg></a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/delen.js?v=202611111140" defer></script>
+  <script src="/assets/beweging.js?v=202611111140" defer></script>
+</body>
+</html>

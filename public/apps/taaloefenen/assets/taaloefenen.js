@@ -214,6 +214,21 @@
     return 'zelfstandig naamwoord, ' + g.split(' ').map(function (x) { return woorden[x] || x; }).join(' ');
   }
 
+  /* Kleur bij het lidwoord (klus 771, kleuren van Bram): alleen Duits, alleen soort woord, alleen met een genus in de
+     data en alleen als de getoonde tekst met dat lidwoord begint. Het genus komt uit it.geslacht, niet uit het
+     lidwoord geraden: een kaal die kan vrouwelijk of meervoud zijn. Klopt lidwoord en genus niet, dan geen kleur. */
+  var GENUS_LIDWOORD = { m: 'der', v: 'die', o: 'das', mv: 'die' };
+  function genusKlasse(it, tekst) {
+    if (P.taal !== 'duits' || it.soort !== 'woord' || typeof it.geslacht !== 'string' || typeof tekst !== 'string') return null;
+    var delen = it.geslacht.split(' ');
+    var g = delen.indexOf('mv') >= 0 ? 'mv' : delen[0];
+    if (!Object.prototype.hasOwnProperty.call(GENUS_LIDWOORD, g)) return null;
+    var s = N.splitsLidwoord(tekst, 'de');
+    if (!s || s.lidwoord.toLowerCase() !== GENUS_LIDWOORD[g]) return null;
+    return 'to-g-' + (g === 'mv' ? 'mv' : GENUS_LIDWOORD[g]);
+  }
+  function metGenus(klasse, it, tekst) { var g = genusKlasse(it, tekst); return g ? klasse + ' ' + g : klasse; }
+
   /* ---------------------------------------------------------------- beweging */
   function beweeg(el, frames, duur, curve) {
     if (rustig || !el || !el.animate) return Promise.resolve();
@@ -564,7 +579,8 @@
       blok.appendChild(q);
     } else {
       var tekst = o.r === 'terug' ? it.antwoord : it.vraag;
-      blok.appendChild(maak('p', { klasse: it.soort === 'zin' ? 'to-zin' : 'to-vraag', tekst: tekst, lang: o.r === 'terug' ? T.lang : 'nl' }));
+      var vk = it.soort === 'zin' ? 'to-zin' : 'to-vraag';
+      blok.appendChild(maak('p', { klasse: o.r === 'terug' ? metGenus(vk, it, tekst) : vk, tekst: tekst, lang: o.r === 'terug' ? T.lang : 'nl' }));
       if (it.soort === 'woord' && o.r === 'heen' && N.splitsLidwoord(it.antwoord, T.lang)) blok.appendChild(maak('p', { klasse: 'to-hint', tekst: 'met lidwoord' }));
     }
     return blok;
@@ -751,14 +767,14 @@
     S.fase = 'overtypen';
     S.getoond = r.goed;
     var v = N.verschil(E.veld.value, r.goed);
-    function dd(stukken) {
-      var el = maak('dd', { lang: lang });
+    function dd(stukken, klasse) {
+      var el = maak('dd', klasse ? { lang: lang, klasse: klasse } : { lang: lang });
       stukken.forEach(function (s) { el.appendChild(s.af ? maak('u', { tekst: s.t }) : document.createTextNode(s.t)); });
       return el;
     }
     var dl = maak('dl', { klasse: 'to-vergelijk' }, [
       maak('div', { klasse: 'jij' }, [maak('dt', { tekst: 'Jij' }), dd(v.jij)]),
-      maak('div', null, [maak('dt', { tekst: 'Goed' }), dd(v.goed)])]);
+      maak('div', null, [maak('dt', { tekst: 'Goed' }), dd(v.goed, lang === 'de' ? genusKlasse(o.item, r.goed) : null)])]);
     var voor = maak('div', null, [uitkomst, dl]);
     var rj = rijtjeBij(o, S.alle);
     if (rj) voor.appendChild(rijtjeTabel(rj, o));
@@ -815,12 +831,12 @@
     var lang = vraag.length > 24 || antw.length > 24;
     var voor = maak('div', { klasse: 'to-kaartje to-kant-voor' }, [
       it.soort.indexOf('vervoeging') === 0 ? maak('p', { klasse: 'boven', tekst: it.tijd, lang: T.lang }) : null,
-      maak('p', { klasse: 'to-woord' + (lang ? ' to-lang' : ''), tekst: vraag, lang: vLang }),
+      maak('p', { klasse: (terug ? metGenus : function (k) { return k; })('to-woord' + (lang ? ' to-lang' : ''), it, vraag), tekst: vraag, lang: vLang }),
       maak('p', { klasse: 'onder', tekst: 'Weet je het? Draai het kaartje om.' })]);
     var g = geslacht(it, P.taal);
     var achter = maak('div', { klasse: 'to-kaartje to-kant-achter', 'aria-hidden': 'true' }, [
-      maak('p', { klasse: 'boven', tekst: vraag, lang: vLang }),
-      maak('p', { klasse: 'to-woord' + (lang ? ' to-lang' : ''), tekst: antw, lang: aLang }),
+      maak('p', { klasse: terug ? metGenus('boven', it, vraag) : 'boven', tekst: vraag, lang: vLang }),
+      maak('p', { klasse: (terug ? function (k) { return k; } : metGenus)('to-woord' + (lang ? ' to-lang' : ''), it, antw), tekst: antw, lang: aLang }),
       g && !terug ? maak('p', { klasse: 'onder', tekst: g }) : null]);
     var flip = maak('div', { klasse: 'to-flip', role: 'button', tabindex: '0', 'aria-label': 'Kaartje omdraaien: ' + vraag }, [maak('div', { klasse: 'to-flip-in' }, [voor, achter])]);
     var draaiKnop = maak('button', { type: 'button', klasse: 'knop knop-primair', tekst: 'Draai om' });

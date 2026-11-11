@@ -6,7 +6,15 @@
   <atom:link href="https://ai-leerlab.nl/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.</description>
   <language>nl</language>
-  <lastBuildDate>Sun, 01 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Wed, 11 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Een eigen onderwijsapp bouwen: mijn nakijkapp voor Power BI</title>
+    <link>https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/</guid>
+    <pubDate>Wed, 11 Nov 2026 07:00:00 +0000</pubDate>
+    <description>Zo heb ik met AI een nakijkapp voor mijn Power BI-lessen laten bouwen: wat hij oplevert, hoe de tutor helpt zonder voor te zeggen en hoe je zelf begint.</description>
+    <category>Techniek</category>
+  </item>
   <item>
     <title>Deel 6: Geef je app één huisstijl</title>
     <link>https://ai-leerlab.nl/leren/van-werkt-naar-prettig-een-eigen-design-system-voor-je-app/</link>

@@ -48,6 +48,20 @@ $soorten = array_values(array_filter($soorten, fn($s) => $s[2] > 0));
 $omschrijving = 'Oefen de woorden, zinnen en werkwoorden van ' . $t['naam'] . ' in het ' . $T['naam'] .
     '. Je typt het antwoord, de app kijkt na en laat terugkomen wat je nog lastig vindt.';
 $pad = to_pad($t);
+// Legenda bij de kleur van het lidwoord (klus 771): alleen Duits, alleen als er een woord met een genus in zit.
+// Zelfde toets als genusKlasse() in taaloefenen.js: genus uit de data, en het antwoord begint met het lidwoord dat
+// daarbij hoort (m der, v die, o das, meervoud die). Alleen dan krijgt een woord kleur.
+$genus = $t['taal'] === 'duits' && (bool)array_filter(to_inhoud($t)['items'], function ($it) {
+    if (!is_array($it) || ($it['soort'] ?? '') !== 'woord' || !is_string($it['geslacht'] ?? null)
+        || !is_string($it['antwoord'] ?? null)) {
+        return false;
+    }
+    $delen = explode(' ', $it['geslacht']);
+    $g = in_array('mv', $delen, true) ? 'mv' : $delen[0];
+    $lw = ['m' => 'der', 'v' => 'die', 'o' => 'das', 'mv' => 'die'][$g] ?? null;
+    $a = mb_strtolower(trim($it['antwoord']));
+    return $lw !== null && str_starts_with($a, $lw . ' ') && mb_strlen($a) > strlen($lw) + 1;
+});
 
 to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'omschrijving' => $omschrijving,
         'pad' => $pad, 'indexeren' => !$prive, 'prive' => $prive,
@@ -72,6 +86,9 @@ to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'o
       <button type="button" class="to-soort" data-soort="<?= $s ?>" aria-pressed="true"><span class="v" aria-hidden="true"></span><?= $label ?> <small><?= $n ?></small></button>
 <?php endforeach; ?>
     </div>
+<?php endif; ?>
+<?php if ($genus): ?>
+    <p class="to-genus">Kleur bij het lidwoord: <span lang="de"><b class="to-g-der">der</b> · <b class="to-g-die">die</b> · <b class="to-g-das">das</b> ·</span> <span class="to-heel"><b class="to-g-mv" lang="de">die</b> (meervoud)</span></p>
 <?php endif; ?>
 
     <div class="to-stapel">

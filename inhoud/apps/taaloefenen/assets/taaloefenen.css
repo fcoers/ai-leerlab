@@ -10,6 +10,18 @@
 .to-zacht { color: var(--inkt-zacht); }
 .to-melding { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 8px; padding: 16px; }
 
+/* Kleur bij het lidwoord, alleen Duits (klus 771, kleuren van Bram). Het tweede signaal is het lidwoord zelf: lidwoord
+   en woord krijgen samen de kleur, zelfde gewicht, geen onderstreping, achtergrond of overgang. Alles haalt AA. */
+.to { --der: #1F5BA8; --die: #A3271F; --das: #3F7A16; --meervoud: var(--inkt); }
+.to .to-g-der { color: var(--der); }
+.to .to-g-die { color: var(--die); }
+.to .to-g-das { color: var(--das); }
+.to .to-g-mv { color: var(--meervoud); }
+.to-genus { font-size: 16px; color: var(--inkt-zacht); margin: 0 0 20px; }
+.to-genus b { font-weight: 600; }
+.to-genus .to-heel { white-space: nowrap; }
+.to-soorten + .to-genus { margin-top: -8px; }
+
 /* ---------- kop ---------- */
 .to-kop { background: var(--vlak); border-bottom: 1px solid var(--lijn); }
 .to-kop .to-kolom { display: flex; align-items: center; justify-content: space-between; min-height: 60px; gap: 16px; }
@@ -151,6 +163,10 @@ main .label + h1 { margin-top: 8px; }
 .to-woord.to-lang { font-size: 26px; line-height: 1.3; letter-spacing: 0; }
 .to-kaartje .onder { font-size: 16px; color: var(--inkt-zacht); margin: 12px 0 0; }
 .to-kaartje .boven { font-size: 18px; color: var(--inkt-zacht); margin: 0 0 10px; }
+.to-kaartje .boven.to-g-der { color: var(--der); }
+.to-kaartje .boven.to-g-die { color: var(--die); }
+.to-kaartje .boven.to-g-das { color: var(--das); }
+.to-kaartje .boven.to-g-mv { color: var(--meervoud); }
 .to-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
 
 /* einde */
@@ -249,6 +265,7 @@ main .label + h1 { margin-top: 8px; }
 .to-tegel-beeld .to-st, .to-tegel-beeld .to-fig { width: 44px; }
 
 @media screen and (prefers-color-scheme: dark) {
+  .to { --der: #8DB6EE; --die: #EC8E82; --das: #B3DA86; }
   .to-soort .v::after, .to-rond-vink { stroke: #17211C; }
   .to-rond-vol { stroke: #0B100D; }
 }

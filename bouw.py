@@ -2948,7 +2948,11 @@ def bouw_sitemap(items):
     with open(os.path.join(UIT, "robots.txt"), "w", encoding="utf-8") as f:
         f.write("User-agent: *\nAllow: /\n\n"
                 "# Pagina's onder /test/ staan op noindex. Ze blijven toegankelijk, zodat zoekmachines die noindex kunnen lezen.\n\n"
-                f"Sitemap: {ADRES}/sitemap.xml\n")
+                f"Sitemap: {ADRES}/sitemap.xml\n"
+                # Taaloefenen maakt zijn eigen sitemap uit de database (thema's en grammatica); leeg zolang
+                # TO_INDEXEREN in lib/kern.php false is (klus 952).
+                + (f"Sitemap: {ADRES}/apps/taaloefenen/sitemap.xml\n"
+                   if os.path.isfile(os.path.join(APPS, "taaloefenen", "sitemap.php")) else ""))
 
 
 # ---------------------------------------------------------------- apps (/apps/<naam>/)

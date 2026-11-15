@@ -4,3 +4,4 @@ Allow: /
 # Pagina's onder /test/ staan op noindex. Ze blijven toegankelijk, zodat zoekmachines die noindex kunnen lezen.
 
 Sitemap: https://ai-leerlab.nl/sitemap.xml
+Sitemap: https://ai-leerlab.nl/apps/taaloefenen/sitemap.xml

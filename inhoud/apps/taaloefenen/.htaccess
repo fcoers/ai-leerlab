@@ -5,6 +5,11 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Grammatica (klus 952), vóór de thema's: /apps/taaloefenen/duits/grammatica/ en /duits/grammatica/<onderdeel>/
+  RewriteRule ^(frans|duits)/grammatica/?$ grammatica.php?taal=$1 [L,QSA]
+  RewriteRule ^(frans|duits)/grammatica/([a-z0-9-]{1,80})/?$ grammatica.php?taal=$1&slug=$2 [L,QSA]
+  # Sitemap van de app: leeg zolang TO_INDEXEREN false is
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
   # Openbaar thema: /apps/taaloefenen/frans/h3-wonen/
   RewriteRule ^(frans|duits)/([a-z0-9-]{1,80})/?$ thema.php?taal=$1&slug=$2 [L,QSA]
   # Paspoort en reiziger: /apps/taaloefenen/paspoort/ en /apps/taaloefenen/reiziger/ (altijd noindex)

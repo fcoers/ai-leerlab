@@ -8,9 +8,13 @@ require __DIR__ . '/lib/kern.php';
 require __DIR__ . '/lib/pagina.php';
 
 $themas = ['frans' => [], 'duits' => []];
+$grammatica = ['frans' => null, 'duits' => null];   // klus 952: één rij per taal onder de thema's
 try {
     foreach (to_openbare_themas() as $t) {
         $themas[$t['taal']][] = $t;
+    }
+    foreach (array_keys(TO_TALEN) as $taal) {
+        $grammatica[$taal] = to_grammatica($taal);
     }
 } catch (Throwable $e) {
     error_log('taaloefenen: ' . $e->getMessage());   // zonder database: de pagina staat er, zonder thema's
@@ -73,6 +77,16 @@ to_kop(['titel' => TO_TITEL, 'omschrijving' => TO_OMSCHRIJVING, 'pad' => '/apps/
 <?php endforeach; ?>
           </ul>
           <ul class="to-themas" data-eigen-themas hidden></ul>
+<?php if ($grammatica[$code]): $n = count($grammatica[$code]['onderdelen']); ?>
+          <h2>Grammatica</h2>
+          <ul class="to-themas">
+            <li><a class="to-thema" href="<?= to_esc(to_grammatica_pad($code)) ?>">
+              <div class="to-thema-tekst"><h3>Grammatica <?= $T['naam'] ?></h3>
+              <span class="to-regel"><?= $n === 1 ? '1 onderdeel' : $n . ' onderdelen' ?></span></div>
+              <span class="to-chev" aria-hidden="true"></span>
+            </a></li>
+          </ul>
+<?php endif; ?>
         </div>
 <?php endforeach; ?>
       </section>

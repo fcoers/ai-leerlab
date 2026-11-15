@@ -14,6 +14,31 @@ const TO_TITEL = 'Franse en Duitse woordjes oefenen en overhoren · AI-leerlab';
 const TO_OMSCHRIJVING = 'Oefen Franse en Duitse woordjes, zinnen en werkwoorden. Je typt het antwoord, de app kijkt na en laat terugkomen wat je nog lastig vindt. Gratis.';
 const TO_DEELBEELD = TO_SITE . '/assets/img/deel/taaloefenen.png';
 
+/* Titels van de grammaticapagina's (klus 952, gekozen door Frits). Hier aanpassen, nergens anders.
+   %1$s is de titel van het onderdeel, %2$s de taal (Duits, Frans). to_gram_titel() kiest per onderdeel de eerste
+   vorm die past: nooit twee keer "in het", en hooguit TO_GRAM_TITEL_MAX tekens (Google kort rond de 60 af). */
+const TO_GRAM_TITEL_ONDERDEEL = '%1$s in het %2$s: uitleg en rijtjes · AI-leerlab';
+const TO_GRAM_TITEL_KORT = '%1$s in het %2$s · AI-leerlab';
+const TO_GRAM_TITEL_MET_IN_HET = '%1$s (%2$s) · AI-leerlab';   // onderdeel zegt zelf al "in het"
+const TO_GRAM_TITEL_MAX = 65;
+const TO_GRAM_TITEL_OVERZICHT = ['duits' => 'Duitse grammatica kort uitgelegd · AI-leerlab',
+                                 'frans' => 'Franse grammatica kort uitgelegd · AI-leerlab'];
+/* Description (Brams variant a): de korte regel van het onderdeel, dan wat er op de pagina staat. */
+const TO_GRAM_OMSCHRIJVING_ONDERDEEL = '%1$s. Met rijtjes, voorbeelden om te beluisteren%2$s. Gratis.';
+const TO_GRAM_OMSCHRIJVING_OVERZICHT = '%1$s grammatica kort uitgelegd: %2$s, met rijtjes, voorbeelden om te beluisteren en oefenen. Gratis.';
+/* Zonder stem voor de taal: geen luisterknoppen, alleen deze regel op de themapagina (klus 952, Bram). */
+const TO_GEEN_STEM = 'Je apparaat heeft geen %s stem, dus voorlezen staat uit. Je kunt een stem toevoegen in de instellingen van je apparaat.';
+
+/** Titel van een grammaticaonderdeel; zie TO_GRAM_TITEL_* hierboven. */
+function to_gram_titel(string $onderdeel, string $taal): string
+{
+    if (preg_match('/\bin het\b/iu', $onderdeel)) {
+        return sprintf(TO_GRAM_TITEL_MET_IN_HET, $onderdeel, $taal);
+    }
+    $t = sprintf(TO_GRAM_TITEL_ONDERDEEL, $onderdeel, $taal);
+    return mb_strlen($t) <= TO_GRAM_TITEL_MAX ? $t : sprintf(TO_GRAM_TITEL_KORT, $onderdeel, $taal);
+}
+
 /**
  * $p: titel, omschrijving, pad (voor canonical), indexeren (bool), schema (array of null), klasse (body), data (array).
  */
@@ -36,7 +61,7 @@ function to_kop(array $p): void
     foreach (($p['data'] ?? []) as $k => $v) {
         $data .= ' data-' . $k . '="' . to_esc($v) . '"';
     }
-    $v = '202611151257';
+    $v = '202611151519';
     ?><!doctype html>
 <html lang="nl">
 <head>
@@ -78,6 +103,7 @@ function to_kop(array $p): void
   <link rel="stylesheet" href="/assets/site.css?v=<?= $v ?>">
   <link rel="stylesheet" href="/apps/taaloefenen/assets/taaloefenen.css?v=<?= $v ?>">
   <script src="/apps/taaloefenen/assets/nakijken.js?v=<?= $v ?>" defer></script>
+  <script src="/apps/taaloefenen/assets/spraak.js?v=<?= $v ?>" defer></script>
   <script src="/apps/taaloefenen/assets/reiziger.js?v=<?= $v ?>" defer></script>
   <script src="/apps/taaloefenen/assets/taaloefenen.js?v=<?= $v ?>" defer></script>
 <?php if (!empty($p['schema'])): ?>
@@ -96,7 +122,9 @@ function to_kop(array $p): void
     </div>
   </header>
   <main id="inhoud" class="to-kolom" tabindex="-1">
+<?php if (($p['data']['scherm'] ?? '') !== 'grammatica'): ?>
     <noscript><p class="to-melding">Deze pagina heeft JavaScript nodig om te oefenen. Zet JavaScript aan in je browser.</p></noscript>
+<?php endif; ?>
 <?php
 }
 
@@ -121,6 +149,32 @@ function to_schema(string $naam, string $omschrijving, string $pad): array
             'educationalLevel' => 'havo 3', 'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'EUR'],
             'publisher' => ['@type' => 'Organization', 'name' => 'AI-leerlab', 'url' => TO_SITE . '/']];
 }
+
+/** Schema.org LearningResource voor een grammaticapagina (klus 952). */
+function to_schema_les(string $naam, string $omschrijving, string $pad, string $taal, ?array $onderdeel_van = null): array
+{
+    $s = ['@context' => 'https://schema.org', '@type' => 'LearningResource', 'name' => $naam,
+          'description' => $omschrijving, 'url' => TO_SITE . $pad, 'inLanguage' => 'nl',
+          'learningResourceType' => 'uitleg', 'educationalLevel' => 'havo 3', 'isAccessibleForFree' => true,
+          'about' => ['@type' => 'Language', 'name' => TO_TALEN[$taal]['naam'], 'alternateName' => TO_TALEN[$taal]['lang']],
+          'image' => TO_DEELBEELD,
+          'publisher' => ['@type' => 'Organization', 'name' => 'AI-leerlab', 'url' => TO_SITE . '/']];
+    if ($onderdeel_van) {
+        $s['isPartOf'] = ['@type' => 'LearningResource', 'name' => $onderdeel_van[0], 'url' => TO_SITE . $onderdeel_van[1]];
+    }
+    return $s;
+}
+
+/** Luisterknop (klus 952). Staat verborgen in de HTML; spraak.js zet hem aan als het apparaat een stem voor de taal
+    heeft. $tekst: wat hij uitspreekt; meer regels (een rijtje) met een regeleinde ertussen, elk als eigen zin. */
+function to_luister(string $tekst, string $taal, string $label = ''): string
+{
+    $lang = TO_TALEN[$taal]['lang'];
+    $label = $label !== '' ? $label : $tekst;
+    return '<button type="button" class="to-luister" data-spreek="' . to_esc($tekst) . '" data-spreek-taal="' . $lang .
+        '" aria-label="' . to_esc('Luister: ' . $label) . '" hidden>' . TO_LUIDSPREKER . '</button>';
+}
+const TO_LUIDSPREKER = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18.2 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>';
 
 /** Regel onder een thema zonder JavaScript: alleen het aantal; de browser vult de stand in. */
 function to_aantal_tekst(array $t): string

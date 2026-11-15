@@ -16,7 +16,7 @@ require dirname(__DIR__, 2) . '/postvak/lib/kern.php';
 
 /** Pas op true als Frits zegt dat de app in Google, het menu en de sitemap mag. Privé-thema's blijven altijd noindex. */
 const TO_INDEXEREN = false;
-const TO_SCHEMA = '1';
+const TO_SCHEMA = '2';                // 2: tabel to_grammatica (klus 952)
 const TO_CODE_ALFABET = 'abcdefghijkmnpqrstuvwxyz23456789';
 const TO_CODE_LENGTE = 24;                     // 24 tekens uit 32 = 120 bits
 const TO_MAX_ITEMS = 600;
@@ -74,7 +74,17 @@ function to_tabellen(PDO $pdo): void
         inhoud $tekst NOT NULL,
         aantallen VARCHAR(255) NOT NULL,
         bijgewerkt BIGINT NOT NULL)$eind");
-    $pdo->exec('CREATE INDEX to_thema_taal ON to_thema (taal, zichtbaarheid, slug)');
+    try {
+        $pdo->exec('CREATE INDEX to_thema_taal ON to_thema (taal, zichtbaarheid, slug)');
+    } catch (Throwable $e) {
+        // bestaat al (schema 1)
+    }
+    // Grammatica per taal (klus 952): het hele bestand van Dide, gecontroleerd, als JSON. De Mac stuurt het.
+    $pdo->exec("CREATE TABLE IF NOT EXISTS to_grammatica (
+        taal VARCHAR(10) NOT NULL PRIMARY KEY,
+        inhoud $tekst NOT NULL,
+        bijgewerkt BIGINT NOT NULL)$eind");
+    $pdo->prepare('DELETE FROM to_instelling WHERE naam = ?')->execute(['schema']);
     $pdo->prepare('INSERT INTO to_instelling (naam, waarde) VALUES (?, ?)')->execute(['schema', TO_SCHEMA]);
 }
 
@@ -247,6 +257,13 @@ function to_thema_uit_verzoek($t): array
         $f['zichtbaarheid'] = 'Kies openbaar of prive.';
         $zicht = 'prive';
     }
+    // Eén zin onder de titel van het thema (klus 952), optioneel.
+    $opmerking = $t['opmerking'] ?? null;
+    $opmerking = $opmerking === null ? '' : to_tekst($opmerking);
+    if ($opmerking === null || mb_strlen($opmerking) > 300) {
+        $f['opmerking'] = 'De opmerking is tekst, hooguit 300 tekens.';
+        $opmerking = '';
+    }
     $volgorde = $t['volgorde'] ?? 0;
     if (!is_int($volgorde) || abs($volgorde) > 1000000) {
         $f['volgorde'] = 'Volgorde is een geheel getal.';
@@ -412,8 +429,12 @@ function to_thema_uit_verzoek($t): array
     }
     $tel['rijtjes'] = count($r_schoon);
     $tel['rijtjes_compleet'] = $compleet;
+    $inhoud = ['items' => $schoon, 'rijtjes' => $r_schoon];
+    if ($opmerking !== '') {
+        $inhoud['opmerking'] = $opmerking;
+    }
     return [['uid' => $uid, 'taal' => $taal, 'naam' => (string)$naam, 'zichtbaarheid' => $zicht, 'volgorde' => $volgorde,
-             'inhoud' => ['items' => $schoon, 'rijtjes' => $r_schoon], 'aantallen' => $tel], $f];
+             'inhoud' => $inhoud, 'aantallen' => $tel], $f];
 }
 
 /** Een slug die binnen de openbare thema's van de taal nog vrij is (behalve bij het thema zelf). */
@@ -423,9 +444,262 @@ function to_vrije_slug(string $taal, string $naam, string $uid): string
     $st = to_db()->prepare("SELECT slug FROM to_thema WHERE taal = ? AND zichtbaarheid = 'openbaar' AND uid <> ?");
     $st->execute([$taal, $uid]);
     $bezet = array_flip($st->fetchAll(PDO::FETCH_COLUMN));
+    $bezet['grammatica'] = true;   // /<taal>/grammatica/ is de grammatica (klus 952)
     $slug = $basis;
     for ($i = 2; isset($bezet[$slug]); $i++) {
         $slug = $basis . '-' . $i;
     }
     return $slug;
+}
+
+// ---------------------------------------------------------------- grammatica (klus 952)
+
+/** De groepen op het overzicht, in deze volgorde. Elk onderdeel hoort bij een ervan (veld groep in het bestand). */
+const TO_GRAM_GROEPEN = ['Werkwoorden', 'Naamwoorden', 'Zinsbouw'];
+const TO_GRAM_MAX = 40;
+
+/** Een korte tekst uit het verzoek: schoon, niet leeg (tenzij $mag_leeg), hooguit $max tekens. Fout: null. */
+function to_gram_tekst($v, int $max, bool $mag_leeg = false): ?string
+{
+    $s = to_tekst($v);
+    if ($s === null || ($s === '' && !$mag_leeg) || mb_strlen($s) > $max) {
+        return null;
+    }
+    return $s;
+}
+
+/** Controleert de grammatica van één taal (het bestand van Dide). Geeft [schoon, fouten per veld]. */
+function to_grammatica_uit_verzoek(string $taal, $g): array
+{
+    $f = [];
+    if (!is_array($g) || array_is_list($g)) {
+        return [null, ['grammatica' => 'Het veld grammatica is geen object.']];
+    }
+    $T = TO_TALEN[$taal];
+    $titel = to_gram_tekst($g['titel'] ?? 'Grammatica ' . $T['naam'], 120) ?? 'Grammatica ' . $T['naam'];
+    $onderdelen = $g['onderdelen'] ?? null;
+    if (!is_array($onderdelen) || !array_is_list($onderdelen) || count($onderdelen) < 1 || count($onderdelen) > TO_GRAM_MAX) {
+        return [null, ['onderdelen' => 'Geef 1 tot ' . TO_GRAM_MAX . ' onderdelen, als lijst.']];
+    }
+    $schoon = [];
+    $slugs = [];
+    foreach ($onderdelen as $n => $o) {
+        $k = "onderdelen.$n";
+        if (!is_array($o) || array_is_list($o)) {
+            $f[$k] = 'Onderdeel ' . ($n + 1) . ' is geen object.';
+            continue;
+        }
+        $id = $o['id'] ?? null;
+        if (!is_string($id) || !preg_match('/^[a-z0-9-]{1,80}$/', $id)) {
+            $f["$k.id"] = 'Geef een id: kleine letters, cijfers en -, hooguit 80 tekens.';
+            continue;
+        }
+        $slug = preg_replace('/^(de|fr)-/', '', $id);
+        if ($slug === '' || isset($slugs[$slug])) {
+            $f["$k.id"] = 'Dit id (zonder taal ervoor) staat al bij een ander onderdeel.';
+            continue;
+        }
+        $slugs[$slug] = true;
+        $uit = ['id' => $id, 'slug' => $slug];
+        foreach (['titel' => 120, 'kort' => 200] as $veld => $max) {
+            $v = to_gram_tekst($o[$veld] ?? null, $max);
+            if ($v === null) {
+                $f["$k.$veld"] = "Vul $veld in, hooguit $max tekens.";
+            }
+            $uit[$veld] = (string)$v;
+        }
+        $groep = to_gram_tekst($o['groep'] ?? null, 40);
+        if ($groep === null || !in_array($groep, TO_GRAM_GROEPEN, true)) {
+            $f["$k.groep"] = 'Geef een groep: ' . implode(', ', TO_GRAM_GROEPEN) . '.';
+        }
+        $uit['groep'] = (string)$groep;
+        $hb = to_lijst($o['hoort_bij'] ?? []);
+        if ($hb === null || count($hb) > 10) {
+            $f["$k.hoort_bij"] = 'hoort_bij is een lijst met hooguit 10 themanamen.';
+            $hb = [];
+        }
+        $uit['hoort_bij'] = $hb;
+        $uitleg = $o['uitleg'] ?? null;
+        $uit['uitleg'] = [];
+        if (!is_array($uitleg) || !array_is_list($uitleg) || count($uitleg) < 1 || count($uitleg) > 3) {
+            $f["$k.uitleg"] = 'De uitleg is een lijst met 1 tot 3 alinea\'s.';
+        } else {
+            foreach ($uitleg as $a) {
+                $a = to_gram_tekst($a, 1500);
+                if ($a === null) {
+                    $f["$k.uitleg"] = 'Een alinea is tekst, hooguit 1500 tekens.';
+                    break;
+                }
+                $uit['uitleg'][] = $a;
+            }
+        }
+        // tabel: één object of een lijst van hooguit drie
+        $tabellen = $o['tabel'] ?? [];
+        if (is_array($tabellen) && $tabellen && !array_is_list($tabellen)) {
+            $tabellen = [$tabellen];
+        }
+        $uit['tabellen'] = [];
+        if (!is_array($tabellen) || count($tabellen) > 3) {
+            $f["$k.tabel"] = 'Hooguit drie tabellen.';
+            $tabellen = [];
+        }
+        foreach ($tabellen as $tb) {
+            // kolommen mogen leeg zijn (een lege linkerbovenhoek), dus niet via to_lijst
+            $kol = is_array($tb['kolommen'] ?? null) && array_is_list($tb['kolommen'])
+                ? array_map(fn($c) => to_gram_tekst($c, 120, true), $tb['kolommen']) : null;
+            if ($kol && in_array(null, $kol, true)) {
+                $kol = null;
+            }
+            $rijen = $tb['rijen'] ?? null;
+            if (!$kol || count($kol) > 5 || !is_array($rijen) || !array_is_list($rijen) || count($rijen) < 1 || count($rijen) > 20) {
+                $f["$k.tabel"] = 'Een tabel heeft 1 tot 5 kolommen en 1 tot 20 rijen.';
+                continue;
+            }
+            $rs = [];
+            foreach ($rijen as $r) {
+                if (!is_array($r) || !array_is_list($r) || count($r) !== count($kol)) {
+                    $f["$k.tabel"] = 'Elke rij heeft evenveel cellen als er kolommen zijn.';
+                    continue 2;
+                }
+                $cellen = array_map(fn($c) => to_gram_tekst($c, 300, true), $r);
+                if (in_array(null, $cellen, true)) {
+                    $f["$k.tabel"] = 'Een cel is tekst, hooguit 300 tekens.';
+                    continue 2;
+                }
+                $rs[] = $cellen;
+            }
+            $uit['tabellen'][] = ['kolommen' => $kol, 'rijen' => $rs];
+        }
+        $uit['rijtjes'] = [];
+        $rijtjes = $o['rijtjes'] ?? [];
+        if (!is_array($rijtjes) || !array_is_list($rijtjes) || count($rijtjes) > 6) {
+            $f["$k.rijtjes"] = 'Hooguit zes rijtjes, als lijst.';
+            $rijtjes = [];
+        }
+        foreach ($rijtjes as $r) {
+            $ww = to_gram_tekst($r['werkwoord'] ?? null, 60);
+            $tijd = to_gram_tekst($r['tijd'] ?? null, 40);
+            $vormen = $r['vormen'] ?? null;
+            if ($ww === null || $tijd === null || !is_array($vormen) || array_is_list($vormen)) {
+                $f["$k.rijtjes"] = 'Een rijtje heeft werkwoord, tijd en vormen.';
+                continue;
+            }
+            $v = [];
+            foreach ($T['personen'] as $p) {
+                if (isset($vormen[$p])) {
+                    $x = to_gram_tekst($vormen[$p], 60);
+                    if ($x === null) {
+                        $f["$k.rijtjes"] = 'Een vorm is tekst, hooguit 60 tekens.';
+                        continue 2;
+                    }
+                    $v[$p] = $x;
+                }
+            }
+            if (!$v) {
+                $f["$k.rijtjes"] = 'Een rijtje heeft vormen voor de personen van het ' . $T['naam'] . '.';
+                continue;
+            }
+            $nadruk = array_values(array_filter(to_lijst($r['nadruk'] ?? []) ?? [], fn($p) => isset($v[$p])));
+            // nadruk_letters: {persoon: [[begin, eind], ...]}, tekens vanaf 0, eind exclusief (gelijk aan slice in JS)
+            $letters = [];
+            $nl = $r['nadruk_letters'] ?? [];
+            if (!is_array($nl) || ($nl && array_is_list($nl))) {
+                $f["$k.rijtjes"] = 'nadruk_letters is een object met per persoon een lijst [begin, eind].';
+                $nl = [];
+            }
+            foreach ($nl as $p => $stukken) {
+                if (!isset($v[$p])) {
+                    $f["$k.rijtjes"] = "nadruk_letters noemt $p, maar dat rijtje heeft geen vorm voor $p.";
+                    continue;
+                }
+                $len = mb_strlen($v[$p], 'UTF-8');
+                $pos = [];
+                foreach (is_array($stukken) && array_is_list($stukken) ? $stukken : [null] as $st) {
+                    if (!is_array($st) || count($st) !== 2 || !is_int($st[0] ?? null) || !is_int($st[1] ?? null)
+                        || $st[0] < 0 || $st[1] <= $st[0] || $st[1] > $len) {
+                        $f["$k.rijtjes"] = "nadruk_letters bij $p: elk stuk is [begin, eind] binnen de vorm.";
+                        $pos = [];
+                        break;
+                    }
+                    $pos = array_merge($pos, range($st[0], $st[1] - 1));
+                }
+                if ($pos) {
+                    $letters[$p] = array_values(array_unique($pos));
+                }
+            }
+            $uit['rijtjes'][] = ['werkwoord' => $ww, 'tijd' => $tijd, 'vormen' => $v, 'nadruk' => $nadruk, 'letters' => $letters];
+        }
+        $uit['voorbeelden'] = [];
+        foreach ((is_array($o['voorbeelden'] ?? null) ? $o['voorbeelden'] : []) as $vb) {
+            $zin = to_gram_tekst($vb['zin'] ?? null, 300);
+            $nl = to_gram_tekst($vb['nl'] ?? '', 300, true);
+            if ($zin === null || $nl === null) {
+                $f["$k.voorbeelden"] = 'Een voorbeeld heeft een zin en de Nederlandse betekenis, elk hooguit 300 tekens.';
+                continue;
+            }
+            $uit['voorbeelden'][] = ['zin' => $zin, 'nl' => $nl];
+        }
+        if (count($uit['voorbeelden']) > 8) {
+            $f["$k.voorbeelden"] = 'Hooguit acht voorbeelden.';
+        }
+        $lo = $o['let_op'] ?? null;
+        if (is_array($lo) && !array_is_list($lo)) {
+            $tekst = to_gram_tekst($lo['tekst'] ?? null, 600);
+            if ($tekst === null) {
+                $f["$k.let_op"] = 'Let op heeft een tekst, hooguit 600 tekens.';
+            } else {
+                $uit['let_op'] = ['tekst' => $tekst, 'fout' => to_gram_tekst($lo['fout'] ?? '', 200, true) ?? '',
+                                  'goed' => to_gram_tekst($lo['goed'] ?? '', 200, true) ?? ''];
+            }
+        }
+        $schoon[] = $uit;
+    }
+    return [['titel' => $titel, 'onderdelen' => $schoon], $f];
+}
+
+/** De grammatica van een taal, in de volgorde van het overzicht (groep, dan bestand). Geen: null. */
+function to_grammatica(string $taal): ?array
+{
+    static $cache = [];
+    if (array_key_exists($taal, $cache)) {
+        return $cache[$taal];
+    }
+    $st = to_db()->prepare('SELECT inhoud, bijgewerkt FROM to_grammatica WHERE taal = ?');
+    $st->execute([$taal]);
+    $r = $st->fetch();
+    $g = $r ? json_decode((string)$r['inhoud'], true) : null;
+    if (!is_array($g) || empty($g['onderdelen'])) {
+        return $cache[$taal] = null;
+    }
+    $rang = array_flip(TO_GRAM_GROEPEN);
+    $onderdelen = $g['onderdelen'];
+    foreach ($onderdelen as $i => &$o) {
+        $o['_rang'] = [$rang[$o['groep']] ?? count($rang), $i];
+    }
+    unset($o);
+    usort($onderdelen, fn($a, $b) => $a['_rang'] <=> $b['_rang']);
+    $g['onderdelen'] = $onderdelen;
+    $g['bijgewerkt'] = (int)$r['bijgewerkt'];
+    return $cache[$taal] = $g;
+}
+
+function to_grammatica_pad(string $taal, ?string $slug = null): string
+{
+    return '/apps/taaloefenen/' . $taal . '/grammatica/' . ($slug !== null ? $slug . '/' : '');
+}
+
+/** Het eerste openbare thema met een van deze namen (hoort_bij), voor de oefenknop. */
+function to_thema_op_namen(string $taal, array $namen): ?array
+{
+    if (!$namen) {
+        return null;
+    }
+    $st = to_db()->prepare("SELECT * FROM to_thema WHERE taal = ? AND naam = ? AND zichtbaarheid = 'openbaar'");
+    foreach ($namen as $naam) {
+        $st->execute([$taal, $naam]);
+        if ($t = $st->fetch()) {
+            return $t;
+        }
+    }
+    return null;
 }

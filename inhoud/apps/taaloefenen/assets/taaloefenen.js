@@ -7,6 +7,7 @@
   var N = window.TONakijken;
   if (!N || !document.body.classList.contains('to')) return;
   var R = window.TOReis || null;   // verdienen (reiziger.js); zonder dat bestand werkt alles zoals vóór klus 771
+  var Sp = window.TOSpraak || null; // luisterknop (spraak.js, klus 952); zonder stem of zonder bestand: geen knoppen
 
   var TALEN = {
     frans: { naam: 'Frans', lang: 'fr', tekens: ['é', 'è', 'ê', 'à', 'ç', 'ô', 'û', 'î', 'ï', 'ë', 'œ', "'"] },
@@ -229,6 +230,22 @@
   }
   function metGenus(klasse, it, tekst) { var g = genusKlasse(it, tekst); return g ? klasse + ' ' + g : klasse; }
 
+  /* ---------------------------------------------------------------- luisteren (klus 952) */
+  /** Kan dit apparaat de taal van deze pagina uitspreken? Pas waar na TOSpraak.klaar(). */
+  function kanSpreken() { return !!(Sp && Sp.heeft(TALEN[P.taal].lang)); }
+  /** Knop die de tekst in de taal van de pagina uitspreekt, of null zonder stem. */
+  function luister(tekst, opt) { return kanSpreken() ? Sp.knop(tekst, TALEN[P.taal].lang, opt) : null; }
+  /** Het hele goede antwoord als zin: bij vervoeging-zin de zin met de vorm ingevuld, bij vervoeging-kort persoon en vorm. */
+  function uitspraakVan(it, vorm) {
+    if (it.soort === 'vervoeging-zin') return it.vraag.replace(/\([^()]+\)/, vorm);
+    if (it.soort === 'vervoeging-kort') {
+      var p = it.vraag.replace(/\([^()]*\)/g, '').trim();
+      if (P.taal === 'frans' && /^je$/i.test(p) && /^[aeiouyéèêâîôûh]/i.test(vorm)) return p.charAt(0) + "'" + vorm;
+      return p + ' ' + vorm;
+    }
+    return vorm;
+  }
+
   /* ---------------------------------------------------------------- beweging */
   function beweeg(el, frames, duur, curve) {
     if (rustig || !el || !el.animate) return Promise.resolve();
@@ -415,6 +432,7 @@
       });
     });
     toonTaal(P.taal, true);
+    if (Sp) Sp.klaar('de'); // laadt de stemmen voor beide talen; knoppen in een sessie vragen het daarna op
   }
 
   function themaPagina() {
@@ -457,6 +475,12 @@
           return [t].concat(r[1].filter(function (x) { return x.uid !== t.uid; }));
         })
       : laadTaal(taal);
+    var stemKlaar = Sp ? Sp.klaar(TALEN[taal].lang) : Promise.resolve(false);
+    stemKlaar.then(function (ok) {
+      var regel = $('[data-geen-stem]');
+      if (regel) regel.hidden = ok;
+      if (ok && P.thema && !S) tekenThema();   // de lijst Lastig krijgt nu zijn knoppen
+    });
     laden.then(function (themas) {
       P.themas = themas;
       P.thema = themas.filter(function (t) { return t.uid === uid; })[0] || null;
@@ -485,14 +509,24 @@
       .sort(function (a, b) { return stand(b).f - stand(a).f; }).slice(0, 5);
     var ul = $('[data-lastig]');
     ul.textContent = '';
-    lastig.forEach(function (o) { ul.appendChild(lastigRegel(o)); });
+    lastig.forEach(function (o) { ul.appendChild(lastigRegel(o, true)); });
     $('[data-lastig-blok]').hidden = !lastig.length;
   }
-  function lastigRegel(o) {
-    var v = o.r === 'terug' ? o.item.antwoord : o.item.vraag;
-    var a = o.r === 'terug' ? o.item.vraag : o.item.antwoord;
+  /** metKnop (themapagina, klus 952): één luisterknop per regel, rechts naast de Duitse of Franse kant. */
+  function lastigRegel(o, metKnop) {
+    var it = o.item;
+    var v = o.r === 'terug' ? it.antwoord : it.vraag;
+    var a = o.r === 'terug' ? it.vraag : it.antwoord;
     var l = TALEN[P.taal].lang;
-    return maak('li', null, [maak('span', { tekst: v, lang: o.r === 'terug' ? l : null }), maak('span', { tekst: a, lang: o.r === 'terug' ? null : l })]);
+    var vervoeging = it.soort.indexOf('vervoeging') === 0;
+    var links = maak('span', { tekst: v, lang: o.r === 'terug' || vervoeging ? l : null });
+    var rechts = maak('span', { tekst: a, lang: o.r === 'terug' ? null : l });
+    var knop = metKnop ? luister(o.r === 'terug' ? it.antwoord : uitspraakVan(it, it.antwoord)) : null;
+    if (!knop) return maak('li', null, [links, rechts]);
+    // vreemde kant links (terug) of rechts (heen en vervoeging): de knop staat er direct rechts naast
+    return o.r === 'terug'
+      ? maak('li', { klasse: 'met-luister links' }, [maak('span', { klasse: 'to-vreemd' }, [links, knop]), rechts])
+      : maak('li', { klasse: 'met-luister' }, [links, maak('span', { klasse: 'to-vreemd' }, [rechts, knop])]);
   }
   function schud(a) {
     a = a.slice();
@@ -520,6 +554,7 @@
     if (!S) return;
     var bron = S.bron;
     S = null;
+    if (Sp) Sp.stop();
     $('[data-sessie]').hidden = true;
     $('[data-sessie]').textContent = '';
     $('[data-pagina]').hidden = false;
@@ -580,7 +615,10 @@
     } else {
       var tekst = o.r === 'terug' ? it.antwoord : it.vraag;
       var vk = it.soort === 'zin' ? 'to-zin' : 'to-vraag';
-      blok.appendChild(maak('p', { klasse: o.r === 'terug' ? metGenus(vk, it, tekst) : vk, tekst: tekst, lang: o.r === 'terug' ? T.lang : 'nl' }));
+      var vraagP = maak('p', { klasse: o.r === 'terug' ? metGenus(vk, it, tekst) : vk, tekst: tekst, lang: o.r === 'terug' ? T.lang : 'nl' });
+      // Vreemde taal naar NL: luisterknop rechts naast de vraag. Nooit bij een Nederlandse vraag (verklapt het antwoord).
+      var lk = o.r === 'terug' ? luister(tekst, { houdFocus: true }) : null;
+      blok.appendChild(lk ? maak('div', { klasse: 'to-met-luister' }, [vraagP, lk]) : vraagP);
       if (it.soort === 'woord' && o.r === 'heen' && N.splitsLidwoord(it.antwoord, T.lang)) blok.appendChild(maak('p', { klasse: 'to-hint', tekst: 'met lidwoord' }));
     }
     return blok;
@@ -590,6 +628,7 @@
     if (!S) return;
     if (!S.rij.length) { einde(); return; }
     var o = S.rij.shift();
+    if (Sp) Sp.stop();
     S.huidige = o;
     S.gezien[o.k] = true;
     S.fase = 'vraag';
@@ -751,6 +790,13 @@
       : null;
     var uitkomst = maak('div', { klasse: 'to-uitkomst', role: 'status' }, [rondje(r.uitkomst),
       maak('div', null, [maak('p', { klasse: 'to-wat', tekst: kop }), maak('p', { klasse: 'to-gevolg', tekst: gevolgTekst(r.uitkomst, oud, nieuwB, terug) }), stapRegel])]);
+    // Luisterknop bij het goede antwoord, alleen als dat Duits of Frans is (klus 952).
+    var goedeVorm = r.goed || goedeAntwoorden(o)[0];
+    function goedKnop() { return lang === 'nl' ? null : luister(uitspraakVan(o.item, goedeVorm), { houdFocus: true }); }
+    if (r.uitkomst === 'goed') {
+      var gk = goedKnop();
+      if (gk) { uitkomst.classList.add('met-luister'); uitkomst.appendChild(gk); }
+    }
 
     if (r.uitkomst === 'goed') {
       S.fase = 'klaar';
@@ -772,9 +818,10 @@
       stukken.forEach(function (s) { el.appendChild(s.af ? maak('u', { tekst: s.t }) : document.createTextNode(s.t)); });
       return el;
     }
-    var dl = maak('dl', { klasse: 'to-vergelijk' }, [
-      maak('div', { klasse: 'jij' }, [maak('dt', { tekst: 'Jij' }), dd(v.jij)]),
-      maak('div', null, [maak('dt', { tekst: 'Goed' }), dd(v.goed, lang === 'de' ? genusKlasse(o.item, r.goed) : null)])]);
+    var gk2 = goedKnop();
+    var dl = maak('dl', { klasse: 'to-vergelijk' + (gk2 ? ' met-luister' : '') }, [
+      maak('div', { klasse: 'jij' }, [maak('dt', { tekst: 'Jij' }), dd(v.jij), gk2 ? maak('span', { 'aria-hidden': 'true' }) : null]),
+      maak('div', null, [maak('dt', { tekst: 'Goed' }), dd(v.goed, lang === 'de' ? genusKlasse(o.item, r.goed) : null), gk2])]);
     var voor = maak('div', null, [uitkomst, dl]);
     var rj = rijtjeBij(o, S.alle);
     if (rj) voor.appendChild(rijtjeTabel(rj, o));
@@ -839,6 +886,20 @@
       maak('p', { klasse: (terug ? function (k) { return k; } : metGenus)('to-woord' + (lang ? ' to-lang' : ''), it, antw), tekst: antw, lang: aLang }),
       g && !terug ? maak('p', { klasse: 'onder', tekst: g }) : null]);
     var flip = maak('div', { klasse: 'to-flip', role: 'button', tabindex: '0', 'aria-label': 'Kaartje omdraaien: ' + vraag }, [maak('div', { klasse: 'to-flip-in' }, [voor, achter])]);
+    /* Luisterknop (klus 952): rechtsboven aan de kant met Duits of Frans, als buur van .to-flip (die is role=button).
+       Bij vervoeging op beide kanten: voor het hele werkwoord, achter de vorm met de persoon of in de zin. */
+    var vervoeging = it.soort.indexOf('vervoeging') === 0;
+    var knopVoor = vLang !== 'nl' ? luister(vervoeging ? it.werkwoord : vraag) : null;
+    var knopAchter = aLang !== 'nl' ? luister(vervoeging ? uitspraakVan(it, antw) : antw) : null;
+    if (knopVoor) voor.classList.add('met-luister');
+    if (knopAchter) { achter.classList.add('met-luister'); knopAchter.hidden = true; }
+    var houder = maak('div', { klasse: 'to-flip-houder' }, [flip, knopVoor, knopAchter]);
+    /** Op 90 graden: de knop van de voorkant weg, die van de achterkant erbij, met 200 ms opacity in-uit. */
+    function wisselKnop() {
+      if (Sp) Sp.stop();
+      if (knopVoor) knopVoor.hidden = true;
+      if (knopAchter) { knopAchter.hidden = false; vervaag(knopAchter, false); }
+    }
     var draaiKnop = maak('button', { type: 'button', klasse: 'knop knop-primair', tekst: 'Draai om' });
     var voorKnop = maak('div', { klasse: 'to-knop' }, [draaiKnop]);
     var nogNiet = maak('button', { type: 'button', klasse: 'knop knop-secundair', tekst: 'Nog niet' });
@@ -849,11 +910,13 @@
       if (flip.classList.contains('om') || draait) return;
       draait = true;
       var binnenkant = flip.firstChild;
+      if (knopVoor && !rustig) vervaag(knopVoor, true).then(function () { knopVoor.hidden = true; });
       beweeg(binnenkant, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(90deg)' }], 210, IN).then(function () {
         flip.classList.add('om');
+        if (!rustig) wisselKnop();
         return beweeg(binnenkant, [{ transform: 'rotateY(-90deg)' }, { transform: 'rotateY(0deg)' }], 210, UIT);
       }).then(function () { draait = false; });
-      if (rustig) flip.classList.add('om');
+      if (rustig) { flip.classList.add('om'); wisselKnop(); }
       voor.setAttribute('aria-hidden', 'true'); achter.removeAttribute('aria-hidden');
       flip.setAttribute('aria-label', vraag + ': ' + antw);
       voorKnop.hidden = true; achterKnop.hidden = false;
@@ -871,7 +934,7 @@
     });
     wistIk.addEventListener('click', function () { if (!S.eerste[o.k]) S.eerste[o.k] = 'wist'; S.klaar++; volgende(false); });
     E.inh.appendChild(maak('p', { klasse: 'to-etiket', tekst: etiket(o) }));
-    E.inh.appendChild(flip);
+    E.inh.appendChild(houder);
     E.inh.appendChild(voorKnop);
     E.inh.appendChild(achterKnop);
     draaiKnop.focus();
@@ -1190,4 +1253,5 @@
   else if (scherm === 'thema') themaPagina();
   else if (scherm === 'paspoort' && R) paspoortPagina();
   else if (scherm === 'reiziger' && R) reizigerPagina();
+  else if (scherm === 'grammatica' && Sp) Sp.zetAan();
 })();

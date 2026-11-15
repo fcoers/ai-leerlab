@@ -63,6 +63,26 @@ $genus = $t['taal'] === 'duits' && (bool)array_filter(to_inhoud($t)['items'], fu
     return $lw !== null && str_starts_with($a, $lw . ' ') && mb_strlen($a) > strlen($lw) + 1;
 });
 
+// Opmerking van de docent onder de titel (klus 952). "Grammatica · <onderdeel>" erin wordt een link naar die uitleg.
+$opmerking = '';
+$o_tekst = to_inhoud($t)['opmerking'] ?? '';
+if (is_string($o_tekst) && $o_tekst !== '') {
+    $opmerking = to_esc($o_tekst);
+    if (preg_match('/Grammatica · ([^.]+)/u', $o_tekst, $m)) {
+        try {
+            foreach ((to_grammatica($t['taal']) ?? ['onderdelen' => []])['onderdelen'] as $gd) {
+                if (mb_stripos($gd['titel'], trim($m[1])) === 0) {
+                    $opmerking = str_replace(to_esc($m[0]), '<a href="' . to_esc(to_grammatica_pad($t['taal'], $gd['slug'])) . '">' .
+                        to_esc($m[0]) . '</a>', $opmerking);
+                    break;
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('taaloefenen: ' . $e->getMessage());
+        }
+    }
+}
+
 to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'omschrijving' => $omschrijving,
         'pad' => $pad, 'indexeren' => !$prive, 'prive' => $prive,
         'schema' => $prive ? null : to_schema($t['naam'] . ', ' . $T['naam'] . ' oefenen', $omschrijving, $pad),
@@ -73,6 +93,9 @@ to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'o
     <a class="to-terug" href="/apps/taaloefenen/?taal=<?= to_esc($t['taal']) ?>">Taaloefenen</a>
     <p class="label"><?= to_esc($T['naam']) ?><?= $prive ? ' · via een link' : '' ?></p>
     <h1><?= to_esc($t['naam']) ?></h1>
+<?php if ($opmerking !== ''): ?>
+    <p class="lede to-opmerking"><?= $opmerking ?></p>
+<?php endif; ?>
 
     <div class="to-stand" data-stand>
       <p class="to-getal"><span data-ken>&nbsp;</span> <span class="to-van" data-van><?= to_esc(to_aantal_tekst($t)) ?></span></p>
@@ -90,6 +113,8 @@ to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'o
 <?php if ($genus): ?>
     <p class="to-genus">Kleur bij het lidwoord: <span lang="de"><b class="to-g-der">der</b> · <b class="to-g-die">die</b> · <b class="to-g-das">das</b> ·</span> <span class="to-heel"><b class="to-g-mv" lang="de">die</b> (meervoud)</span></p>
 <?php endif; ?>
+
+    <p class="to-geen-stem" data-geen-stem hidden><?= to_esc(sprintf(TO_GEEN_STEM, $t['taal'] === 'duits' ? 'Duitse' : 'Franse')) ?></p>
 
     <div class="to-stapel">
       <button type="button" class="knop knop-primair" data-start="overhoren">Overhoor wat klaarstaat <span data-klaar-aantal></span></button>

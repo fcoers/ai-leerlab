@@ -462,8 +462,8 @@
         if (!P.thema) return;
         var modus = b.getAttribute('data-start'), lijst;
         if (modus === 'overhoren') { var k = klaarstaand([P.thema], P.thema, P.soorten); lijst = k.her.concat(k.nieuw); }
+        // kaartjes en toetsronde: alles van het thema (bij de gekozen soorten), geen plafond
         else lijst = schud(oefeningen([P.thema], modus === 'kaartjes', P.soorten));
-        if (modus === 'kaartjes') lijst = lijst.slice(0, 20);
         if (!lijst.length) return;
         startSessie(modus, lijst, P.themas, b);
       });

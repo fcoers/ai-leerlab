@@ -509,10 +509,19 @@
     var c = telThema(t);
     $('[data-ken]').textContent = c.ken;
     $('[data-van]').textContent = 'van ' + c.totaal + ' ken je';
-    $('[data-stand-tekst]').textContent = (c.klaar === 0 ? 'Vandaag hoef je hier niets te herhalen.' : c.klaar === 1 ? '1 staat vandaag klaar.' : c.klaar + ' staan vandaag klaar.') +
-      ' Je kent een item als het vier keer op rij goed ging, met dagen ertussen.';
     var k = klaarstaand([t], t, P.soorten);
     var n = k.her.length + k.nieuw.length;
+    /* Klus 1066: het getal op de knop telt vragen (een woord heen en terug is twee vragen) en per ronde hooguit
+       MAX_NIEUW nieuwe; het getal erboven telt items. Deze zin zegt waar het getal op de knop uit bestaat, met
+       dezelfde telling als de knop (ook met het soortfilter), en noemt het plafond alleen als er meer nieuw wacht. */
+    var nogNieuw = oefeningen([t], false, P.soorten).filter(isNieuw).length - k.nieuw.length;
+    var h = k.her.length, nw = k.nieuw.length;
+    var zin = !n ? 'Vandaag hoef je hier niets te herhalen.'
+      : !nw ? 'Vandaag ' + (h === 1 ? 'staat er 1 vraag' : 'staan er ' + h + ' vragen') + ' klaar om te herhalen.'
+      : !h ? 'Vandaag ' + (nw === 1 ? 'staat er 1 nieuwe vraag' : 'staan er ' + nw + ' nieuwe vragen') + ' klaar.'
+      : 'Vandaag staan er ' + n + ' vragen klaar: ' + h + ' om te herhalen en ' + nw + ' nieuwe.';
+    if (nogNieuw > 0) zin += ' Je krijgt hooguit ' + MAX_NIEUW + ' nieuwe per ronde, daarna kun je meteen een volgende ronde doen.';
+    $('[data-stand-tekst]').textContent = zin + ' Je kent een item als het vier keer op rij goed ging, met dagen ertussen.';
     var knop = $('[data-start="overhoren"]');
     $('[data-klaar-aantal]', knop).textContent = '(' + n + ')';
     knop.disabled = !n;

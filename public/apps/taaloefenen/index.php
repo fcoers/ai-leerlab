@@ -59,23 +59,37 @@ to_kop(['titel' => TO_TITEL, 'omschrijving' => TO_OMSCHRIJVING, 'pad' => '/apps/
         <a class="to-tegel" href="/apps/taaloefenen/reiziger/"><span class="to-tegel-beeld" data-tegel-reiziger></span><span><b>Reiziger</b><small data-tegel-stappen>&nbsp;</small></span></a>
       </div>
 
-      <section aria-labelledby="kop-themas">
-        <h2 id="kop-themas">Thema's</h2>
-<?php foreach (TO_TALEN as $code => $T): ?>
+      <section aria-label="Thema's">
+<?php foreach (TO_TALEN as $code => $T):
+    // Per hoofdstuk (klus 1066), nieuwste bovenaan. Geen enkel thema met een hoofdstuk: één lijst onder "Thema's".
+    $groepen = to_per_hoofdstuk($themas[$code]);
+    $per_hoofdstuk = (bool)array_filter($groepen, fn($g) => $g['hoofdstuk'] !== null);
+?>
         <div data-themas="<?= $code ?>"<?= $code === $kies ? '' : ' hidden' ?>>
+<?php if (!$per_hoofdstuk): ?>
+          <h2>Thema's</h2>
+<?php endif; ?>
 <?php if (!$themas[$code]): ?>
           <p class="to-zacht" data-geen-themas>Nog geen thema's in het <?= $T['naam'] ?>.</p>
 <?php endif; ?>
-          <ul class="to-themas">
-<?php foreach ($themas[$code] as $t): ?>
+<?php foreach ($groepen as $g): ?>
+<?php if ($per_hoofdstuk): ?>
+          <h2 class="to-hoofdstuk"<?= $g['hoofdstuk'] !== null ? ' lang="' . $T['lang'] . '"' : '' ?>><?= to_esc($g['hoofdstuk'] ?? 'Overig') ?></h2>
+<?php endif; ?>
+          <ul class="to-themas" data-groep="<?= to_esc($g['hoofdstuk'] ?? '') ?>">
+<?php foreach ($g['themas'] as $t): ?>
             <li><a class="to-thema" href="<?= to_esc(to_pad($t)) ?>" data-thema="<?= to_esc($t['uid']) ?>">
-              <div class="to-thema-tekst"><h3><?= to_esc($t['naam']) ?></h3>
+              <div class="to-thema-tekst"><h3><?= to_esc($per_hoofdstuk ? to_naam_in_hoofdstuk($t) : $t['naam']) ?></h3>
               <span class="to-regel" data-regel><?= to_esc(to_aantal_tekst($t)) ?></span>
               <span class="to-balk" aria-hidden="true"><i data-balk></i></span></div>
               <span class="to-chev" aria-hidden="true"></span>
             </a></li>
 <?php endforeach; ?>
           </ul>
+<?php endforeach; ?>
+<?php if ($per_hoofdstuk): ?>
+          <h2 class="to-hoofdstuk" data-eigen-kop hidden>Via een link</h2>
+<?php endif; ?>
           <ul class="to-themas" data-eigen-themas hidden></ul>
 <?php if ($grammatica[$code]): $n = count($grammatica[$code]['onderdelen']); ?>
           <h2>Grammatica</h2>

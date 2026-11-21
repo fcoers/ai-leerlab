@@ -348,20 +348,32 @@
     var eigen = lijstEl && $('[data-eigen-themas]', lijstEl);
     if (eigen) {
       eigen.textContent = '';
+      $$('[data-eigen-li]', lijstEl).forEach(function (li) { li.parentNode.removeChild(li); });
+      var groepen = $$('[data-groep]', lijstEl);
       P.themas.filter(function (t) { return t.prive && t.code; }).forEach(function (t) {
         var c = telThema(t);
         var i = maak('i');
+        /* In de groep van zijn hoofdstuk als die er staat (klus 1066), anders onderaan. Onder de kop van het
+           hoofdstuk zonder het hoofdstuk ervoor, zoals de openbare thema's (to_naam_in_hoofdstuk). */
+        var groep = groepen.filter(function (g) { return g.getAttribute('data-groep') === (t.hoofdstuk || ''); })[0];
+        var naam = t.naam, h = t.hoofdstuk || '';
+        if (groep && h && naam.indexOf(h) === 0) {
+          var rest = /^\s*[·:,\-–]\s*(.+)$/.exec(naam.slice(h.length));
+          if (rest) naam = rest[1];
+        }
         var a = maak('a', { klasse: 'to-thema', href: '/apps/taaloefenen/t/' + t.code + '/' }, [
-          maak('div', { klasse: 'to-thema-tekst' }, [maak('h3', { tekst: t.naam }),
+          maak('div', { klasse: 'to-thema-tekst' }, [maak('h3', { tekst: naam }),
             maak('span', { klasse: 'to-regel', tekst: themaRegel(c) + ' · via een link' }),
             maak('span', { klasse: 'to-balk', 'aria-hidden': 'true' }, [i])]),
           maak('span', { klasse: 'to-chev', 'aria-hidden': 'true' })]);
-        eigen.appendChild(maak('li', null, [a]));
+        (groep || eigen).appendChild(maak('li', groep ? { 'data-eigen-li': '' } : null, [a]));
         requestAnimationFrame(function () { zetBalk(i, c.totaal ? c.ken / c.totaal : 0); });
       });
       eigen.hidden = !eigen.children.length;
+      var eigenKop = $('[data-eigen-kop]', lijstEl);
+      if (eigenKop) eigenKop.hidden = eigen.hidden;
       var geen = $('[data-geen-themas]', lijstEl);
-      if (geen) geen.hidden = !!eigen.children.length;
+      if (geen) geen.hidden = !!eigen.children.length || !!$('[data-eigen-li]', lijstEl);
     }
     // vandaag
     var nt = nieuwThemaVoorStart();

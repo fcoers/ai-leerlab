@@ -91,7 +91,7 @@ to_kop(['titel' => $t['naam'] . ', ' . $T['naam'] . ' oefenen · AI-leerlab', 'o
                    'naam' => $t['naam']]]);
 ?>
     <a class="to-terug" href="/apps/taaloefenen/?taal=<?= to_esc($t['taal']) ?>">Taaloefenen</a>
-    <p class="label"><?= to_esc($T['naam']) ?><?= $prive ? ' · via een link' : '' ?></p>
+    <p class="label"><span><?= to_esc($T['naam']) ?><?= (!empty($t['hoofdstuk']) && to_naam_in_hoofdstuk($t) === $t['naam']) ? ' · <span lang="' . $T['lang'] . '">' . to_esc($t['hoofdstuk']) . '</span>' : '' ?><?= $prive ? ' · via een link' : '' ?></span></p>
     <h1><?= to_esc($t['naam']) ?></h1>
 <?php if ($opmerking !== ''): ?>
     <p class="lede to-opmerking"><?= $opmerking ?></p>

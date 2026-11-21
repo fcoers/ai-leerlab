@@ -16,12 +16,13 @@ require dirname(__DIR__, 2) . '/postvak/lib/kern.php';
 
 /** Pas op true als Frits zegt dat de app in Google, het menu en de sitemap mag. Privé-thema's blijven altijd noindex. */
 const TO_INDEXEREN = false;
-const TO_SCHEMA = '2';                // 2: tabel to_grammatica (klus 952)
+const TO_SCHEMA = '3';                // 2: tabel to_grammatica (klus 952); 3: kolom hoofdstuk (klus 1066)
 const TO_CODE_ALFABET = 'abcdefghijkmnpqrstuvwxyz23456789';
 const TO_CODE_LENGTE = 24;                     // 24 tekens uit 32 = 120 bits
 const TO_MAX_ITEMS = 600;
 const TO_MAX_RIJTJES = 80;
 const TO_MAX_ALT = 10;
+const TO_MAX_HOOFDSTUK = 40;           // "Chapitre 2", "Kapitel 1" (klus 1066)
 
 const TO_TALEN = [
     'frans' => ['naam' => 'Frans', 'lang' => 'fr',
@@ -74,6 +75,13 @@ function to_tabellen(PDO $pdo): void
         inhoud $tekst NOT NULL,
         aantallen VARCHAR(255) NOT NULL,
         bijgewerkt BIGINT NOT NULL)$eind");
+    // Hoofdstuk uit het boek (klus 1066): groepeert de thema's op de start. Leeg: groep Overig.
+    $kolommen = $sqlite
+        ? array_column($pdo->query('PRAGMA table_info(to_thema)')->fetchAll(), 'name')
+        : $pdo->query('SHOW COLUMNS FROM to_thema')->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('hoofdstuk', $kolommen, true)) {
+        $pdo->exec('ALTER TABLE to_thema ADD COLUMN hoofdstuk VARCHAR(' . TO_MAX_HOOFDSTUK . ') NULL');
+    }
     try {
         $pdo->exec('CREATE INDEX to_thema_taal ON to_thema (taal, zichtbaarheid, slug)');
     } catch (Throwable $e) {
@@ -216,6 +224,7 @@ function to_stand(array $t): array
 {
     return ['uid' => $t['uid'], 'taal' => $t['taal'], 'naam' => $t['naam'], 'slug' => $t['slug'],
             'zichtbaarheid' => $t['zichtbaarheid'], 'code' => $t['code'] ?: null,
+            'hoofdstuk' => ($t['hoofdstuk'] ?? null) ?: null,
             'url' => ap_adres() . to_pad($t), 'volgorde' => (int)$t['volgorde'],
             'aantallen' => to_aantallen($t), 'bijgewerkt' => ap_iso((int)$t['bijgewerkt'])];
 }
@@ -225,8 +234,43 @@ function to_voor_browser(array $t): array
 {
     $i = to_inhoud($t);
     $prive = $t['zichtbaarheid'] === 'prive';
-    return ['uid' => $t['uid'], 'naam' => $t['naam'], 'url' => $prive ? null : to_pad($t), 'prive' => $prive,
+    return ['uid' => $t['uid'], 'naam' => $t['naam'], 'hoofdstuk' => ($t['hoofdstuk'] ?? null) ?: null,
+            'url' => $prive ? null : to_pad($t), 'prive' => $prive,
             'items' => $i['items'], 'rijtjes' => $i['rijtjes']];
+}
+
+/**
+ * Thema's per hoofdstuk voor de start (klus 1066): [['hoofdstuk' => 'Chapitre 2', 'themas' => [...]], ...].
+ * Nieuwste hoofdstuk bovenaan (hoogste nummer eerst), dan hoofdstukken zonder nummer op naam, en als laatste de
+ * thema's zonder hoofdstuk (hoofdstuk null, de groep Overig). Binnen een groep de volgorde die er al was.
+ */
+function to_per_hoofdstuk(array $themas): array
+{
+    $groepen = [];
+    foreach ($themas as $t) {
+        $h = ($t['hoofdstuk'] ?? null) ?: null;
+        $groepen[$h ?? ''][] = $t;
+    }
+    $sleutel = function (string $h): array {
+        if ($h === '') {
+            return [2, 0, ''];
+        }
+        return preg_match_all('/\d+/', $h, $m) ? [0, -(int)end($m[0]), mb_strtolower($h)] : [1, 0, mb_strtolower($h)];
+    };
+    $namen = array_map('strval', array_keys($groepen));
+    usort($namen, fn($a, $b) => $sleutel($a) <=> $sleutel($b));
+    return array_map(fn($h) => ['hoofdstuk' => $h === '' ? null : $h, 'themas' => $groepen[$h]], $namen);
+}
+
+/** De naam zonder het hoofdstuk ervoor ("Chapitre 1 · Voca A" onder de kop Chapitre 1 wordt "Voca A"). */
+function to_naam_in_hoofdstuk(array $t): string
+{
+    $h = ($t['hoofdstuk'] ?? null) ?: '';
+    $naam = (string)$t['naam'];
+    if ($h !== '' && preg_match('/^' . preg_quote($h, '/') . '\s*[·:,\-–]\s*(.+)$/u', $naam, $m)) {
+        return $m[1];
+    }
+    return $naam;
 }
 
 // ---------------------------------------------------------------- controleren bij opslaan
@@ -263,6 +307,13 @@ function to_thema_uit_verzoek($t): array
     if ($opmerking === null || mb_strlen($opmerking) > 300) {
         $f['opmerking'] = 'De opmerking is tekst, hooguit 300 tekens.';
         $opmerking = '';
+    }
+    // Hoofdstuk (klus 1066), optioneel: "Chapitre 2", "Kapitel 1". Leeg of weg: geen hoofdstuk.
+    $hoofdstuk = $t['hoofdstuk'] ?? null;
+    $hoofdstuk = $hoofdstuk === null ? '' : to_tekst($hoofdstuk);
+    if ($hoofdstuk === null || mb_strlen($hoofdstuk) > TO_MAX_HOOFDSTUK) {
+        $f['hoofdstuk'] = 'Het hoofdstuk is tekst, hooguit ' . TO_MAX_HOOFDSTUK . ' tekens.';
+        $hoofdstuk = '';
     }
     $volgorde = $t['volgorde'] ?? 0;
     if (!is_int($volgorde) || abs($volgorde) > 1000000) {
@@ -434,6 +485,7 @@ function to_thema_uit_verzoek($t): array
         $inhoud['opmerking'] = $opmerking;
     }
     return [['uid' => $uid, 'taal' => $taal, 'naam' => (string)$naam, 'zichtbaarheid' => $zicht, 'volgorde' => $volgorde,
+             'hoofdstuk' => $hoofdstuk !== '' ? $hoofdstuk : null,
              'inhoud' => $inhoud, 'aantallen' => $tel], $f];
 }
 

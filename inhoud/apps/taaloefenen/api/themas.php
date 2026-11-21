@@ -63,14 +63,14 @@ switch ($actie) {
         $slug = to_vrije_slug($t['taal'], $t['naam'], $t['uid']);
         $inhoud = json_encode($t['inhoud'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $aantallen = json_encode($t['aantallen']);
-        $waarden = [$t['taal'], $t['naam'], $slug, $t['zichtbaarheid'], $code, $t['volgorde'], $inhoud, $aantallen, time()];
+        $waarden = [$t['taal'], $t['naam'], $slug, $t['zichtbaarheid'], $code, $t['volgorde'], $t['hoofdstuk'], $inhoud, $aantallen, time()];
         if ($oud) {
-            $pdo->prepare('UPDATE to_thema SET taal = ?, naam = ?, slug = ?, zichtbaarheid = ?, code = ?, volgorde = ?,
+            $pdo->prepare('UPDATE to_thema SET taal = ?, naam = ?, slug = ?, zichtbaarheid = ?, code = ?, volgorde = ?, hoofdstuk = ?,
                            inhoud = ?, aantallen = ?, bijgewerkt = ? WHERE uid = ?')
                 ->execute([...$waarden, $t['uid']]);
         } else {
-            $pdo->prepare('INSERT INTO to_thema (taal, naam, slug, zichtbaarheid, code, volgorde, inhoud, aantallen, bijgewerkt, uid)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+            $pdo->prepare('INSERT INTO to_thema (taal, naam, slug, zichtbaarheid, code, volgorde, hoofdstuk, inhoud, aantallen, bijgewerkt, uid)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
                 ->execute([...$waarden, $t['uid']]);
         }
         $pdo->commit();

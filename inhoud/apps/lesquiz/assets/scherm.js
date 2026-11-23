@@ -1,5 +1,6 @@
 /* Lesquiz, klasweergave en dashboard. Haalt elke 3 seconden de stand op met de geheime schermsleutel (?s=...).
-   Toont alleen aantallen. Zonder verbinding blijft de laatste stand staan, met een kleine melding.
+   Toont alleen aantallen, en na het sluiten per vraag het goede antwoord. Zonder verbinding blijft de laatste stand
+   staan, met een kleine melding; bij een foutantwoord van de server gaan de goede antwoorden weg.
    Twee weergaven: de instructie voor studenten (standaard) en de uitslag (?weergave=uitslag, zo opent het
    PowerPoint-kader). Wisselen met de knop, U en I, of pijltjes en PageUp/PageDown van een presenter.
    ?qr=nee verbergt de QR-code op de uitslag; toets F = volledig scherm, Q = QR-code op de uitslag aan/uit. */
@@ -39,10 +40,45 @@
       var baan = document.createElement('div'); baan.className = 'sc-baan'; baan.setAttribute('aria-hidden', 'true');
       var balk = document.createElement('div'); balk.className = 'sc-balk';
       baan.appendChild(balk);
-      li.appendChild(kop); li.appendChild(getal); li.appendChild(baan);
+      // Het goede antwoord (klus 1088): een eigen rij tussen vraagkop en balk, alleen als de quiz dicht is.
+      var antw = document.createElement('p'); antw.className = 'sc-antwoord'; antw.hidden = true;
+      var label = document.createElement('b'); label.textContent = 'Goed';
+      var antwTekst = document.createElement('span');
+      antw.appendChild(label); antw.appendChild(antwTekst);
+      li.appendChild(kop); li.appendChild(antw); li.appendChild(getal); li.appendChild(baan);
       lijst.appendChild(li);
-      return { getal: getal, balk: balk, tekst: v.vraag };
+      return { li: li, getal: getal, balk: balk, tekst: v.vraag, antw: antw, antwTekst: antwTekst, antwoord: '', weg: null };
     });
+  }
+
+  // Het goede antwoord staat alleen in de stand als de quiz dicht is. Bij elke peiling bijwerken: verschijnen na het
+  // sluiten, verdwijnen na heropenen, een ander antwoord na een aangepaste les.
+  function antwoordVan(v) { var g = v.goed_antwoord; return g && g.letter ? g.letter + '. ' + g.tekst : ''; }
+  var nieuwOp = [];
+  function zetAntwoord(r, g) {
+    clearTimeout(r.weg);
+    var a = r.antw;
+    if (!g) {
+      if (a.hidden) return;
+      // Weg: kort vervagen (ease-in), dan pas uit de opmaak en opnieuw passend maken.
+      var klaar = function () { a.hidden = true; a.classList.remove('is-te-zien', 'is-weg'); r.li.classList.remove('met-antwoord'); pasAan(); };
+      if (stil() || !a.classList.contains('is-te-zien')) { klaar(); return; }
+      a.classList.remove('is-te-zien'); a.classList.add('is-weg');
+      r.weg = setTimeout(klaar, 200);
+      return;
+    }
+    r.antwTekst.textContent = '';
+    var b = document.createElement('b'); b.textContent = g.letter + '.';
+    r.antwTekst.appendChild(b); r.antwTekst.appendChild(document.createTextNode(' ' + g.tekst));
+    // Eerst in de opmaak op opacity 0, zodat pasAan de ruimte meetelt; de vervaging start na het passend maken.
+    a.classList.remove('is-te-zien', 'is-weg');
+    a.hidden = false;
+    r.li.classList.add('met-antwoord');
+    nieuwOp.push(a);
+  }
+  function wisAntwoorden() {
+    rijen.forEach(function (r) { clearTimeout(r.weg); r.antwoord = ''; r.antw.hidden = true; r.antw.classList.remove('is-te-zien', 'is-weg'); r.li.classList.remove('met-antwoord'); });
+    nieuwOp = [];
   }
 
   function teken(d) {
@@ -56,6 +92,8 @@
     $('[data-totaal-woord]').textContent = 'ingezonden';
     d.vragen.forEach(function (v, i) {
       var r = rijen[i];
+      var antwoord = antwoordVan(v);
+      if (antwoord !== r.antwoord) { r.antwoord = antwoord; zetAntwoord(r, antwoord ? v.goed_antwoord : null); }
       var deel = d.ingezonden ? v.goed / d.ingezonden : 0;
       r.getal.innerHTML = '';
       var st = document.createElement('strong'); st.textContent = v.goed;
@@ -76,12 +114,16 @@
       qrVoor = d.code;
     }
     if (qrWissel || pasNodig !== tekstSleutel(d)) { pasNodig = tekstSleutel(d); pasAan(); }
+    if (nieuwOp.length) {
+      var op = nieuwOp; nieuwOp = [];
+      requestAnimationFrame(function () { requestAnimationFrame(function () { op.forEach(function (a) { if (!a.hidden) a.classList.add('is-te-zien'); }); }); });
+    }
   }
 
   // Laat titel en vragen passen: eerst de titel tot hooguit twee regels, dan de vragen tot er niets meer
   // buiten beeld valt. Stappen van 5 procent, titel nooit onder 60, vragen nooit onder 50 procent. Opnieuw bij een andere tekst of venstermaat.
   var pasNodig = '';
-  function tekstSleutel(d) { return d.titel + '|' + d.vragen.map(function (v) { return v.vraag; }).join('|'); }
+  function tekstSleutel(d) { return d.titel + '|' + d.vragen.map(function (v) { return v.vraag + '#' + antwoordVan(v); }).join('|'); }
   function pasAan() {
     var h1 = document.querySelector('[data-titel]'), stand = document.querySelector('.sc-stand');
     var ft = 1, fv = 1;
@@ -219,6 +261,9 @@
   });
 
   function fout(tekst) {
+    // Een foutantwoord van de server (geen verbindingsfout): geen goede antwoorden meer laten staan.
+    wisAntwoorden(); laatste = null; pasNodig = '';
+    if (rijen.length) pasAan();
     $('[data-titel]').textContent = tekst;
     $('[data-kl-titel]').textContent = tekst;
     $('[data-kl-stappen]').hidden = true; $('[data-kl-waarom]').hidden = true;

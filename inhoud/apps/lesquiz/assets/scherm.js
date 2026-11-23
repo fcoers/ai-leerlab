@@ -56,16 +56,25 @@
   // Alleen de antwoordtekst, geen letter (Frits, klus 1088); stand.php stuurt de letter nog wel mee.
   function antwoordVan(v) { var g = v.goed_antwoord; return g && g.tekst ? g.tekst : ''; }
   var nieuwOp = [];
-  function zetAntwoord(r, g) {
+  // Stopt een lopend vervagen van de antwoordregel: vangtijd en transitionend-luisteraar weg.
+  function stopWeg(r) {
     clearTimeout(r.weg);
+    if (r.wegKlaar) { r.antw.removeEventListener('transitionend', r.wegKlaar); r.wegKlaar = null; }
+  }
+  function zetAntwoord(r, g) {
+    stopWeg(r);
     var a = r.antw;
     if (!g) {
       if (a.hidden) return;
-      // Weg: kort vervagen (ease-in), dan pas uit de opmaak en opnieuw passend maken.
-      var klaar = function () { a.hidden = true; a.classList.remove('is-te-zien', 'is-weg'); r.li.classList.remove('met-antwoord'); pasAan(); };
+      // Weg: eerst helemaal uitvagen (ease-in), pas daarna uit de opmaak en opnieuw passend maken,
+      // zodat balk en getal pas na het vervagen omhoog schuiven. Wachten op transitionend; de vangtijd
+      // (overgang 200 ms plus 100) vangt het geval dat het event niet komt.
+      var klaar = function () { stopWeg(r); a.hidden = true; a.classList.remove('is-te-zien', 'is-weg'); r.li.classList.remove('met-antwoord'); pasAan(); };
       if (stil() || !a.classList.contains('is-te-zien')) { klaar(); return; }
+      r.wegKlaar = function (e) { if (e.target === a && e.propertyName === 'opacity') klaar(); };
+      a.addEventListener('transitionend', r.wegKlaar);
       a.classList.remove('is-te-zien'); a.classList.add('is-weg');
-      r.weg = setTimeout(klaar, 200);
+      r.weg = setTimeout(klaar, 300);
       return;
     }
     r.antwTekst.textContent = g.tekst;
@@ -76,7 +85,7 @@
     nieuwOp.push(a);
   }
   function wisAntwoorden() {
-    rijen.forEach(function (r) { clearTimeout(r.weg); r.antwoord = ''; r.antw.hidden = true; r.antw.classList.remove('is-te-zien', 'is-weg'); r.li.classList.remove('met-antwoord'); });
+    rijen.forEach(function (r) { stopWeg(r); r.antwoord = ''; r.antw.hidden = true; r.antw.classList.remove('is-te-zien', 'is-weg'); r.li.classList.remove('met-antwoord'); });
     nieuwOp = [];
   }
 

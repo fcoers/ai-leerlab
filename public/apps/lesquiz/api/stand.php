@@ -1,5 +1,6 @@
 <?php
-/** GET ?s=<schermsleutel>  ->  stand voor het dashboard: aantallen uit de naamloze antwoorden, nooit namen. */
+/** GET ?s=<schermsleutel>  ->  stand voor het dashboard: aantallen uit de naamloze antwoorden, nooit namen.
+ *  Bij een gesloten quiz per vraag ook goed_antwoord {letter, tekst}. */
 define('LESQUIZ', true);
 require __DIR__ . '/lib/kern.php';
 
@@ -24,6 +25,16 @@ foreach ($st as $rij) {
         $goed[$i] += $g;
     }
 }
+// Het goede antwoord gaat alleen mee als de quiz dicht is (klus 1088): zolang hij open is, kan een student die de
+// dashboardlink heeft het antwoord niet aflezen. Weer open = weer zonder.
+$open = lq_is_open($les);
 ap_json(['ok' => true, 'vak' => $les['vak'], 'titel' => $les['titel'], 'code' => $les['code'],
-         'open' => lq_is_open($les), 'ingezonden' => $n,
-         'vragen' => array_map(fn($v, $g) => ['vraag' => $v['vraag'], 'goed' => $g], $vragen, $goed)]);
+         'open' => $open, 'ingezonden' => $n,
+         'vragen' => array_map(function ($v, $g) use ($open) {
+             $uit = ['vraag' => $v['vraag'], 'goed' => $g];
+             $k = (int)($v['goed'] ?? -1);
+             if (!$open && isset($v['opties'][$k])) {
+                 $uit['goed_antwoord'] = ['letter' => chr(65 + $k), 'tekst' => (string)$v['opties'][$k]];
+             }
+             return $uit;
+         }, $vragen, $goed)]);

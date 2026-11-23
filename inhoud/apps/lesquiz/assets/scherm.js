@@ -53,7 +53,8 @@
 
   // Het goede antwoord staat alleen in de stand als de quiz dicht is. Bij elke peiling bijwerken: verschijnen na het
   // sluiten, verdwijnen na heropenen, een ander antwoord na een aangepaste les.
-  function antwoordVan(v) { var g = v.goed_antwoord; return g && g.letter ? g.letter + '. ' + g.tekst : ''; }
+  // Alleen de antwoordtekst, geen letter (Frits, klus 1088); stand.php stuurt de letter nog wel mee.
+  function antwoordVan(v) { var g = v.goed_antwoord; return g && g.tekst ? g.tekst : ''; }
   var nieuwOp = [];
   function zetAntwoord(r, g) {
     clearTimeout(r.weg);
@@ -67,9 +68,7 @@
       r.weg = setTimeout(klaar, 200);
       return;
     }
-    r.antwTekst.textContent = '';
-    var b = document.createElement('b'); b.textContent = g.letter + '.';
-    r.antwTekst.appendChild(b); r.antwTekst.appendChild(document.createTextNode(' ' + g.tekst));
+    r.antwTekst.textContent = g.tekst;
     // Eerst in de opmaak op opacity 0, zodat pasAan de ruimte meetelt; de vervaging start na het passend maken.
     a.classList.remove('is-te-zien', 'is-weg');
     a.hidden = false;

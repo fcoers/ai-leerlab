@@ -2,7 +2,7 @@
 <html lang="nl" data-los="pizza:5,magazijn:8,soep:4">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 <meta name="description" content="Drie korte spellen voor in de klas: maak een pizzeria sneller, richt een magazijn slim in en plan een week soep. Haal het minimum en je krijgt een cijfer.">
@@ -76,14 +76,17 @@ Error generating stack: `+s.message+`
 .smal button{font:inherit;font-size:17px;font-weight:700;min-height:48px;padding:0 24px;border-radius:4px;cursor:pointer;
   background:transparent;color:#F2F4F6;border:2px solid #F2F4F6}
 .smal button:focus-visible{outline:3px solid #84D0D9;outline-offset:3px}
-.genai{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:10px 24px 14px;text-align:center;font-family:'Roboto',system-ui,sans-serif;
-  font-size:15px;line-height:1.45;color:#A9B0B8;opacity:0;visibility:hidden;transition:opacity 360ms cubic-bezier(.65,0,.35,1),visibility 0s linear 360ms}
+.genai{position:fixed;left:0;right:0;bottom:0;z-index:5;height:44px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Roboto',system-ui,sans-serif;font-size:15px;color:#A9B0B8;opacity:0;visibility:hidden;
+  transition:opacity 360ms cubic-bezier(.65,0,.35,1),visibility 0s linear 360ms}
 body:has(section.scherm.aan[data-scherm="hub"]) .genai{opacity:1;visibility:visible;transition-delay:0s}
-.genai a{color:#C9CED4}
-.genai:has(details[open]){background:#15181C;border-top:1px solid #2A313A}
-.genai summary:focus-visible{outline:3px solid #84D0D9;outline-offset:3px}
-.genai summary{cursor:pointer;display:inline}
-.genai details p{max-width:820px;margin:8px auto 0}
+.genai a{color:#C9CED4;display:inline-flex;align-items:center;min-height:44px}
+.genai button{font:inherit;color:#C9CED4;background:transparent;border:0;text-decoration:underline;cursor:pointer;min-height:44px;padding:0 8px}
+.genai a:focus-visible,.genai button:focus-visible{outline:3px solid #84D0D9;outline-offset:-3px}
+.smal .uitleg{max-width:560px}
+.smal .uitleg p{color:#C9CED4}
+.smal .uitleg .bron{font-size:15px}
+.smal .uitleg a{color:#F2F4F6}
 @media (prefers-reduced-motion:reduce){.smal,.genai{transition:none}}
 </style>
 </head>
@@ -104,12 +107,17 @@ body:has(section.scherm.aan[data-scherm="hub"]) .genai{opacity:1;visibility:visi
   </div>
 </div>
 <footer class="genai">
-  <details>
-    <summary>Gemaakt met hulp van AI · label: <a href="/leren/human-ai-labels/">Creative Director</a></summary>
-    <p>Deze spellen zijn gebouwd door een AI-team (Claude) op aanwijzing van Frits Coers. Hij bepaalde de opzet, de minima en de keuzes en beoordeelde het resultaat.</p>
-    <p>Labels-bron: Boetje, J., &amp; Baake, G. (2026). <em>Nine prototypical human-AI agency patterns</em> [Figuur]. figshare. <a href="https://doi.org/10.6084/m9.figshare.31706884">https://doi.org/10.6084/m9.figshare.31706884</a> (CC BY 4.0).</p>
-  </details>
+  <span>Gemaakt met hulp van AI · label: <a href="/leren/human-ai-labels/">Creative Director</a></span>
+  <button type="button" id="ai-open" aria-haspopup="dialog">Hoe AI is gebruikt</button>
 </footer>
+<div class="smal" id="ai-uitleg" role="dialog" aria-modal="true" aria-labelledby="ai-kop" hidden>
+  <div class="smal-kaart uitleg">
+    <h2 id="ai-kop">Hoe AI is gebruikt</h2>
+    <p>Deze spellen zijn gebouwd door een AI-team (Claude) op aanwijzing van Frits Coers. Hij bepaalde de opzet, de minima en de keuzes en beoordeelde het resultaat. Human-AI Agency Label: Creative Director.</p>
+    <p class="bron">Labels-bron: Boetje, J., &amp; Baake, G. (2026). <em>Nine prototypical human-AI agency patterns</em> [Figuur]. figshare. <a href="https://doi.org/10.6084/m9.figshare.31706884">https://doi.org/10.6084/m9.figshare.31706884</a> (CC BY 4.0).</p>
+    <button type="button" id="ai-sluit">Sluiten</button>
+  </div>
+</div>
 <script>
 /* Onder 700 px breed: de melding, met Toch doorgaan. Eén keer per tabblad. */
 (function () {
@@ -124,6 +132,22 @@ body:has(section.scherm.aan[data-scherm="hub"]) .genai{opacity:1;visibility:visi
     setTimeout(function () { s.hidden = true; }, stil ? 0 : 380);
   });
   s.addEventListener('keydown', function (e) { if (e.key === 'Tab') { e.preventDefault(); k.focus(); } });
+})();
+/* Hoe AI is gebruikt: een venster over het hele scherm, dus niets half bedekt. Esc of Sluiten, focus terug. */
+(function () {
+  var d = document.getElementById('ai-uitleg'), o = document.getElementById('ai-open'), z = document.getElementById('ai-sluit');
+  var stil = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  function open() { d.classList.add('weg'); d.hidden = false; void d.offsetWidth; d.classList.remove('weg'); z.focus(); }
+  function dicht() { d.classList.add('weg'); setTimeout(function () { d.hidden = true; d.classList.remove('weg'); o.focus(); }, stil() ? 0 : 380); }
+  o.addEventListener('click', open);
+  z.addEventListener('click', dicht);
+  d.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); dicht(); return; }
+    if (e.key !== 'Tab') return;
+    var f = d.querySelectorAll('a,button'), a = f[0], b = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); b.focus(); }
+    else if (!e.shiftKey && document.activeElement === b) { e.preventDefault(); a.focus(); }
+  });
 })();
 </script>
 </body>

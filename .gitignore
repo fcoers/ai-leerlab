@@ -6,3 +6,6 @@ __pycache__/
 
 # Lokale notities die niet online horen
 *.local.*
+
+# Backups van het team, nooit online
+_backups/

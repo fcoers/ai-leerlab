@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="nl" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Een eigen Sinterklaasspel ontwerpen met AI · AI-leerlab</title>
+  <meta name="description" content="Spelregels, kaarten, tokens en een geprinte doos: hoe ik met AI een spel voor pakjesavond heb ontworpen. Met alle bestanden om het na te maken.">
+  <meta name="robots" content="max-image-preview:large">
+  <link rel="canonical" href="https://ai-leerlab.nl/leren/een-eigen-sinterklaasspel-ontwerpen-met-ai/">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="nl_NL">
+  <meta property="og:site_name" content="AI-leerlab">
+  <meta property="og:title" content="Een eigen Sinterklaasspel ontwerpen met AI">
+  <meta property="og:description" content="Spelregels, kaarten, tokens en een geprinte doos: hoe ik met AI een spel voor pakjesavond heb ontworpen. Met alle bestanden om het na te maken.">
+  <meta property="og:url" content="https://ai-leerlab.nl/leren/een-eigen-sinterklaasspel-ontwerpen-met-ai/">
+  <meta property="og:image" content="https://ai-leerlab.nl/assets/img/deel/een-eigen-sinterklaasspel-ontwerpen-met-ai.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Een eigen Sinterklaasspel ontwerpen met AI">
+  <meta name="twitter:description" content="Spelregels, kaarten, tokens en een geprinte doos: hoe ik met AI een spel voor pakjesavond heb ontworpen. Met alle bestanden om het na te maken.">
+  <meta name="twitter:image" content="https://ai-leerlab.nl/assets/img/deel/een-eigen-sinterklaasspel-ontwerpen-met-ai.png">
+  <link rel="alternate" type="application/rss+xml" title="AI-leerlab" href="/feed.xml">
+  <meta property="article:published_time" content="2026-11-25">
+  <meta property="article:modified_time" content="2026-11-25">
+  <link rel="stylesheet" href="/assets/beweging.css?v=202611251705">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#18201C" media="(prefers-color-scheme: dark)">
+  <link rel="preload" href="/assets/fonts/roboto-flex-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/site.css?v=202611251705">
+  <script>document.documentElement.className = 'js';</script>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Article",
+   "headline": "Een eigen Sinterklaasspel ontwerpen met AI",
+   "description": "Spelregels, kaarten, tokens en een geprinte doos: hoe ik met AI een spel voor pakjesavond heb ontworpen. Met alle bestanden om het na te maken.",
+   "inLanguage": "nl",
+   "datePublished": "2026-11-25",
+   "dateModified": "2026-11-25",
+   "author": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   },
+   "image": "https://ai-leerlab.nl/assets/img/deel/een-eigen-sinterklaasspel-ontwerpen-met-ai.png",
+   "mainEntityOfPage": "https://ai-leerlab.nl/leren/een-eigen-sinterklaasspel-ontwerpen-met-ai/",
+   "articleSection": "AI in de praktijk",
+   "keywords": "agents",
+   "isPartOf": {
+    "@id": "https://ai-leerlab.nl/#site"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://ai-leerlab.nl/#frits",
+   "name": "Frits Coers",
+   "url": "https://ai-leerlab.nl/over/",
+   "jobTitle": "Docent bij Hogeschool Windesheim",
+   "sameAs": [
+    "https://www.linkedin.com/in/fritscoers/",
+    "https://www.instagram.com/ai_leerlab/"
+   ],
+   "worksFor": {
+    "@type": "CollegeOrUniversity",
+    "name": "Hogeschool Windesheim",
+    "url": "https://www.windesheim.nl/"
+   }
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://ai-leerlab.nl/#site",
+   "name": "AI-leerlab",
+   "url": "https://ai-leerlab.nl/",
+   "inLanguage": "nl",
+   "publisher": {
+    "@id": "https://ai-leerlab.nl/#frits"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "AI-leerlab",
+     "item": "https://ai-leerlab.nl/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Leren",
+     "item": "https://ai-leerlab.nl/leren/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "AI in de praktijk",
+     "item": "https://ai-leerlab.nl/leren/praktijk/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "name": "Een eigen Sinterklaasspel ontwerpen met AI"
+    }
+   ]
+  }
+ ]
+}
+</script>
+  <script src="/assets/toestemming.js?v=202611251705" data-meet-id="G-EYCDGPX6LG" defer></script>
+</head>
+<body>
+  <a class="skiplink" href="#inhoud">Naar de inhoud</a>
+
+  <header class="kop">
+    <div class="wrap">
+      <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+        <picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/logo-op-donker.svg"><img class="logo" src="/assets/img/logo.svg" width="211" height="52" alt=""></picture>
+      </a>
+      <nav class="nav" aria-label="Hoofdmenu">
+        <a href="/leren/" aria-current="page">Leren</a>
+        <a href="/tools/">Tools</a>
+        <a href="/series/">Series</a>
+        <a href="/over/">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud" tabindex="-1">
+<section class="item-kop met-avatar labpapier" aria-labelledby="titel">
+  <div class="wrap">
+    <div class="tekst">
+      <nav aria-label="Kruimelpad"><p class="kruimel"><a href="/leren/">Leren</a><span class="sep" aria-hidden="true">/</span><a href="/leren/praktijk/">AI in de praktijk</a></p></nav>
+      <p class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10h-8l-4 4v-4H5z"/></svg>Praktijk</p>
+      <h1 id="titel">Een eigen Sinterklaasspel ontwerpen met AI</h1>
+      
+      <ul class="feiten"><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>Voor docenten en studenten</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>9 min lezen</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><time datetime="2026-11-25">25 november 2026</time></li></ul>
+      
+    </div>
+    <div class="kop-avatar"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/james-sint.webp"><img class="" src="/assets/img/avatars/james-sint.webp" width="384" height="648" alt="" style="--schaal: 1.157"></picture></div>
+  </div>
+</section>
+<div class="wrap">
+  <article class="artikel">
+    
+    <p>Voor pakjesavond thuis wilde ik een spel waarin de pakjes zelf de inzet zijn. Iedereen neemt drie cadeaus mee: een grappig cadeau, een topcadeau en iets wat je graag kwijt wilt. In de eerste ronde bied je op de pakjes, in de tweede ronde bepaalt een dobbelsteen wie wat houdt. Het idee had ik al. Een spel dat ook echt werkt, is alleen iets anders dan een idee. Dat heb ik samen met mijn AI-team uitgewerkt, van de spelregels tot de doos waar alles in zit.</p>
+<p>In dit artikel vertel ik hoe dat is gegaan. Onderaan staan alle bestanden, zodat je het spel kunt namaken. Of beter nog: je eigen spel kunt ontwerpen.</p>
+<h2 id="eerst-een-spelontwerper-erbij">Eerst een spelontwerper erbij</h2>
+<p>Mijn team werkt in Claude Code en bestaat uit AI-agents met elk een eigen vak. Hoe dat werkt, lees je in <a href="/leren/je-eigen-agentteam/">Je eigen agentteam: zo begin je</a>. Een spelontwerper zat er nog niet bij. Bij mij komt er pas een rol bij als er iets ontbreekt, en dan laat ik eerst uitzoeken wat een echte professional in dat vak weet en kan. Onno, mijn onderzoeker, heeft gekeken naar vacatures bij speluitgevers en naar vakboeken over spelontwerp. Daarna heeft Harriet daar een nieuw teamlid van gemaakt: Ludo, Latijn voor &quot;ik speel&quot;.</p>
+<p>Wat me opviel is hoeveel er in dat vak zit dat ik zelf niet had bedacht. Een spelontwerper kijkt niet alleen of de regels kloppen, maar ook of er één strategie is die altijd wint, of iemand die achterloopt nog terug kan komen en of je niet te lang zit te wachten tot je weer aan de beurt bent.</p>
+<h2 id="koehandel-als-voorbeeld">Koehandel als voorbeeld</h2>
+<p>Ludo heeft mijn idee eerst uitgewerkt tot een opzet die je kunt testen. Voor de veiling hebben we het kaartspel Koehandel als voorbeeld genomen. Daarin mag de veilingmeester het hoogste bod ook zelf betalen en het pakje houden. Zo gaat het geld tussen de spelers rond en niet naar een bank, en krijgt wie achterloopt geld terug door zelf te veilen.</p>
+<p>De topcadeaus krijgen een label met een ster, zodat iedereen weet waar het om gaat. Het grappige cadeau en het kwijt-item zien er hetzelfde uit. Alleen wie het pakje heeft meegenomen, weet wat erin zit. Daar zit de bluf van het spel: drijf je de prijs van je eigen kwijt-item op, dan loop je het risico dat je er zelf mee naar huis gaat.</p>
+<h2 id="duizenden-potjes-zonder-tafel">Duizenden potjes zonder tafel</h2>
+<p>Voordat ik iemand aan tafel liet spelen, heeft Stef het spel nagespeeld in een simulatie in Python. Computerspelers spelen dan tienduizenden potjes, zodat je ziet wat er gemiddeld gebeurt. Daar kwamen twee dingen uit die ik tijdens het spelen pas veel later had gemerkt.</p>
+<p>Het eerste was dat de dobbelsteenronde de veiling helemaal uitwiste. Wat je in ronde 1 had gekocht, zei bijna niets over wat je mee naar huis nam. Het tweede was dat twee spelers in de Koehandel-ronde eindeloos dezelfde ster heen en weer konden kopen.</p>
+<p>Bij het eerste heb ik iets gedaan wat ik vooraf niet had verwacht: ik heb het zo gelaten. De veiling verdeelt de pakjes, de dobbelsteen bepaalt wat je houdt. Zolang de veiling leuk is en geld ertoe doet terwijl hij loopt, vind ik dat prima. Dit was voor mij misschien wel de belangrijkste les. Een simulatie laat zien wat er gebeurt, maar niet of je dat erg vindt. De keuze maak ik zelf.</p>
+<p>Voor het tweede kwam Ludo met een handelfiche. Iedereen mag één keer per spel handelen in plaats van veilen, en daarmee is het eindeloze heen en weer weg.</p>
+<h2 id="wat-ik-zelf-heb-besloten">Wat ik zelf heb besloten</h2>
+<p>Het spel is in een paar versies gegroeid, en bij elke versie lag er een keuze bij mij. Een paar daarvan kwamen uit mijn eigen hoofd. Iedereen mag hooguit één ster hebben, zodat niemand alle topcadeaus kan opkopen. Het geld telt alleen in de veiling. Ludo heeft er wel voor gezorgd dat sparen loont: wie het meeste overhoudt, kiest daarna als eerste een token. Op de dobbelsteen kwam een vlak Uitpakken, zodat je tijdens het spel al ziet wat er in een pakje zit.</p>
+<p><img src="/assets/img/sinterklaasspel-dobbelsteen.webp" alt="De zes vlakken van de dobbelsteen met hun naam: Afpakken (een hand), Ruilen (twee pijlen heen en terug), Naar links (een ring van pijlen), Geven (een pakje), Token (een zak) en Uitpakken (een open doos)." loading="lazy"></p>
+<p><em>De zes vlakken van de dobbelsteen</em></p>
+<p>Ik had ook wensen die Ludo voor me heeft uitgewerkt. Ik wilde één token dat alles omgooit. Dat is de Roe geworden: wie hem speelt, laat iedereen al zijn tokens inleveren. En ik wilde een token waarmee je een cadeau ingepakt houdt. Dat is de Zegel. Ludo kwam daarbij met twee varianten en legde uit wat elke variant aan tafel doet. Ik heb gekozen voor de variant waarin de Zegel op het pakje blijft liggen, ook als iemand het van je afpakt. Zo wordt verzegelen een gok: een pakje dat je beschermt, valt juist op.</p>
+<p><img src="/assets/img/sinterklaasspel-tokens.webp" alt="Zeven ronde houten tokens met een icoon en een naam: Schild, Stop, Sterruil, Nog een keer, Roe, Zegel en Handel." loading="lazy"></p>
+<p><em>De tokens en de handelfiche, om te graveren en te snijden</em></p>
+<p>Het einde van het spel is ook een keuze van mij. Er gaat een kookwekker, maar niet vanaf het begin. De spelleider zet hem pas aan als hij vindt dat het tijd wordt, en niemand weet hoe lang hij nog loopt. Zo duurt het spel precies lang genoeg.</p>
+<p>Op een gegeven moment heb ik gezegd dat we stoppen met simuleren. Ludo was het daarmee eens: de nieuwe tokens draaien om bluf en om wie je aan tafel iets gunt, en dat zit in geen enkel model.</p>
+<h2 id="spelmateriaal-dat-je-blind-moet-kunnen-trekken">Spelmateriaal dat je blind moet kunnen trekken</h2>
+<p>Bram heeft het spelmateriaal ontworpen: geldkaarten, spelersvellen, labels, tokens en de dobbelsteen. Daar zaten kleine keuzes in waar ik zelf niet aan had gedacht. Alle tokens hebben dezelfde ronde vorm, omdat je ze blind uit een zak trekt. De achterkant van de geldkaarten heeft een doorlopend patroon tot over de rand, zodat je bij scheef dubbelzijdig printen niet kunt zien welke kaart een nul is.</p>
+<p><img src="/assets/img/sinterklaasspel-geldkaarten.webp" alt="Zes geldkaarten van 0, 1, 5, 10, 20 en 50 pepernoten, elk in een eigen kleur met een plaatje van een wortel, pepernoot, chocoladeletter, pakje, mijter en staf, en een rode achterkant met mijters en pepernoten." loading="lazy"></p>
+<p><em>Geldkaarten van 0 tot 50 pepernoten, en de achterkant</em></p>
+<p>De eerste versie was netjes, maar ik vond hem saai. Dat heb ik ook zo gezegd. De tweede versie is helemaal Sinterklaas: het geld is in pepernoten, de sterlabels zijn mijters en elke geldwaarde heeft een eigen kleur en een eigen plaatje, van een wortel tot een staf. De tokens en de dobbelsteenvlakken zijn bestanden om te laten graveren en snijden met een lasersnijder.</p>
+<p>Het geld in de zak heb ik zelf nog wat leuker gemaakt. In plaats van briefjes met strooigeld gaan er vier kleine nep-pakjes in de zak. Wie zo&#x27;n pakje trekt, zorgt dat iedereen pepernoten krijgt.</p>
+<p><img src="/assets/img/sinterklaasspel-labels.webp" alt="Een rood sterlabel in de vorm van een mijter met het woord Ster, en een blauw strooilabel in de vorm van een envelop. Daarop staat: Strooipakje! Iedereen krijgt geld van de bank: 1e 5, 2e 10, 3e 20, 4e 50 pepernoten. Zet dit pakje bij de bank en trek opnieuw." loading="lazy"></p>
+<p><em>Een sterlabel en een strooipakje: wie dat trekt, laat iedereen geld van de bank krijgen</em></p>
+<h2 id="een-doos-die-je-zelf-kunt-printen">Een doos die je zelf kunt printen</h2>
+<p>Mees, die bij mij 3D-printontwerpen maakt, heeft er een bewaardoos bij ontworpen. Voorin liggen twee bakken met vakken voor het geld, daarachter een plek voor de dobbelsteen, het zakje met tokens en de handelfiches, en er gaat een schuifdeksel op. Ik kon elke versie eerst in 3D op mijn scherm bekijken voordat er iets werd geprint. Dat scheelt veel filament. Hoe je zelf met AI een 3D-ontwerp maakt dat je kunt printen, lees je in <a href="/leren/zo-maak-je-met-ai-een-ontwerp-voor-je-3d-printer/">Zo maak je met AI een 3D-ontwerp dat je kunt printen</a>.</p>
+<p><img src="/assets/img/sinterklaasspel-bewaardoos.webp" alt="3D-weergave van de bewaardoos: een rode doos met vakken en een half opengeschoven deksel met het woord Sinterklaasspel, en ernaast twee bakken met elk drie vakken voor het geld." loading="lazy"></p>
+<p><em>De bewaardoos met schuifdeksel en de twee geldbakken</em></p>
+<h2 id="uitleg-op-papier-en-in-een-filmpje">Uitleg op papier en in een filmpje</h2>
+<p>Ludo heeft de speluitleg geschreven, en Bram heeft er een A4 van gemaakt dat je tot een klein boekje vouwt en in de doos legt. Anouk heeft een korte uitlegvideo gemaakt in de stijl van een pop-upboek. Eerst kwam er een proef van een paar seconden om de stijl te kiezen, en pas daarna is de hele film gemaakt. Hoe je zelf met AI zo&#x27;n video maakt, lees je in <a href="/leren/zo-maak-je-met-ai-een-uitlegvideo-in-3d/">Zo maak je met AI een uitlegvideo in 3D</a>.</p>
+<p><img src="/assets/img/sinterklaasspel-uitlegvideo.webp" alt="Beeld uit de uitlegvideo: een pop-upboek met tokens, twee dobbelsteenvlakken, een kookwekker en de tekst Ronde 2, dobbel tot de wekker." loading="lazy"></p>
+<p><em>Een beeld uit de uitlegvideo</em></p>
+<h2 id="zelf-een-spel-ontwerpen">Zelf een spel ontwerpen</h2>
+<p>Je hebt geen team van agents nodig om dit zelf te doen. Begin met je eigen idee, hoe ruw ook, en laat de AI vragen stellen voordat hij iets uitwerkt. Laat hem daarna doorrekenen waar je twijfelt over de balans, in Claude, ChatGPT of een andere assistent die Python kan draaien. En houd de keuzes bij jezelf. De AI kan je laten zien wat een regel doet, maar of het leuk is in jouw situatie, weet alleen jij.</p>
+<p>Op pakjesavond spelen we het eerste echte potje, en dan merk ik vanzelf welke regel nog een keer op de schop moet.</p>
+<h2 id="downloads">Downloads</h2>
+<p>Wil je het spel zelf maken? Hier staan <a href="/downloads/sinterklaasspel/sinterklaasspel.zip">alle bestanden</a>. Print de PDF&#x27;s op A4; de geldkaarten dubbelzijdig over de lange kant.</p>
+<ul><li><a href="/downloads/sinterklaasspel/speluitleg.pdf">Speluitleg</a> (PDF, om te vouwen)</li><li><a href="/downloads/sinterklaasspel/spelersvel.pdf">Spelersvel</a> (PDF)</li><li><a href="/downloads/sinterklaasspel/geldkaarten.pdf">Geldkaarten</a> (PDF)</li><li><a href="/downloads/sinterklaasspel/labels.pdf">Labels voor de sterren en de strooipakjes</a> (PDF)</li><li><a href="/downloads/sinterklaasspel/tokens.zip">Tokens en handelfiches</a>, voor de lasersnijder (SVG)</li><li><a href="/downloads/sinterklaasspel/dobbelsteen.zip">Dobbelsteen</a>, zes vlakken om te graveren (SVG)</li><li><a href="/downloads/sinterklaasspel/bewaardoos.zip">Bewaardoos</a>: doos, deksel en geldbak (STL; de geldbak print je twee keer)</li></ul>
+<p>Je mag het spel vrij namaken en de bestanden aanpassen, zolang je naar deze pagina verwijst en er niets aan verdient. De bestanden vallen onder de licentie <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.nl">CC BY-NC 4.0</a>.</p>
+<p>Zelf erbij: een houten dobbelsteen (Amazon), een stoffen zak, een kookwekker, vier kleine pakjes voor de strooilabels, en van iedere speler drie ingepakte cadeaus.</p>
+<h2 id="bronnen">Bronnen</h2>
+<ul><li>Koltze, R. (1985). <em>Kuhhandel</em> [Kaartspel]. Ravensburger.</li><li>Engelstein, G., &amp; Shalev, I. (2022). <em>Building blocks of tabletop game design</em>. CRC Press.</li></ul>
+    <p class="onderwerpen"><span class="label">Onderwerpen</span><a href="/onderwerp/agents/">agents</a></p>
+    <div class="deelrij" role="group" aria-label="Deel deze pagina">
+      <span class="label" aria-hidden="true">Delen</span>
+      <a class="deelknop" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fai-leerlab.nl%2Fleren%2Feen-eigen-sinterklaasspel-ontwerpen-met-ai%2F" target="_blank" rel="noopener" aria-label="Delen op LinkedIn (opent in een nieuw tabblad)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/></svg></a>
+      <a class="deelknop" href="mailto:?subject=Een%20eigen%20Sinterklaasspel%20ontwerpen%20met%20AI&amp;body=Een%20eigen%20Sinterklaasspel%20ontwerpen%20met%20AI%0A%0Ahttps%3A//ai-leerlab.nl/leren/een-eigen-sinterklaasspel-ontwerpen-met-ai/" aria-label="Delen per mail"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg></a>
+      <button class="deelknop" type="button" data-kopieer="https://ai-leerlab.nl/leren/een-eigen-sinterklaasspel-ontwerpen-met-ai/" aria-label="Link kopiëren" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+      <span class="gekopieerd" role="status" aria-live="polite"></span>
+    </div>
+    
+    <div class="gemaakt">
+  <p class="gemaakt-zin">Geschreven met hulp van AI · label: <a href="/leren/human-ai-labels/">Creative Director</a></p>
+  <details class="gemaakt-meer">
+    <summary>Hoe AI is gebruikt</summary>
+    <p>Het spel heb ik bedacht en alle keuzes heb ik zelf gemaakt. Mijn AI-team (Claude, in Claude Code) heeft de regels uitgewerkt en gesimuleerd, en het spelmateriaal, de doos en de video gemaakt. Een AI-teamlid heeft de eerste versie van dit artikel in mijn schrijfstijl geschreven, op basis van het logboek en de spelopzetten van het project. Ik heb de tekst gecontroleerd voordat hij online ging.</p><p>Labels-bron: Boetje, J., &amp; Baake, G. (2026). <em>Nine prototypical human-AI agency patterns</em> [Figuur]. figshare. <a href="https://doi.org/10.6084/m9.figshare.31706884">https://doi.org/10.6084/m9.figshare.31706884</a> (CC BY 4.0).</p>
+  </details>
+</div>
+  </article>
+  <section class="verder sectie" aria-labelledby="verder-titel">
+  <div class="sectie-kop">
+    <h2 id="verder-titel">Verder in het lab</h2>
+    <a class="cat-alles" href="/leren/praktijk/">Alles in AI in de praktijk<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <ul class="raster">
+<li class="kaart met-cover past-360">
+  <div class="cover plaat"><img src="/assets/img/stap1-work-gekozen.webp" srcset="/assets/img/cover/bouw-je-eigen-ai-team-800w-555bb6f21a.webp 800w, /assets/img/stap1-work-gekozen.webp 1000w" sizes="(max-width: 640px) 80vw, 360px" width="1000" height="788" alt="" loading="lazy" decoding="async"></div>
+  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2M4 12h2M4 18h2M10 6h10M10 12h10M10 18h10"/></svg>Praktijk</span><time class="datum-pill" datetime="2026-09-30">30 sep 2026</time></p>
+  <h3><a href="/leren/bouw-je-eigen-ai-team/">Bouw je eigen AI-team in ChatGPT</a></h3>
+  <p class="voor met-tijd"><span class="v-tekst"><span class="v-lang">Voor studenten en docenten</span><span class="v-kort">Studenten en docenten</span></span><span class="v-tijd">Vier stappen</span></p>
+</li>
+<li class="kaart met-cover">
+  <div class="cover vol" style="--focus: 55% 50%"><img src="/assets/img/nakijkapp-power-bi.webp" srcset="/assets/img/cover/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi-800w-1d9376d2ea.webp 800w, /assets/img/nakijkapp-power-bi.webp 1600w" sizes="(max-width: 640px) 80vw, 360px" width="1600" height="900" alt="" loading="lazy" decoding="async"></div>
+  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Techniek</span><time class="datum-pill" datetime="2026-11-11">11 nov 2026</time></p>
+  <h3><a href="/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/">Een eigen onderwijsapp bouwen: mijn nakijkapp voor Power BI</a></h3>
+  <p class="voor met-tijd"><span class="v-tekst">Voor docenten</span><span class="v-tijd">7 min lezen</span></p>
+</li>
+<li class="kaart met-cover">
+  <div class="cover figuur"><picture class="per-stand"><source media="(prefers-color-scheme: dark)" srcset="/assets/img/avatars/donker/dide-uitleggen.webp"><img src="/assets/img/avatars/dide-uitleggen.webp" width="976" height="604" alt="" loading="lazy" decoding="async" style="--schaal: 1.079"></picture></div>
+  <p class="label"><span class="soort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H4zM20 5h-5a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h6z"/></svg>Didactiek</span><time class="datum-pill" datetime="2026-10-03">3 okt 2026</time></p>
+  <h3><a href="/leren/verantwoord-je-ai-gebruik-als-docent/">Vraag je studenten om een AI-verklaring? Schrijf er dan zelf ook een</a></h3>
+  <p class="voor met-tijd"><span class="v-tekst">Voor docenten</span><span class="v-tijd">4 min lezen</span></p>
+</li>
+  </ul>
+</section>
+</div>
+  </main>
+
+  <footer class="voet">
+    <div class="wrap">
+      <div>
+        <a class="merk" href="/" aria-label="AI-leerlab, naar de beginpagina">
+          <img class="logo" src="/assets/img/logo-op-donker.svg" width="211" height="52" alt="">
+        </a>
+        <p>Een persoonlijke site van Frits Coers, docent bij Windesheim. Geen uitgave van Windesheim.</p>
+        <p>Met je toestemming telt Google Analytics hoeveel bezoekers er komen. Zonder toestemming geen cookies. © 2026 Frits Coers.</p>
+      </div>
+      <nav aria-label="Onderaan">
+        <a href="/leren/">Leren</a>
+        <a href="/tools/">Tools</a>
+        <a href="/series/">Series</a>
+        <a href="/over/">Over</a>
+        <a href="/over/#colofon">Privacy en colofon</a>
+        <a href="/over/#colofon" data-cookie-instellingen>Cookie-instellingen</a>
+        <a href="/feed.xml" type="application/rss+xml">RSS-feed</a>
+        <a class="profiel" href="https://www.linkedin.com/in/fritscoers/" aria-label="Frits Coers op LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5V17"/></svg></a><a class="profiel" href="https://www.instagram.com/ai_leerlab/" aria-label="AI-leerlab op Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/></svg></a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/delen.js?v=202611251705" defer></script>
+  <script src="/assets/beweging.js?v=202611251705" defer></script>
+</body>
+</html>

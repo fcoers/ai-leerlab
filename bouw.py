@@ -30,6 +30,28 @@ UIT = os.path.join(HIER, "public")
 
 with open(os.path.join(HIER, "site.json"), encoding="utf-8") as f:
     SITE = json.load(f)
+
+
+def home_avatar(home, vandaag=None):
+    """De avatar in de kop van de beginpagina. home.avatar_tijdelijk in site.json zet een andere figuur neer tot en
+    met een datum (klus 1159: James als Sint tot en met 5 december). Daarna geldt weer home.avatar, zonder dat
+    iemand iets hoeft te doen: de ochtendbouw van de dag erna (GitHub Action, 'Dagelijks bouwen') bouwt de
+    beginpagina opnieuw en legt de wijziging vast. Optioneel ook "van" (eerste dag)."""
+    vandaag = vandaag or datetime.date.today()
+    t = home.get("avatar_tijdelijk") or {}
+    try:
+        van = datetime.date.fromisoformat(t["van"]) if t.get("van") else datetime.date.min
+        tot = datetime.date.fromisoformat(t["tot_en_met"]) if t.get("tot_en_met") else None
+    except ValueError:
+        return home.get("avatar", "")
+    if t.get("avatar") and tot and van <= vandaag <= tot:
+        return t["avatar"]
+    return home.get("avatar", "")
+
+
+if "home" in SITE:
+    SITE["home"]["avatar_vast"] = SITE["home"].get("avatar", "")
+    SITE["home"]["avatar"] = home_avatar(SITE["home"])
 ADRES = SITE["adres"].rstrip("/")          # https://ai-leerlab.nl
 MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli",
            "augustus", "september", "oktober", "november", "december"]
@@ -2070,7 +2092,7 @@ def kaart_figuur(slug):
     Staat die al in de kop van de beginpagina (nu james-rust), dan de rol-pose, zodat dezelfde avatar
     niet twee keer op de pagina staat (Bram, 02-10-2026)."""
     naam = CATEGORIEEN[slug].get("avatar", "")
-    if naam and naam == SITE["home"].get("avatar"):
+    if naam and figuur(naam) == figuur(SITE["home"].get("avatar")):   # ook bij een tijdelijke versie (james-sint)
         rol = re.sub(r"-rust$", "-rol", naam)
         if avatar(rol):
             naam = rol

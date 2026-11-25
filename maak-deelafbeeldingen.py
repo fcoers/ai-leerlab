@@ -108,7 +108,7 @@ if __name__ == "__main__":
     if not os.path.exists(CHROME):
         sys.exit("Google Chrome niet gevonden. Installeer Chrome of maak de afbeeldingen met de hand (1200 x 630).")
     os.makedirs(DOEL, exist_ok=True)
-    maak("ai-leerlab", sjabloon(bouw.SITE["home"]["kop"], "", bouw.SITE["home"]["avatar"]))
+    maak("ai-leerlab", sjabloon(bouw.SITE["home"]["kop"], "", bouw.SITE["home"].get("avatar_vast") or bouw.SITE["home"]["avatar"]))
     for item in bouw.lees_items():
         c = item.cover
         if c:

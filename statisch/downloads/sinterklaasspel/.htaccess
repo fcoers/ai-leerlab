@@ -1,0 +1,9 @@
+# Downloads Sinterklaasspel (klus 1159). STL heeft geen standaardtype op Apache; zo herkent de browser het
+# als 3D-model en slaat hij het op. De zip, PDF's en SVG's hebben al een goed type.
+AddType model/stl .stl
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  <FilesMatch "\.(stl|zip)$">
+    Header set Content-Disposition "attachment"
+  </FilesMatch>
+</IfModule>

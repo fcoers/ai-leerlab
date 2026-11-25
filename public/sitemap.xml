@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ai-leerlab.nl/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/leren/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/</loc><lastmod>2026-11-25</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/leren/</loc><lastmod>2026-11-25</lastmod></url>
   <url><loc>https://ai-leerlab.nl/tools/</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/praktijk/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/didactiek/</loc><lastmod>2026-10-24</lastmod></url>
-  <url><loc>https://ai-leerlab.nl/leren/techniek/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/leren/techniek/</loc><lastmod>2026-11-25</lastmod></url>
   <url><loc>https://ai-leerlab.nl/series/bouw-je-eigen-productiviteitsapp/</loc><lastmod>2026-11-01</lastmod></url>
   <url><loc>https://ai-leerlab.nl/series/</loc><lastmod>2026-11-01</lastmod></url>
   <url><loc>https://ai-leerlab.nl/onderwerp/agents/</loc><lastmod>2026-11-11</lastmod></url>
@@ -27,5 +27,6 @@
   <url><loc>https://ai-leerlab.nl/leren/verantwoord-je-ai-gebruik-als-docent/</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/waarom-ik-mijn-eigen-productiviteitsapp-bouwde-en-wat-jij-nodig-hebt/</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://ai-leerlab.nl/leren/zo-installeer-je-de-basis-van-je-app-op-mac-en-windows/</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://ai-leerlab.nl/leren/zo-maak-je-met-ai-een-ontwerp-voor-je-3d-printer/</loc><lastmod>2026-11-25</lastmod></url>
   <url><loc>https://ai-leerlab.nl/tools/zelftest-human-ai-label/</loc><lastmod>2026-10-03</lastmod></url>
 </urlset>

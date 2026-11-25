@@ -6,7 +6,15 @@
   <atom:link href="https://ai-leerlab.nl/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.</description>
   <language>nl</language>
-  <lastBuildDate>Wed, 11 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Wed, 25 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <item>
+    <title>Zo maak je met AI een ontwerp voor je 3D printer</title>
+    <link>https://ai-leerlab.nl/leren/zo-maak-je-met-ai-een-ontwerp-voor-je-3d-printer/</link>
+    <guid isPermaLink="true">https://ai-leerlab.nl/leren/zo-maak-je-met-ai-een-ontwerp-voor-je-3d-printer/</guid>
+    <pubDate>Wed, 25 Nov 2026 07:00:00 +0000</pubDate>
+    <description>Van vraag tot print: welke tools je nodig hebt om met Claude Code een 3D-ontwerp op maat te maken, met bekijkmodel en printbestanden erbij.</description>
+    <category>Techniek</category>
+  </item>
   <item>
     <title>Een eigen onderwijsapp bouwen: mijn nakijkapp voor Power BI</title>
     <link>https://ai-leerlab.nl/leren/een-eigen-onderwijsapp-bouwen-mijn-nakijkapp-voor-power-bi/</link>

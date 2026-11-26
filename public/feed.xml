@@ -6,7 +6,7 @@
   <atom:link href="https://ai-leerlab.nl/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Tutorials, tools en korte uitleg om te leren werken met AI. Voor studenten en docenten in het hoger onderwijs. Van Frits Coers.</description>
   <language>nl</language>
-  <lastBuildDate>Wed, 25 Nov 2026 07:00:00 +0000</lastBuildDate>
+  <lastBuildDate>Thu, 26 Nov 2026 07:00:00 +0000</lastBuildDate>
   <item>
     <title>Zo maak je met AI een uitlegvideo in 3D</title>
     <link>https://ai-leerlab.nl/leren/zo-maak-je-met-ai-een-uitlegvideo-in-3d/</link>
@@ -136,11 +136,11 @@
     <category>Didactiek</category>
   </item>
   <item>
-    <title>Bouw je eigen AI-team in ChatGPT</title>
+    <title>Bouw je eigen AI-team in ChatGPT, Claude of Gemini</title>
     <link>https://ai-leerlab.nl/leren/bouw-je-eigen-ai-team/</link>
     <guid isPermaLink="true">https://ai-leerlab.nl/leren/bouw-je-eigen-ai-team/</guid>
     <pubDate>Wed, 30 Sep 2026 07:00:00 +0000</pubDate>
-    <description>Maak in vier stappen je eigen AI-team in ChatGPT Work: een coördinator en twee rollen die jij bedenkt. Met sjabloon om te downloaden. Voor beginners.</description>
+    <description>Maak in vier stappen je eigen AI-team: een coördinator en twee rollen die jij bedenkt. Voor ChatGPT Work, Claude en Antigravity in Gemini. Voor beginners.</description>
     <category>AI in de praktijk</category>
   </item>
 </channel>

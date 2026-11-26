@@ -33,6 +33,11 @@
   var tool = null;      // gekozen tool of null
   var schermen = [start];
   var huidig = -1;
+  var wisselTimer = null;
+  var WEG_MS = 180;     // gelijk aan de duur van animatie 'weg' in site.css
+  function zachtBewegen() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: no-preference)').matches);
+  }
 
   function lees(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function bewaar(k, v) { try { window.localStorage.setItem(k, String(v)); } catch (e) { /* geen geheugen, geen probleem */ } }
@@ -79,12 +84,33 @@
     huidig = i;
     if (eerder !== -1 && eerder !== i) terug.hidden = true;
 
-    Array.prototype.forEach.call(document.querySelectorAll('.scherm'), function (s) {
-      var actief = s === schermen[i];
-      s.classList.toggle('actief', actief);
-      s.classList.remove('komt-binnen');
-      if (actief && eerder !== -1 && eerder !== i) { void s.offsetWidth; s.classList.add('komt-binnen'); }
-    });
+    // Schermwissel: eerst vervaagt het oude scherm, dan komt het nieuwe binnen (langzaam in en uit).
+    // Bij minder beweging of zonder vorig scherm wisselt het direct. Een nieuwe klik tijdens het vervagen
+    // breekt de vorige wissel af; alleen de laatste telt.
+    var doel = schermen[i];
+    var oud = document.querySelector('.scherm.actief');
+    var bewegen = eerder !== -1 && eerder !== i;
+    if (wisselTimer) { clearTimeout(wisselTimer); wisselTimer = null; }
+    function wissel() {
+      wisselTimer = null;
+      Array.prototype.forEach.call(document.querySelectorAll('.scherm'), function (s) {
+        var actief = s === doel;
+        s.classList.toggle('actief', actief);
+        s.classList.remove('komt-binnen', 'gaat-weg');
+        if (actief && bewegen) { void s.offsetWidth; s.classList.add('komt-binnen'); }
+      });
+      if (o.focus !== false) {
+        window.scrollTo(0, 0);
+        doel.querySelector('h2').focus({ preventScroll: true });
+      }
+    }
+    if (bewegen && oud && oud !== doel && zachtBewegen()) {
+      oud.classList.remove('komt-binnen');
+      oud.classList.add('gaat-weg');
+      wisselTimer = setTimeout(wissel, WEG_MS);
+    } else {
+      wissel();
+    }
 
     voortgangTekst.textContent = i === 0 ? 'Vier stappen' : (i <= 4 ? 'Stap ' + i + ' van 4' : 'Vier stappen klaar');
     balkLinks.forEach(function (a, n) {
@@ -110,10 +136,6 @@
     }
     if (tool) bewaar(OPSLAG_STAP, tool + ':' + i);
 
-    if (o.focus !== false) {
-      window.scrollTo(0, 0);
-      kop.focus({ preventScroll: true });
-    }
   }
 
   function vraagEerstTool() {

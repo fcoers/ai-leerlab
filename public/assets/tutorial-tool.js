@@ -99,7 +99,12 @@
         s.classList.remove('komt-binnen', 'gaat-weg');
         if (actief && bewegen) { void s.offsetWidth; s.classList.add('komt-binnen'); }
       });
-      if (o.focus !== false) {
+      // Focus pas na de wissel: tijdens het vervagen is het nieuwe scherm nog verborgen.
+      // o.focusOp: een ander element dan de kop (bv. de gekozen tool na Andere tool).
+      if (o.focusOp) {
+        window.scrollTo(0, 0);
+        o.focusOp.focus({ preventScroll: true });
+      } else if (o.focus !== false) {
         window.scrollTo(0, 0);
         doel.querySelector('h2').focus({ preventScroll: true });
       }
@@ -158,10 +163,8 @@
   });
 
   document.getElementById('andere-tool').addEventListener('click', function () {
-    toon(0, { focus: false });
-    window.scrollTo(0, 0);
     var a = document.querySelector('.tool-optie[aria-current="true"]') || opties[0];
-    a.focus({ preventScroll: true });
+    toon(0, { focusOp: a });
   });
 
   vorige.addEventListener('click', function () { toon(huidig - 1); });

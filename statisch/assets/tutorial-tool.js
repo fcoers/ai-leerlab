@@ -1,14 +1,14 @@
 /* Tutorial "Bouw je eigen AI-team" met toolkeuze (ChatGPT Work of Claude) op ai-leerlab.nl.
    Opvolger van tutorial.js. Bovenaan kies je je tool; daarna toont de pagina alleen de route voor die tool,
    één stap per scherm. Tool en stap worden onthouden (localStorage, met try/catch: zonder geheugen werkt alles gewoon).
-   Adres per tool: ?tool=chatgpt of ?tool=claude, met #stap-1 tot #stap-4 of #verder erachter.
+   Adres per tool: ?tool=chatgpt, ?tool=claude of ?tool=antigravity, met #stap-1 tot #stap-4 of #verder erachter.
    Zonder JavaScript staan de keuze en beide routes onder elkaar (site.css, .no-js). */
 (function () {
   'use strict';
 
   var OPSLAG_TOOL = 'agentteam-tutorial:tool';
   var OPSLAG_STAP = 'agentteam-tutorial:stap-per-tool';
-  var NAMEN = { chatgpt: 'ChatGPT Work', claude: 'Claude' };
+  var NAMEN = { chatgpt: 'ChatGPT Work', claude: 'Claude', antigravity: 'Antigravity in Gemini' };
   var TOOLS = Object.keys(NAMEN);
 
   var start = document.getElementById('start');

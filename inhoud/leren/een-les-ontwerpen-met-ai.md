@@ -8,6 +8,7 @@ tags: lesontwerp, toetsing, data-analyse
 voor: docenten
 avatar: dide-nadenken
 datum: 2026-09-30
+bijgewerkt: 2026-11-26
 ---
 
 # Een les ontwerpen met AI: wat je uitbesteedt en wat je zelf doet
@@ -72,7 +73,7 @@ Als ik de oefenset opnieuw zou maken, begin ik met het gebouw. De rest ging snel
 > [Lees het artikel](/leren/je-eigen-agentteam/)
 
 > [!tutorial]
-> **Bouw je eigen AI-team in ChatGPT**
+> **Bouw je eigen AI-team in ChatGPT, Claude of Gemini**
 > Zet in een paar stappen een klein team op: één coördinator en twee rollen die je zelf bedenkt. Jij beslist en keurt alles.
 > [Naar de tutorial](/leren/bouw-je-eigen-ai-team/)
 
